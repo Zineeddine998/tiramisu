@@ -1,12 +1,14 @@
 #include <tiramisu/tiramisu.h>
 #include <string.h>
 #include "tiramisu_make_threaded_dibaryon_blocks_correlator_wrapper.h"
-#include "../utils/complex_util.h"
-#include "../utils/util.h"
+#include "../../utils/complex_util.h"
+#include "../../utils/util.h"
+#include <tiramisu/auto_scheduler/evaluator.h>
+#include <tiramisu/auto_scheduler/search_method.h>
 
 using namespace tiramisu;
 
-#define VECTORIZED 1
+#define VECTORIZED 0
 #define PARALLEL 0
 
 // Used to remember relevant (sub)computation of Q and its user computations (B1_Blocal_r1 and B1_Bsingle_r1)
@@ -2627,6 +2629,57 @@ void generate_function(std::string name)
 	     hex_snk_weights.get_buffer()
         }, 
         "generated_tiramisu_make_threaded_dibaryon_blocks_correlator.o");
+
+        // // -------------------------------------------------------    
+    // //buffers
+    // buffer b_out("b_out",{18,18,18},p_float64,a_output);
+    
+  //   // //Store inputs
+
+  //   // //Store computations  
+  //   // comp_heat3d.store_in(&b_out,{z,y,x});
+
+  //   // // -------------------------------------------------------
+  //   // Code Generation
+  //   // -------------------------------------------------------
+  // //   	prepare_schedules_for_legality_checks();
+	// // performe_full_dependency_analysis();
+
+	// const int beam_size = 1;
+	// const int max_depth = 3;
+	// // declare_memory_usage();
+
+	// auto_scheduler::schedules_generator *scheds_gen = new auto_scheduler::ml_model_schedules_generator();
+	// auto_scheduler::evaluate_by_execution *exec_eval = new auto_scheduler::evaluate_by_execution({	  
+  //      &buf_C_r, &buf_C_i,
+  //       B1_prop_r.get_buffer(), B1_prop_i.get_buffer(),
+  //       B2_prop_r.get_buffer(), B2_prop_i.get_buffer(),
+  //       src_psi_B1_r.get_buffer(), src_psi_B1_i.get_buffer(), 
+  //       src_psi_B2_r.get_buffer(), src_psi_B2_i.get_buffer(),
+  //       snk_psi_B1_r.get_buffer(), snk_psi_B1_i.get_buffer(), 
+  //       snk_psi_B2_r.get_buffer(), snk_psi_B2_i.get_buffer(),
+  //       hex_src_psi_r.get_buffer(), hex_src_psi_i.get_buffer(),
+  //       hex_snk_psi_r.get_buffer(), hex_snk_psi_i.get_buffer(), 
+  //       snk_psi_r.get_buffer(), snk_psi_i.get_buffer(), 
+	//      snk_blocks.get_buffer(), 
+  //       sigs.get_buffer(),
+	//      src_color_weights.get_buffer(),
+	//      src_spin_weights.get_buffer(),
+	//      src_weights.get_buffer(),
+	//      snk_b.get_buffer(),
+	//      snk_color_weights.get_buffer(),
+	//      snk_spin_weights.get_buffer(),
+	//      snk_weights.get_buffer(),
+	//      hex_snk_color_weights.get_buffer(),
+	//      hex_snk_spin_weights.get_buffer(),
+	//      hex_snk_weights.get_buffer()}, "tiramisu_make_threaded_blocks_correlator.o", "./tiramisu_make_threaded_blocks_correlator_wrapper");
+	// auto_scheduler::search_method *bs = new auto_scheduler::beam_search(beam_size, max_depth, exec_eval, scheds_gen);
+	// auto_scheduler::auto_scheduler as(bs, exec_eval);
+	// as.set_exec_evaluator(exec_eval);
+	// as.sample_search_space("./tiramisu_make_threaded_blocks_correlator_explored_schedules.json", true);
+	// delete scheds_gen;
+	// delete exec_eval;
+	// delete bs;
 }
 
 int main(int argc, char **argv)

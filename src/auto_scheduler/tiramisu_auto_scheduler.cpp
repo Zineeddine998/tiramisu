@@ -11,8 +11,11 @@ auto_scheduler::auto_scheduler(search_method *searcher, evaluation_function *eva
                                tiramisu::function *fct)
                                
     : fct(fct), ast(fct), searcher(searcher), eval_func(eval_func)
-{
+{    
+    std::cout<<"set eval function";
     searcher->set_eval_func(eval_func);
+    std::cout<<"set eval function done";
+
 }
 
 void auto_scheduler::sample_search_space(std::string filename, bool timeout_schedules)

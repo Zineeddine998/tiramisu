@@ -283,6 +283,7 @@ void beam_search::search_save(syntax_tree& ast, std::vector<std::string> *schedu
                     }
                     catch(UnrollingException e){ 
                         // Remove all the optimizations
+                        std::cout<<"unrolling error f catch";
                         exec_eval->fct->reset_schedules();
                         measurements.clear();
                         measurements.push_back(std::numeric_limits<float>::infinity());

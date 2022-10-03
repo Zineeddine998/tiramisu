@@ -363,6 +363,7 @@ void syntax_tree::transform_ast(optimization_info const& opt)
         case optimization_type::MATRIX:
             transform_ast_by_matrix(opt);
             break;
+            
         case optimization_type::TILING:
             transform_ast_by_tiling(opt);
             break;

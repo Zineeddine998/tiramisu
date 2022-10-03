@@ -166,29 +166,49 @@ void tiramisu::function::calculate_dep_flow()
 {
     DEBUG_FCT_NAME(3);
     DEBUG_INDENT(4);
+    std::cout<<"\n\n\n1";
 
     assert(this->get_computations().size() > 0);
+        std::cout<<"\n\n\n2";
+
     assert(this->get_computations()[0]->get_schedule() != NULL);
+    std::cout<<"\n\n\n3";
 
     DEBUG(3, tiramisu::str_dump(" generating depandencies graph"));
+        std::cout<<"\n\n\n4";
+
 
     isl_union_map * ref_res = this->compute_dep_graph();
+        std::cout<<"\n\n\n5";
+
 
     if(ref_res == NULL)
     {
         // no deps fill with empty union maps
+            std::cout<<"\n\n\n6";
+
 
         std::string str_map = "{}";
 
         this->dep_read_after_write = isl_union_map_read_from_str(this->get_isl_ctx(),str_map.c_str());
+            std::cout<<"\n\n\n7";
+
 
         this->dep_write_after_read = isl_union_map_read_from_str(this->get_isl_ctx(),str_map.c_str());;
+            std::cout<<"\n\n\n8";
+
 
         this->dep_write_after_write = isl_union_map_read_from_str(this->get_isl_ctx(),str_map.c_str());;
+            std::cout<<"\n\n\n9";
+
 
         this->live_in_access = isl_union_map_read_from_str(this->get_isl_ctx(),str_map.c_str());;
+            std::cout<<"\n\n\n10";
+
 
         this->live_out_access = isl_union_map_read_from_str(this->get_isl_ctx(),str_map.c_str());;
+            std::cout<<"\n\n\n11";
+
 
         DEBUG(3, tiramisu::str_dump(" No deps detected just empty maps "));
 
@@ -198,12 +218,16 @@ void tiramisu::function::calculate_dep_flow()
     }
 
     isl_union_map * ref_graph = isl_union_map_reverse(ref_res);
+        std::cout<<"\n\n\n12";
+
 
     
 
     DEBUG(3, tiramisu::str_dump(" the referencing union map is for dependecy analysis: "+std::string(isl_union_map_to_str(ref_graph))));
 
     int time_space_dim = isl_map_dim(this->get_computations()[0]->get_schedule(), isl_dim_out);
+        std::cout<<"\n\n\n13";
+
 
     std::string to_time_space_map_str = "[";
 
@@ -211,11 +235,14 @@ void tiramisu::function::calculate_dep_flow()
 
     for(int i=0; i < time_space_dim; i++)
     {
+            std::cout<<"\n\n\n14";
+
         to_time_space_map_str+="t"+std::to_string(i);
         to_time_space_map_str_2+="t"+std::to_string(i);
 
         if(i != (time_space_dim - 1))
-        {
+        {     std::cout<<"\n\n\n15";
+
             to_time_space_map_str+=",";
             to_time_space_map_str_2+=",";
             
@@ -231,8 +258,12 @@ void tiramisu::function::calculate_dep_flow()
 
     // S0[i,j] -> buff[i] the writing stmt
     isl_union_map * write_access = isl_union_map_read_from_str(this->get_isl_ctx(),access_start.c_str());
+        std::cout<<"\n\n\n16";
+
 
     isl_union_map * isl_schedule = isl_union_map_read_from_str(this->get_isl_ctx(),access_start.c_str());
+        std::cout<<"\n\n\n17";
+
 
 
     std::string identity = "";
@@ -242,56 +273,95 @@ void tiramisu::function::calculate_dep_flow()
     for(auto& comput : this->get_computations())
     {
         identity = "{"+comput->get_name() +ready_time_str + "}";
+            std::cout<<"\n\n\n18";
+
 
         isl_identity = isl_map_read_from_str(this->get_isl_ctx(),identity.c_str());
+            std::cout<<"\n\n\n19";
+
 
         // TODO : use default schedule instead when save/restore states is implemented 
         isl_map * corrected = isl_map_apply_range(isl_map_copy(comput->get_schedule()),isl_identity);
+            std::cout<<"\n\n\n20";
+
 
         DEBUG(10, tiramisu::str_dump(" - > compuatation's schedule to time stamp op result is : "+std::string(isl_map_to_str(corrected))));
 
         isl_schedule = isl_union_map_union(isl_schedule , isl_union_map_from_map(corrected));
+                    std::cout<<"\n\n\n21";
+
 
         write_access = isl_union_map_union(write_access,isl_union_map_from_map(isl_map_copy(comput->get_access_relation())));
+                    std::cout<<"\n\n\n22";
         
     } 
 
     isl_union_set * iteration_domains = this->get_iteration_domain();
+                std::cout<<"\n\n\n23";
+
 
     isl_union_map * write_acccess_without_domain = isl_union_map_copy(write_access);
+                std::cout<<"\n\n\n24";
+
 
     write_access = isl_union_map_intersect_domain(write_access, isl_union_set_copy(iteration_domains));
+                std::cout<<"\n\n\n25";
+
 
     isl_schedule = isl_union_map_intersect_domain(isl_schedule, isl_union_set_copy(iteration_domains));
+                std::cout<<"\n\n\n26";
+
     
     isl_union_map * read_access = isl_union_map_apply_range(
         isl_union_map_copy(ref_graph),
         write_acccess_without_domain
     );
+                std::cout<<"\n\n\n27";
+
 
     read_access = isl_union_map_intersect_domain(read_access, isl_union_set_copy(iteration_domains));
+                std::cout<<"\n\n\n28";
+
 
     //combine reads previous with their access to establish the read access S0[i,j] -> buf2[j] in read 
 
     DEBUG(3, tiramisu::str_dump("the overall function schedule is : "+std::string(isl_union_map_to_str(isl_schedule))));
+                std::cout<<"\n\n\n29";
+
 
     DEBUG(3, tiramisu::str_dump("the write access for computations is : "+std::string(isl_union_map_to_str(write_access))));
+                std::cout<<"\n\n\n30";
+
 
     DEBUG(3, tiramisu::str_dump(" The read access for computations : "+std::string(isl_union_map_to_str(read_access))));
+                std::cout<<"\n\n\n31";
+
 
     isl_union_access_info *info = isl_union_access_info_from_sink( isl_union_map_copy(read_access));
+                    std::cout<<"\n\n\n32";
+
 
     info = isl_union_access_info_set_schedule_map(info,isl_union_map_copy(isl_schedule));
+                    std::cout<<"\n\n\n33";
+
 
     info = isl_union_access_info_set_must_source(info,isl_union_map_copy(write_access));
+                    std::cout<<"\n\n\n34";
+
 
     isl_union_flow * flow = isl_union_access_info_compute_flow(info);
+                    std::cout<<"\n\n\n35";
+
 
     //DEBUG(3, tiramisu::str_dump(" dependency analysis with must for read after write ( no predicats ) result  : "+std::string(isl_union_flow_to_str(flow))));
 
     isl_union_map * read_after_write_dep = isl_union_flow_get_full_must_dependence(flow);
+                    std::cout<<"\n\n\n36";
+
 
     isl_union_map * read_from_outside = isl_union_flow_get_must_no_source(flow);
+                    std::cout<<"\n\n\n37";
+
 
     DEBUG(3, tiramisu::str_dump(" read after write True dependencies are in the form { last_write_access -> the read statement } : "+std::string(isl_union_map_to_str(read_after_write_dep))));
        
@@ -299,44 +369,75 @@ void tiramisu::function::calculate_dep_flow()
     
 
     info = isl_union_access_info_from_sink(isl_union_map_copy(write_access));
+                    std::cout<<"\n\n\n38";
+
 
     info = isl_union_access_info_set_schedule_map(info,isl_union_map_copy(isl_schedule));
+                    std::cout<<"\n\n\n39";
+
 
     info = isl_union_access_info_set_must_source(info,isl_union_map_copy(write_access));
+                    std::cout<<"\n\n\n40";
+
 
     flow = isl_union_access_info_compute_flow(info);
+                        std::cout<<"\n\n\n41";
+
 
     isl_union_map * write_after_write_dep = isl_union_flow_get_full_must_dependence(flow);
+                        std::cout<<"\n\n\n42";
+
 
     DEBUG(3, tiramisu::str_dump(" write after write dependencies are { last_previous_write -> new write stmt } : "+std::string(isl_union_map_to_str(write_after_write_dep))));
 
 
     isl_union_map * not_last_writes = isl_union_map_range_factor_range( isl_union_map_copy(write_after_write_dep));
+                        std::cout<<"\n\n\n43";
+
     
     isl_union_map * live_out = isl_union_map_subtract(
         isl_union_map_copy(write_access),
         isl_union_map_copy(not_last_writes)
     );
+                    std::cout<<"\n\n\n44";
 
     live_out = isl_union_map_intersect_domain(live_out, this->get_iteration_domain());
+                        std::cout<<"\n\n\n45";
+
 
     DEBUG(3, tiramisu::str_dump(" live out last access are : "+std::string(isl_union_map_to_str(live_out))));
+                        std::cout<<"\n\n\n46";
+
 
     isl_union_map * read_without_write_stmt = isl_union_map_subtract(isl_union_map_copy(read_access), isl_union_map_copy(write_access));
+                        std::cout<<"\n\n\n47";
+
 
     info = isl_union_access_info_from_sink(isl_union_map_copy(write_access));
+                        std::cout<<"\n\n\n48";
+
 
     info = isl_union_access_info_set_schedule_map(info,isl_union_map_copy(isl_schedule));
+                        std::cout<<"\n\n\n49";
+
 
     info = isl_union_access_info_set_may_source(info,isl_union_map_copy(read_without_write_stmt));
+                        std::cout<<"\n\n\n50";
+
 
     info = isl_union_access_info_set_kill(info,isl_union_map_copy(write_access));
+                        std::cout<<"\n\n\n51";
+
 
     flow = isl_union_access_info_compute_flow(info);
+                            std::cout<<"\n\n\n52";
+
 
     //DEBUG(3, tiramisu::str_dump(" dependency analysis for WAR dep : "+std::string(isl_union_flow_to_str(flow))));
 
     isl_union_map * anti_dependencies = isl_union_flow_get_full_may_dependence(flow);
+                            std::cout<<"\n\n\n53";
+
 
     DEBUG(3, tiramisu::str_dump(" write after read anti_dependencies are in the form { last_previous_read -> new write stmt } : "+std::string(isl_union_map_to_str(anti_dependencies))));
 
@@ -2615,12 +2716,21 @@ const std::vector<std::string> tiramisu::function::get_invariant_names() const
 void tiramisu::function::performe_full_dependency_analysis()
 {
     DEBUG_FCT_NAME(3);
+    std::cout<<"6666666666666666666666666666666666666666666.1";
     DEBUG_INDENT(4);
+        std::cout<<"6666666666666666666666666666666666666666666.2";
+
     // align schedules and order schedules
     this->align_schedules();
+        std::cout<<"6666666666666666666666666666666666666666666.3";
+
     this->gen_ordering_schedules();
-    // could save default schedules and order here
-    this->calculate_dep_flow();
+        std::cout<<"6666666666666666666666666666666666666666666.4";
+
+    // // could save default schedules and order here
+    // this->calculate_dep_flow();
+    //     std::cout<<"6666666666666666666666666666666666666666666.45";
+
     
     DEBUG_INDENT(-4);
 

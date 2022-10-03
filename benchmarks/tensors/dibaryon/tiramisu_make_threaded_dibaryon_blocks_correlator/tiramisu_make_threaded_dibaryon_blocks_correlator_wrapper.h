@@ -1,7 +1,7 @@
 #ifndef TIRAMISU_test_h
 #define TIRAMISU_test_h
 
-#include "../reference/qblocks_2pt_parameters.h"
+#include "../../utils/qblocks_2pt_parameters.h"
 
 #define SMALL_BARYON_DATA_SET 0
 #define LARGE_BARYON_DATA_SET 0
@@ -125,3 +125,8 @@ extern const struct halide_filter_metadata_t halide_pipeline_aot_metadata;
 }  // extern "C"
 #endif
 #endif
+
+
+void declare_memory_usage(){
+    setenv("MEM_SIZE", std::to_string((double)18*18*18*2*8/1024).c_str(), true); // This value was set by the Code Generator
+}

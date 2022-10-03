@@ -13,8 +13,8 @@ extern "C" {
 #include "tiramisu_make_threaded_dibaryon_blocks_correlator_wrapper.h"
 #include "tiramisu_make_threaded_dibaryon_blocks_correlator_ref.cpp"
 
-#define RUN_REFERENCE 1
-#define RUN_CHECK 1
+#define RUN_REFERENCE 0
+#define RUN_CHECK 0
 int nb_tests = 1;
 int randommode = 1;
 

@@ -1,8 +1,8 @@
 #ifndef QBLOCKS_2PT_PARAMETERS_H
 #define QBLOCKS_2PT_PARAMETERS_H
 
-#define DATA_SET_1 1
-#define DATA_SET_2 0
+#define DATA_SET_1 0
+#define DATA_SET_2 1
 
 #if DATA_SET_1
 
