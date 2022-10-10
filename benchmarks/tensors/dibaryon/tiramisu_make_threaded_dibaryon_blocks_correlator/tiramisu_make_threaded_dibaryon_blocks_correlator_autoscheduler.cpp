@@ -2654,12 +2654,12 @@ void generate_function(std::string name)
 	const int beam_size = 1;
 	const int max_depth = 4;
 	declare_memory_usage();
-    std::cout<<"3333333333333333333333333333333333333333333333333333333333333333333\n\n\n";
+  std::cout<<"3333333333333333333333333333333333333333333333333333333333333333333\n\n\n";
 
 
 
 	auto_scheduler::schedules_generator *scheds_gen = new auto_scheduler::ml_model_schedules_generator();
-      std::cout<<"4444444444444444444444444444444444444444444444444444444444444444444\n\n\n";
+  std::cout<<"4444444444444444444444444444444444444444444444444444444444444444444\n\n\n";
 
 	auto_scheduler::evaluate_by_execution *exec_eval = new auto_scheduler::evaluate_by_execution({	  
        &buf_C_r, &buf_C_i,
@@ -2695,10 +2695,10 @@ void generate_function(std::string name)
   std::cout<<"66666666666666666666666666666666666666666666666666666666666.5\n\n\n";
 
 	as.set_exec_evaluator(exec_eval);
-           std::cout<<"77777777777777777777777777777777777777777777777777777777777777777\n\n\n";
+  std::cout<<"77777777777777777777777777777777777777777777777777777777777777777\n\n\n";
 
 	as.sample_search_space("./tiramisu_make_threaded_blocks_correlator_explored_schedules.json", true);
-           std::cout<<"8888888888888888888888888888888888888888888888888888888888888888888\n\n\n";
+  std::cout<<"8888888888888888888888888888888888888888888888888888888888888888888\n\n\n";
 
 	delete scheds_gen;
 	delete exec_eval;

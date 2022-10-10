@@ -1,0 +1,43 @@
+
+\begin{DoxyItemize}
+\item Tiramisu website\+: \href{http://tiramisu-compiler.github.io/}{\texttt{ http\+://tiramisu-\/compiler.\+github.\+io/}}
+\item Tiramisu github repository\+: \href{https://github.com/Tiramisu-Compiler/tiramisu}{\texttt{ https\+://github.\+com/\+Tiramisu-\/\+Compiler/tiramisu}}
+\item You can install Tiramisu from sources or use the Tiramisu virtual machine.
+\begin{DoxyItemize}
+\item Instructions for using the virtual machine are provided in the Tiramisu \href{https://github.com/Tiramisu-Compiler/tiramisu/blob/master/README.md}{\texttt{ README file}} in the section \char`\"{}\+Tiramisu on a Virtual Machine\char`\"{}. If you use the Virtual machine you do not need to compile Tiramisu. It is already compiled and ready to use.
+\item Instructions for installing Tiramisu from sources are also provided in the Tiramisu \href{https://github.com/Tiramisu-Compiler/tiramisu/blob/master/README.md}{\texttt{ README file}} in the section \char`\"{}\+Building Tiramisu\char`\"{}. If there is a need, more detailed instructions are provided in \href{https://github.com/Tiramisu-Compiler/tiramisu/blob/master/INSTALL.md}{\texttt{ https\+://github.\+com/\+Tiramisu-\/\+Compiler/tiramisu/blob/master/\+INSTALL.\+md}}
+\end{DoxyItemize}
+\end{DoxyItemize}\hypertarget{md_ARTIFACT_EVALUATION_autotoc_md1}{}\doxysection{Trying Tiramisu}\label{md_ARTIFACT_EVALUATION_autotoc_md1}
+\hypertarget{md_ARTIFACT_EVALUATION_autotoc_md2}{}\doxysubsubsection{Tutorials}\label{md_ARTIFACT_EVALUATION_autotoc_md2}
+
+\begin{DoxyItemize}
+\item A set of introductory tutorials is provided here\+: \href{https://github.com/Tiramisu-Compiler/tiramisu/tree/master/tutorials}{\texttt{ https\+://github.\+com/\+Tiramisu-\/\+Compiler/tiramisu/tree/master/tutorials}}
+\item Assuming you are in the \char`\"{}build\char`\"{} directory, and assuming you have Tiramisu compiled, you can try a given tutorial X using \begin{DoxyVerb}make run_developers_tutorial_X
+\end{DoxyVerb}
+ For example you can try tutorial\+\_\+01 using \begin{DoxyVerb}cd <path-to-tiramisu>/build
+make run_developers_tutorial_01
+\end{DoxyVerb}
+
+\item The code for Tutorial 01 is provided in \href{https://github.com/Tiramisu-Compiler/tiramisu/blob/master/tutorials/developers/tutorial_01/tutorial_01.cpp}{\texttt{ https\+://github.\+com/\+Tiramisu-\/\+Compiler/tiramisu/blob/master/tutorials/developers/tutorial\+\_\+01/tutorial\+\_\+01.\+cpp}}
+\end{DoxyItemize}
+
+You can explore the code of the other tutorials (up to tutorial 4C) and compile/run them.\hypertarget{md_ARTIFACT_EVALUATION_autotoc_md3}{}\doxysubsubsection{Running Tests}\label{md_ARTIFACT_EVALUATION_autotoc_md3}
+
+\begin{DoxyItemize}
+\item You can run the Tiramisu tests as follows \begin{DoxyVerb}cd <path-to-tiramisu>/build
+ctest
+\end{DoxyVerb}
+ More details about running the tests are provided in the Tiramisu \href{https://github.com/Tiramisu-Compiler/tiramisu/blob/master/README.md}{\texttt{ README file}} in section \char`\"{}\+Run Tests\char`\"{}.
+\end{DoxyItemize}\hypertarget{md_ARTIFACT_EVALUATION_autotoc_md4}{}\doxysubsubsection{Running the benchmarks}\label{md_ARTIFACT_EVALUATION_autotoc_md4}
+
+\begin{DoxyItemize}
+\item You can try a given benchmark X using \begin{DoxyVerb}make run_benchmark_X
+\end{DoxyVerb}
+ For example, you can try warp\+\_\+affine using \begin{DoxyVerb}cd <path-to-tiramisu>/build
+make run_benchmark_warp_affine
+\end{DoxyVerb}
+ This will generate code from the Tiramisu warp\+\_\+affine benchmark and will run it. Code for this benchmarks is available in \href{https://github.com/Tiramisu-Compiler/tiramisu/blob/master/benchmarks/halide/warp_affine_tiramisu.cpp}{\texttt{ https\+://github.\+com/\+Tiramisu-\/\+Compiler/tiramisu/blob/master/benchmarks/halide/warp\+\_\+affine\+\_\+tiramisu.\+cpp}}
+\item To try the cvtcolor benchmark \begin{DoxyVerb}make run_benchmark_cvt_color
+\end{DoxyVerb}
+ If you compile Tiramisu yourself, you need to make sure that libpng and libjpeg are installed and enabled in the configure.\+cmake file. Please refer to the \href{https://github.com/Tiramisu-Compiler/tiramisu/blob/master/benchmarks/README.md}{\texttt{ Benchmarks README}} file for more details. 
+\end{DoxyItemize}

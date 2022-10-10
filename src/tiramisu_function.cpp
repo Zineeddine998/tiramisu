@@ -273,26 +273,21 @@ void tiramisu::function::calculate_dep_flow()
     for(auto& comput : this->get_computations())
     {
         identity = "{"+comput->get_name() +ready_time_str + "}";
-            std::cout<<"\n\n\n18";
 
 
         isl_identity = isl_map_read_from_str(this->get_isl_ctx(),identity.c_str());
-            std::cout<<"\n\n\n19";
 
 
         // TODO : use default schedule instead when save/restore states is implemented 
         isl_map * corrected = isl_map_apply_range(isl_map_copy(comput->get_schedule()),isl_identity);
-            std::cout<<"\n\n\n20";
 
 
         DEBUG(10, tiramisu::str_dump(" - > compuatation's schedule to time stamp op result is : "+std::string(isl_map_to_str(corrected))));
 
         isl_schedule = isl_union_map_union(isl_schedule , isl_union_map_from_map(corrected));
-                    std::cout<<"\n\n\n21";
 
 
         write_access = isl_union_map_union(write_access,isl_union_map_from_map(isl_map_copy(comput->get_access_relation())));
-                    std::cout<<"\n\n\n22";
         
     } 
 
@@ -2716,21 +2711,15 @@ const std::vector<std::string> tiramisu::function::get_invariant_names() const
 void tiramisu::function::performe_full_dependency_analysis()
 {
     DEBUG_FCT_NAME(3);
-    std::cout<<"6666666666666666666666666666666666666666666.1";
     DEBUG_INDENT(4);
-        std::cout<<"6666666666666666666666666666666666666666666.2";
 
     // align schedules and order schedules
     this->align_schedules();
-        std::cout<<"6666666666666666666666666666666666666666666.3";
 
     this->gen_ordering_schedules();
-        std::cout<<"6666666666666666666666666666666666666666666.4";
 
-    // // could save default schedules and order here
-    // this->calculate_dep_flow();
-    //     std::cout<<"6666666666666666666666666666666666666666666.45";
-
+    // could save default schedules and order here
+    this->calculate_dep_flow();
     
     DEBUG_INDENT(-4);
 

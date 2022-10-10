@@ -6123,10 +6123,10 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper)
         }             
     }
     // if the number of for levels is less or equal to the unrolled loop, skip the optimization (exception handled when getting measurements)
-    // if(cpt <= dim){
-    //     std::cout<<"tiramisu core unrolling error hererererererererererererer\n\n\n\n";
-    //     throw UnrollingException();
-    // }
+    if(cpt <= dim){
+        std::cout<<"tiramisu core unrolling error hererererererererererererer\n\n\n\n";
+        throw UnrollingException();
+    }
     e = utility::extract_bound_expression(node, dim, upper);
     isl_ast_build_free(ast_build);
 

@@ -1,0 +1,75 @@
+Tiramisu has been well tested on Linux Ubuntu (18.\+04) and Mac\+OS (10.\+12), if you find any problem installing Tiramisu please consider using one of these systems.\hypertarget{md_INSTALL_autotoc_md6}{}\doxysubsubsection{Prerequisites}\label{md_INSTALL_autotoc_md6}
+For Mac\+Os, we provide instructions on how to install the missing packages using \href{https://brew.sh/}{\texttt{ Homebrew}} but you can install these packages using any other way. If you do not have Homebrew, you can install it as described \href{https://docs.brew.sh/Installation}{\texttt{ here}}.
+
+If you are installing Tiramisu on Ubuntu 18.\+04, you can install all the required packages for generating CPU code by running the following command \begin{DoxyVerb}  sudo apt-get install autoconf libtool git cmake gcc g++ libpng-dev zlib1g-dev libjpeg-dev
+\end{DoxyVerb}
+ The next section provides more details about the installation of these prerequisites.
+
+\doxysubparagraph*{Required}
+
+1) \href{https://cmake.org/}{\texttt{ CMake}}\+: version 3.\+5 or greater. \begin{DoxyVerb}    # On Ubuntu
+    sudo apt-get install cmake
+
+    # On MacOS
+    sudo brew install cmake
+\end{DoxyVerb}
+ 2) \href{https://www.gnu.org/software/autoconf/}{\texttt{ Autoconf}} and \href{https://www.gnu.org/software/libtool/}{\texttt{ libtool}}. \begin{DoxyVerb}    # On Ubuntu
+    sudo apt-get install autoconf libtool
+
+    # On MacOS
+    sudo brew install autoconf libtool
+\end{DoxyVerb}
+ \doxysubparagraph*{Optional Packages}
+
+1) \href{https://www.open-mpi.org/}{\texttt{ Open\+MPI}} and \href{https://www.openssh.com/}{\texttt{ Open\+SSh}}\+: to run the generated distributed code (MPI). \begin{DoxyVerb}    # On Ubuntu
+    sudo apt-get install openmpi-bin openmpi-common libopenmpi-dev libopenmpi-dbg
+    sudo apt-get install openssh-client openssh-server
+
+    # On MacOs
+    sudo brew install open-mpi
+    sudo brew install openssh
+\end{DoxyVerb}
+ 2) \href{https://developer.nvidia.com/cuda-toolkit}{\texttt{ CUDA Toolkit}}\+: to run the generated CUDA code. \begin{DoxyVerb}    # Downalod and install the CUDA toolkit
+    https://developer.nvidia.com/cuda-toolkit
+\end{DoxyVerb}
+
+
+Tiramisu requires the following packages to be installed\+: ISL, Halide and LLVM. The user is supposed to install them by running the script {\ttfamily ./utils/scripts/install\+\_\+submodules.sh \texorpdfstring{$<$}{<}TIRAMISU\+\_\+\+ROOT\+\_\+\+PATH\texorpdfstring{$>$}{>}}. If the script fails, the user can still install them manually as described below.\hypertarget{md_INSTALL_autotoc_md7}{}\doxyparagraph{Building ISL}\label{md_INSTALL_autotoc_md7}
+Install the \href{http://isl.gforge.inria.fr/}{\texttt{ ISL}} Library as follows \begin{DoxyVerb}    cd 3rdParty/isl
+    mkdir build/
+    ./configure --prefix=$PWD/build/ --with-int=imath
+    make -j
+    make install
+\end{DoxyVerb}
+ After installing ISL, you need to update the following paths in {\ttfamily configure.\+cmake} to point to the ISL prefix (include and lib directories) \begin{DoxyVerb}ISL_INCLUDE_DIRECTORY: path to the ISL include directory
+ISL_LIB_DIRECTORY: path to the ISL library (lib/)
+\end{DoxyVerb}
+ If the above fails, check the ISL \href{http://repo.or.cz/isl.git/blob/HEAD:/README}{\texttt{ README}} file for details on how you should install it in general. Make sure that autoconf and libtool are installed on your system before building ISL.
+
+\doxysubparagraph*{Building LLVM}
+
+LLVM-\/5.\+0 or greater\+: required by the Halide framework. Check the section \char`\"{}\+Acquiring LLVM\char`\"{} in the Halide \href{https://github.com/halide/Halide/blob/master/README.md}{\texttt{ README}} for details on how to get LLVM, build and install it.\hypertarget{md_INSTALL_autotoc_md8}{}\doxyparagraph{Building Halide}\label{md_INSTALL_autotoc_md8}
+You need first to set the variable {\ttfamily LLVM\+\_\+\+CONFIG\+\_\+\+BIN} to point to the folder that contains {\ttfamily llvm-\/config} in the installed LLVM. You can set this variable in {\ttfamily configure.\+cmake}. If you installed LLVM from source in a directory called {\ttfamily build/}, the path is usually set as follows \begin{DoxyVerb}LLVM_CONFIG_BIN=<path to llvm>/build/bin/
+\end{DoxyVerb}
+ If you installed LLVM from the distribution packages, you need to find where it was installed and make {\ttfamily LLVM\+\_\+\+CONFIG\+\_\+\+BIN} point to the folder that contains {\ttfamily llvm-\/config}.
+
+To get the Halide submodule and compile it run the following commands (in the Tiramisu root directory) \begin{DoxyVerb}git submodule update --init --remote
+cd Halide
+git checkout tiramisu
+make -j
+\end{DoxyVerb}
+ You may get an access rights error from git when running trying to retrieve Halide. To solve this error, be sure to have your machine\textquotesingle{}s ssh key added to your github account, the steps to do so could be found \href{https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/}{\texttt{ HERE}}.
+
+Halide requires also libdl and libpthread. Both libraries should be available on every Linux and Mac\+Os system and do not installation usually but you might need to install them if you get an error such as \char`\"{}-\/ldl not found\char`\"{} or \char`\"{}-\/lpthread not found\char`\"{}.\hypertarget{md_INSTALL_autotoc_md9}{}\doxyparagraph{Building Tiramisu}\label{md_INSTALL_autotoc_md9}
+To build Tiramisu, assuming you are in the Tiramisu root directory \begin{DoxyVerb}    mkdir build
+    cd build
+    cmake ..
+    make -j tiramisu
+\end{DoxyVerb}
+ You need to add the Halide library path to your system library path. \begin{DoxyVerb}# On Ubuntu
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:<TIRAMISU_ROOT_DIRECTORY>/3rdParty/Halide/lib/
+
+# On MacOs
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:<TIRAMISU_ROOT_DIRECTORY>/3rdParty/Halide/lib/
+\end{DoxyVerb}
+ 

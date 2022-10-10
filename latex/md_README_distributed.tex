@@ -1,0 +1,66 @@
+This document shows how to run the test suite with MPI enabled. The same rules would apply for the tutorials with MPI enabled as well. It first outlines directions for running on the Lanka cluster (good for benchmarking), then gives directions for just running on your local machine (good for development/debugging).\hypertarget{md_README_distributed_autotoc_md10}{}\doxysubsection{Running Distributed Tests on the Lanka Cluster}\label{md_README_distributed_autotoc_md10}
+For tiramisu, we have been testing with Open\+MPI, but the scheduler on Lanka, slurm, is built with MVAPICH support, so we need to bypass it. These instructions give all the necessary steps for setting up and running distributed tiramisu with MPI.
+
+Note\+: Make sure you have installed Open\+MPI on lanka somewhere on the /data/scratch filesystem. That way, all of the lanka nodes can see the binaries.\hypertarget{md_README_distributed_autotoc_md11}{}\doxyparagraph{1. Allocate nodes from Slurm}\label{md_README_distributed_autotoc_md11}
+You need to have slurm grant you nodes. But you want to do this from within a compute node, not the login node.
+\begin{DoxyItemize}
+\item Run
+
+{\ttfamily \$ srun -\/N 1 -\/n 1 -\/-\/exclusive -\/-\/pty bash -\/i}
+
+To get into a compute node
+\item Then run
+
+{\ttfamily \$ salloc -\/-\/exclusive -\/N \texorpdfstring{$<$}{<}\#\+\_\+\+Nodes\texorpdfstring{$>$}{>}}
+
+To get Slurm to give you exclusive access to \#\+\_\+\+Nodes. All of the distributed tests use 10 nodes, so if you want to run the MPI tests, get at least 10 nodes. You can see this if you look at the file {\ttfamily tests/test\+\_\+list.\+txt} and look for {\ttfamily mpi}
+\item Run
+
+{\ttfamily \$ squeue} To verify that you were granted all the nodes you requested.
+\end{DoxyItemize}\hypertarget{md_README_distributed_autotoc_md12}{}\doxyparagraph{2. Update the configuration.\+cmake file}\label{md_README_distributed_autotoc_md12}
+{\bfseries{Things like emacs don\textquotesingle{}t work very well on the compute nodes, so you probably want to do this from another tab on the lanka login node}}
+\begin{DoxyItemize}
+\item Set {\ttfamily USE\+\_\+\+MPI} to {\ttfamily TRUE}.
+\item Set {\ttfamily MPI\+\_\+\+BUILD\+\_\+\+DIR} to the location of the directory you built Open\+MPI in. This path will be prepended in CMake to find the bin, include, and lib directories (for example {\ttfamily \$\{MPI\+\_\+\+BUILD\+\_\+\+DIR\}/bin})
+\item Set {\ttfamily MPI\+\_\+\+NODES} to be a comma-\/delimited list of all the lanka nodes that you got from the {\ttfamily salloc} command. squeue will show you the names.
+\end{DoxyItemize}\hypertarget{md_README_distributed_autotoc_md13}{}\doxyparagraph{3. Build and Run tiramisu}\label{md_README_distributed_autotoc_md13}
+{\bfseries{Make sure you compile and run from the same compute node that you ran {\ttfamily salloc} on!}} Sometimes slurm seems to complain if you try to run from a different node. ~\newline
+
+\begin{DoxyItemize}
+\item Build tiramisu as usual
+
+{\ttfamily \$ mkdir build \&\& cd build}
+
+{\ttfamily \$ cmake ..}
+
+{\ttfamily \$ make tiramisu}
+\item Do the normal {\ttfamily \$ make test} to run the full test suite, or just use {\ttfamily \$ ctest -\/R \texorpdfstring{$<$}{<}test\+\_\+\#\texorpdfstring{$>$}{>}} to run a single test. You should be able to successfully run the MPI tests.
+\end{DoxyItemize}\hypertarget{md_README_distributed_autotoc_md14}{}\doxyparagraph{4. Remove allocated nodes}\label{md_README_distributed_autotoc_md14}
+
+\begin{DoxyItemize}
+\item When you are done, free up the nodes that slurm gave you so others can use them. You can always allocate them again \+:) To do that, run
+
+{\ttfamily \$ scancel \texorpdfstring{$<$}{<}job\+\_\+number\texorpdfstring{$>$}{>}}
+\end{DoxyItemize}
+
+You can get the job number from running {\ttfamily squeue}.\hypertarget{md_README_distributed_autotoc_md15}{}\doxysubsection{Running Distributed Tests on your Local Machine}\label{md_README_distributed_autotoc_md15}
+Most likely, you don\textquotesingle{}t have slurm on your local machine, nor do you have multiple nodes, so the steps are a little different. You still need to have Open\+MPI installed on your local machine. Note that performance will likely be terrible, not just because you only have one node, but because Open\+MPI doesn\textquotesingle{}t particularly like when you oversubscribe a node (i.\+e. run more MPI processes than the machine has processors). But since you\textquotesingle{}re not benchmarking on your local machine, and the tests are short, it shouldn\textquotesingle{}t be a problem.\hypertarget{md_README_distributed_autotoc_md16}{}\doxyparagraph{1. Update the configuration.\+cmake file}\label{md_README_distributed_autotoc_md16}
+{\bfseries{Things like emacs don\textquotesingle{}t work very well on the compute nodes, so you probably want to do this from another tab on the lanka login node}}
+\begin{DoxyItemize}
+\item Set {\ttfamily USE\+\_\+\+MPI} to {\ttfamily TRUE}.
+\item Set {\ttfamily MPI\+\_\+\+BUILD\+\_\+\+DIR} to the location of the directory you built Open\+MPI in. This path will be prepended in CMake to find the bin, include, and lib directories (for example {\ttfamily \$\{MPI\+\_\+\+BUILD\+\_\+\+DIR\}/bin})
+\item Set {\ttfamily MPI\+\_\+\+NODES} to be just be the following\+:
+
+{\ttfamily set(MPI\+\_\+\+NODES \char`\"{}localhost\char`\"{})}
+\end{DoxyItemize}\hypertarget{md_README_distributed_autotoc_md17}{}\doxyparagraph{2. Build and Run tiramisu}\label{md_README_distributed_autotoc_md17}
+
+\begin{DoxyItemize}
+\item Build tiramisu as usual
+
+{\ttfamily \$ mkdir build \&\& cd build}
+
+{\ttfamily \$ cmake ..}
+
+{\ttfamily \$ make tiramisu}
+\item Do the normal {\ttfamily \$ make test} to run the full test suite, or just use {\ttfamily \$ ctest -\/R \texorpdfstring{$<$}{<}test\+\_\+\#\texorpdfstring{$>$}{>}} to run a single test. You should be able to successfully run the MPI tests. 
+\end{DoxyItemize}
