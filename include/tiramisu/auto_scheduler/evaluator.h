@@ -50,10 +50,7 @@ protected:
     Halide::Target halide_target;
     std::vector<Halide::Argument> halide_arguments;
 
-    /**
-     * The program to compile and to execute.
-     */
-	tiramisu::function *fct;
+    
 	
 	/**
 	 * The name of the ".o" to generate (it will contain the compiled Tiramisu program).
@@ -66,6 +63,10 @@ protected:
     std::string wrapper_cmd;
 
 public:
+/**
+     * The program to compile and to execute.
+     */
+	tiramisu::function *fct;
     /**
      * arguments : the input and output buffers of the program.
      */
@@ -81,9 +82,11 @@ public:
 
     /**
      * Apply the specified optimizations, compile the program and execute it.
-     * If the environment variable EVAL_TIMEOUT is defined, this method raises an error when the execution time exceeds EVAL_TIMEOUT
+     * Returns a vector of measured execution times
+     * If the timeout parameter is defined, it stops the execution after MAX_RUNS*timeout seconds
+     * If exit_on_timeout is set to true, it raises an error when the timeout is reached and terminates the program
      */
-    float evaluate_timeout(syntax_tree &ast);
+    std::vector<float> get_measurements(syntax_tree &ast,  bool exit_on_timeout = false, float timeout = 0, bool code_gen_timeout = false);
 };
 
 /**
@@ -132,7 +135,7 @@ public:
     /**
      * Return a JSON representation of the schedule of the given AST.
      */
-    static std::string get_schedule_json(syntax_tree const& ast);
+    static std::string get_schedule_json(syntax_tree & ast);
     
     // --------------------------------------------------------------------------------- //
     

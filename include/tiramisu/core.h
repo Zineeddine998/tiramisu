@@ -49,6 +49,8 @@ class computation_info;
 class evaluate_by_execution;
 class dnn_access_matrix;
 class simple_generator;
+class state_computation;
+class ml_model_schedules_generator;
 
 void unroll_innermost_levels(std::vector<tiramisu::computation*> const& comps_list, int unroll_fact);
 }
@@ -1340,7 +1342,10 @@ public:
       std::vector<std::pair<int,int>>> skewing_local_solver(std::vector<tiramisu::computation *> fuzed_computations,
                                                             tiramisu::var outer_variable,tiramisu::var inner_variable, int nb_parallel);
 
-
+    /**
+     * for each computation, it computes potentiel canidate for vectorization, then it regroups it in result vector. 
+    */
+    std::vector<int> get_potentiel_vectorizable_loop_level(std::vector<tiramisu::computation *> involved_computations);
 };
 
 
@@ -1726,7 +1731,8 @@ class computation
     friend auto_scheduler::ast_node;
     friend auto_scheduler::computation_info;
     friend auto_scheduler::evaluate_by_execution;
-    
+    friend auto_scheduler::state_computation;
+    friend auto_scheduler::ml_model_schedules_generator;
     friend void auto_scheduler::unroll_innermost_levels(std::vector<tiramisu::computation*> const& comps_list, int unroll_fact);
 
 private:
@@ -2541,6 +2547,7 @@ private:
       * the static dimension names are set to default names.
       */
     void set_loop_level_names(std::vector<std::string> names);
+    void set_loop_level_names_matrix(std::vector<std::string> names);
 
     /**
       * Set the names of the dimensions of the schedule domain.
@@ -2578,11 +2585,7 @@ private:
      */
     void set_iterators_map(std::map<std::string, isl_ast_expr *> map);
 
-    /**
-      * Identical to
-      *      void shift(tiramisu::var L0, int n);
-      */
-    void shift(int L0, int n);
+    
 
     /**
       * Simplify \p set using the context and by calling
@@ -3960,6 +3963,7 @@ public:
       */
     buffer *get_automatically_allocated_buffer();
 
+    virtual void matrix_transform(std::vector<std::vector<int>> matrix);
     /**
       * Interchange (swap) the two loop levels \p L0 and \p L1.
       */
@@ -4164,6 +4168,12 @@ public:
       * a negative value would mean a shift backward.
       */
     virtual void shift(var L0, int n);
+
+    /**
+      * Identical to
+      *      void shift(tiramisu::var L0, int n);
+      */
+    virtual void shift(int L0, int n);
     
 
     /*
@@ -4614,9 +4624,17 @@ public:
       * assigned.
       */
     // @{
+    virtual void vectorize(int L,int v);
     virtual void vectorize(var L, int v);
     virtual void vectorize(var L, int v, var L_outer, var L_inner);
     // @}
+
+    /**
+     * Finds the loop level that should be vectorized to improve performance using the access relation.
+     * if level is -1 it means that there is potentiel loop level selected
+    */
+
+    int get_potentiel_vectorizable_loop_level();
 
     /**
       * \brief Generate communication code for this computation
