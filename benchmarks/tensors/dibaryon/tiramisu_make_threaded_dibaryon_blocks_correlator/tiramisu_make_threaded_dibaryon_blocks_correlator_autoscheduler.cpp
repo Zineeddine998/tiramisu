@@ -2705,9 +2705,13 @@ void generate_function(std::string name)
                                                                                                   hex_snk_spin_weights.get_buffer(),
                                                                                                   hex_snk_weights.get_buffer()},
                                                                                                  "generated_tiramisu_make_threaded_dibaryon_blocks_correlator.o", "./tiramisu_make_threaded_dibaryon_blocks_correlator_wrapper");
+    std::cout << "\nauto_scheduler::instanciate auto scheduler...\n\n";                                                                                            
     auto_scheduler::search_method *bs = new auto_scheduler::beam_search(beam_size, max_depth, exec_eval, scheds_gen);
+    std::cout << "\nauto_scheduler::instanciate beam search...\n\n";                                                                                            
     auto_scheduler::auto_scheduler as(bs, exec_eval);
+    std::cout << "\nauto_scheduler::set exect evaluator...\n\n";                                                                                            
     as.set_exec_evaluator(exec_eval);
+    std::cout << "\nauto_scheduler:: sample search space...\n\n";                                                                                            
     as.sample_search_space("./tiramisu_make_threaded_dibaryon_blocks_correlator_explored_schedules.json", true);
     delete scheds_gen;
     delete exec_eval;

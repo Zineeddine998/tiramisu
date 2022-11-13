@@ -85,6 +85,7 @@ namespace tiramisu
      */
     function::function(std::string name)
     {
+        
         assert(!name.empty() && ("Empty function name"));
 
         this->name = name;

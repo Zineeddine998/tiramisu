@@ -5954,13 +5954,13 @@ tiramisu::expr utility::extract_bound_expression(isl_ast_node *node, int dim, bo
         tiramisu::expr then_bound = utility::extract_bound_expression(isl_ast_node_if_get_then(node), dim, upper);
 
         tiramisu::expr else_bound;
-        if (isl_ast_node_if_has_else(node))
-        {
-            // else_bound = utility::extract_bound_expression(isl_ast_node_if_get_else(node), dim, upper);
-            // result = tiramisu::expr(tiramisu::o_s, cond_bound, then_bound, else_bound);
-            ERROR("If Then Else is unsupported in bound extraction.", true);
-        }
-        else
+        // if (isl_ast_node_if_has_else(node))
+        // {
+        //     // else_bound = utility::extract_bound_expression(isl_ast_node_if_get_else(node), dim, upper);
+        //     // result = tiramisu::expr(tiramisu::o_s, cond_bound, then_bound, else_bound);
+        //     ERROR("If Then Else is unsupported in bound extraction.", true);
+        // }
+        // else
             result = then_bound; //tiramisu::expr(tiramisu::o_cond, cond_bound, then_bound);
     }
 
