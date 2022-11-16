@@ -2589,15 +2589,21 @@ namespace tiramisu
             else
                 DEBUG(3, tiramisu::str_dump("You must specify the corresponding CPU buffer to each GPU buffer else you should do the communication manually"));
         }
+        std::cout << "set arguments\n";
         this->set_arguments(arguments);
+        std::cout << "lift dist comps\n";
         this->lift_dist_comps();
+        std::cout << "gen time space domain\n";
         this->gen_time_space_domain();
+        std::cout << "gen isl ast\n";
         this->gen_isl_ast();
         if (gen_cuda_stmt)
         {
             this->gen_cuda_stmt();
         }
+        std::cout << "gen halide stmt\n";
         this->gen_halide_stmt();
+        std::cout << "gen halide obj\n";
         this->gen_halide_obj(obj_filename);
     }
 

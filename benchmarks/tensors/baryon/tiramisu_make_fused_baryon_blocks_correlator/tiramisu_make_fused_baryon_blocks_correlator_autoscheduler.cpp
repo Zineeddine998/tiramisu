@@ -1,5 +1,7 @@
 #include <tiramisu/tiramisu.h>
 #include <string.h>
+#include <tiramisu/auto_scheduler/search_method.h>
+#include <tiramisu/auto_scheduler/evaluator.h>
 #include "tiramisu_make_fused_baryon_blocks_correlator_wrapper.h"
 #include "../../utils/complex_util.h"
 #include "../../utils/util.h"
@@ -298,21 +300,60 @@ void generate_function(std::string name)
     // -------------------------------------------------------
     // Code Generation
     // -------------------------------------------------------
-    tiramisu::codegen({
-	     &buf_C_r, &buf_C_i,
-        B1_prop_r.get_buffer(), B1_prop_i.get_buffer(),
-        src_psi_B1_r.get_buffer(), src_psi_B1_i.get_buffer(), 
-        snk_psi_r.get_buffer(), snk_psi_i.get_buffer(),
-	     src_color_weights.get_buffer(),
-	     src_spin_weights.get_buffer(),
-	     src_weights.get_buffer(),
-	     src_spins.get_buffer(), 
-	     snk_color_weights.get_buffer(),
-	     snk_spin_weights.get_buffer(),
-	     snk_weights.get_buffer(),
-	     sigs.get_buffer()
-        }, 
-        "generated_tiramisu_make_fused_baryon_blocks_correlator.o");
+    // tiramisu::codegen({
+	//      &buf_C_r, &buf_C_i,
+    //     B1_prop_r.get_buffer(), B1_prop_i.get_buffer(),
+    //     src_psi_B1_r.get_buffer(), src_psi_B1_i.get_buffer(), 
+    //     snk_psi_r.get_buffer(), snk_psi_i.get_buffer(),
+	//      src_color_weights.get_buffer(),
+	//      src_spin_weights.get_buffer(),
+	//      src_weights.get_buffer(),
+	//      src_spins.get_buffer(), 
+	//      snk_color_weights.get_buffer(),
+	//      snk_spin_weights.get_buffer(),
+	//      snk_weights.get_buffer(),
+	//      sigs.get_buffer()
+    //     }, 
+    //     "generated_tiramisu_make_fused_baryon_blocks_correlator.o");
+
+
+        std::cout << "\nprepare_schedules_for_legality_checks...\n";
+    prepare_schedules_for_legality_checks();
+    std::cout << "\nperforme_full_dependency_analysis...\n";
+    performe_full_dependency_analysis();
+
+    const int beam_size = 2;
+    const int max_depth = 4;
+    // declare_memory_usage();
+
+    std::cout << "\nauto_scheduler::ml_model_schedules_generator...\n";
+    auto_scheduler::schedules_generator *scheds_gen = new auto_scheduler::ml_model_schedules_generator();
+    std::cout << "\nauto_scheduler::evaluate_by_execution...\n";
+    auto_scheduler::evaluate_by_execution *exec_eval = new auto_scheduler::evaluate_by_execution({  &buf_C_r, &buf_C_i,
+                                                                                            B1_prop_r.get_buffer(), B1_prop_i.get_buffer(),
+                                                                                            src_psi_B1_r.get_buffer(), src_psi_B1_i.get_buffer(), 
+                                                                                            snk_psi_r.get_buffer(), snk_psi_i.get_buffer(),
+	                                                                                         src_color_weights.get_buffer(),
+	                                                                                         src_spin_weights.get_buffer(),
+	                                                                                         src_weights.get_buffer(),
+	                                                                                         src_spins.get_buffer(), 
+	                                                                                         snk_color_weights.get_buffer(),
+	                                                                                         snk_spin_weights.get_buffer(),
+	                                                                                         snk_weights.get_buffer(),
+	                                                                                         sigs.get_buffer()},
+                                                                                            "generated_tiramisu_make_fused_baryon_blocks_correlator.o", "./tiramisu_make_fused_baryon_correlator_wrapper");
+
+    std::cout << "\nnew auto_scheduler::beam_search...\n";
+    auto_scheduler::search_method *bs = new auto_scheduler::beam_search(beam_size, max_depth, exec_eval, scheds_gen);
+    std::cout << "\nauto_scheduler::auto_scheduler as...\n";
+    auto_scheduler::auto_scheduler as(bs, exec_eval);
+    std::cout << "\nas.set_exec_evaluator...\n";
+    as.set_exec_evaluator(exec_eval);
+    std::cout << "\nas.sample_search_space...\n";
+    as.sample_search_space("./tiramisu_make_fused_baryon_correlator_explored_schedules.json", false);
+    delete scheds_gen;
+    delete exec_eval;
+    delete bs;
 }
 
 int main(int argc, char **argv)

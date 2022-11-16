@@ -1327,5 +1327,5 @@ void make_nucleon_2pt(double* C_re,
    free(Blocal_r1_re);
    free(Blocal_r1_im);
    free(Blocal_r2_re);
-   free(Blocal_r2_im); 
+   free(Blocal_r2_im);
 }

@@ -3,6 +3,31 @@
 
 #include "../../utils/qblocks_2pt_parameters.h"
 
+#define SMALL_BARYON_DATA_SET 0
+#define LARGE_BARYON_DATA_SET 0
+#define USE_GLOBAL_PARAMS 1
+
+#if SMALL_BARYON_DATA_SET
+
+#define Nq 3
+#define Nc 3
+#define Ns 2
+#define Nw 9
+#define Nw2 Nw *Nw
+#define twoNw 81
+#define Nperms 36
+#define Lt 2
+#define Nt 2
+#define Vsrc 4
+#define Vsnk 8
+#define Nsrc 4
+#define Nsnk 4
+#define mq 1.0
+#define NsnkHex 4
+#define Nb 4
+
+#elif USE_GLOBAL_PARAMS
+
 #define Nq P_Nq
 #define Nc P_Nc
 #define Ns P_Ns
@@ -24,6 +49,8 @@
 #define B1Nrows P_B1Nrows
 #define NEntangled P_NEntangled
 #define sites_per_rank P_sites_per_rank
+
+#endif
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
