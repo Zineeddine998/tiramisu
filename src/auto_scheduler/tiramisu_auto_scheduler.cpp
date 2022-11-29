@@ -21,9 +21,15 @@ namespace tiramisu::auto_scheduler
         fct->reset_all_static_dims_to_zero();
 
         setenv("INIT_EXEC_TIME", "0", true); // set the INIT_EXEC_TIME to 0 meaning that it's the non scheduled version
+
+        setenv("RUN_REF", "1", true);
+
         float initial_timeout = std::atof(read_env_var("INITIAL_TIMEOUT"));
 
         std::vector<float> initial_measurements = exec_evaluator->get_measurements(ast, true, initial_timeout);
+
+        setenv("RUN_REF", "0", true);
+
         initial_exec_time = min_eval(initial_measurements);
         if (std::isinf(initial_exec_time))
         {
@@ -50,13 +56,13 @@ namespace tiramisu::auto_scheduler
         candidate_trace exploration_trace_root = candidate_trace(&ast, 0);
 
         float schedule_timeout = 0;
-        float schedule_timeout_factor = 50;
+        float schedule_timeout_factor = 1.5;
         if (std::getenv("SCHED_TIMEOUT_FACTOR") != nullptr)
             schedule_timeout_factor = std::stof(std::getenv("SCHED_TIMEOUT_FACTOR"));
         if (timeout_schedules)
         {
             // define a timeout for scheduler evaluation, the max between schedule_timeout_factor times the initial exec_time (converted to seconds) and 3s per run
-            schedule_timeout = std::max(initial_exec_time * schedule_timeout_factor / 1000, (float)3.0);
+            schedule_timeout = initial_exec_time * schedule_timeout_factor / 1000;
             //        if (std::atoi(read_env_var("AS_VERBOSE")) == 1)
             std::cout << "Schedule measurements timeout set to " << schedule_timeout << "*" << read_env_var("MAX_RUNS") << "(MAX_RUNS) s" << std::endl;
         }
@@ -66,8 +72,8 @@ namespace tiramisu::auto_scheduler
         // searcher->explore_fusion(ast, &schedules_annotations, &exploration_trace_root, schedule_timeout);
         // searcher->search_save_matrix(ast, &schedules_annotations, &exploration_trace_root, schedule_timeout);
         ast.initialize_search_space_optimizations(DEFAULT_OPTIMIZATIONS_ORDER);
-        // if we surpassed the MAX_MAT_DEPTH amount of matrices to explore OR we detected the parent of this level through
-        // the child->search_depth<=child->nb_explored_matrices condition which means that the search level is greater than the number of applied matrices
+        // // if we surpassed the MAX_MAT_DEPTH amount of matrices to explore OR we detected the parent of this level through
+        // // the child->search_depth<=child->nb_explored_matrices condition which means that the search level is greater than the number of applied matrices
         searcher->search_save(ast, &schedules_annotations, &exploration_trace_root, schedule_timeout);
 
         std::string output_json;
@@ -104,10 +110,27 @@ namespace tiramisu::auto_scheduler
 
         std::chrono::steady_clock::time_point sampling_end = std::chrono::steady_clock::now();
         //    if (std::atoi(read_env_var("AS_VERBOSE"))==1){
+        float ref_time = (float)0;
+        std::string tp;
+
+        std::fstream newfile;
+        newfile.open("/home/zinou/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/test.txt", std::ios::in);
+        if (newfile.is_open())
+        {
+            while (getline(newfile, tp))
+            {
+                std::cout << tp;
+                ref_time = std::stof(tp);
+            }
+            newfile.close();
+        }
+
         std::cout << "Initial exec time : " << initial_exec_time << std::endl;
         std::cout << "Search time : " << std::chrono::duration_cast<std::chrono::milliseconds>(sampling_end - sampling_start).count() << " ms" << std::endl;
         std::cout << "Best execution time : " << searcher->get_best_evaluation() << std::endl;
         std::cout << "Speedup : " << initial_exec_time / searcher->get_best_evaluation() << std::endl;
+        std::cout << "Reference code: " << ref_time << std::endl;
+        std::cout << "Speedup (compared to reference code): " << ref_time / searcher->get_best_evaluation() << std::endl;
         //    }
     }
 

@@ -10,7 +10,7 @@ namespace tiramisu::auto_scheduler
     const std::vector<int> TILING_FACTORS_DEFAULT_LIST = {2, 4, 8, 16};
     const std::vector<int> UNROLLING_FACTORS_DEFAULT_LIST = {2, 4, 8, 16};
     const std::vector<std::tuple<int, int>> SKEWING_FACTORS_DEFAULT_LIST = {{1, 1}, {1, 2}, {2, 1}};
-    const int DEFAULT_MAX_NB_ITERATORS = 7;
+    const int DEFAULT_MAX_NB_ITERATORS = 12;
 
     /**
      * Generate a set of AST's from a given AST.
@@ -39,23 +39,23 @@ namespace tiramisu::auto_scheduler
         /**
          * Max Number of dimension to explore for unrolling, starting from the innermost loop level,
          */
-        int unrolling_search_deapth = 3;
+        int unrolling_search_deapth = 4;
 
         /**
          * Max Number of dimension to explore for parallelism, starting from the outermost loop level.
          * stops at first found.
          */
-        int parallelism_search_deapth = 1;
+        int parallelism_search_deapth = 8;
 
         /**
          * Max Number of dimension to explore for unrolling, starting from the innermost loop level
          */
-        int vectorization_search_deapth = 3;
+        int vectorization_search_deapth = 4;
 
         /**
          * The number of diffrent skewing proposed, skewing versions that enable inner parallelism in our case.
          */
-        int skewing_inner_parallelism_number = 3;
+        int skewing_inner_parallelism_number = 4;
 
     public:
         schedules_generator(std::vector<int> const &tiling_factors_list = TILING_FACTORS_DEFAULT_LIST,

@@ -316,11 +316,12 @@ void generate_function(std::string name)
     //     }, 
     //     "generated_tiramisu_make_fused_baryon_blocks_correlator.o");
 
-
-        std::cout << "\nprepare_schedules_for_legality_checks...\n";
     prepare_schedules_for_legality_checks();
-    std::cout << "\nperforme_full_dependency_analysis...\n";
-    performe_full_dependency_analysis();
+
+    if (std::getenv("PERFORM_FULL_DEPENDENCY_ANALYSIS") != NULL && bool(std::getenv("PERFORM_FULL_DEPENDENCY_ANALYSIS")) == true)
+    {
+        performe_full_dependency_analysis();
+    }
 
     const int beam_size = 2;
     const int max_depth = 4;

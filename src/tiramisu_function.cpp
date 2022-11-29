@@ -2663,9 +2663,10 @@ namespace tiramisu
     {
         DEBUG_FCT_NAME(3);
         DEBUG_INDENT(4);
-        // align schedules and order schedules
-        this->align_schedules();
-        this->gen_ordering_schedules();
+        // // align schedules and order schedules
+        // this->align_schedules();
+        // this->gen_ordering_schedules();
+
         // could save default schedules and order here
         this->calculate_dep_flow();
 

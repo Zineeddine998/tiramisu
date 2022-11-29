@@ -131,134 +131,92 @@ namespace tiramisu::auto_scheduler
     syntax_tree::syntax_tree(tiramisu::function *fct)
         : fct(fct)
     {
-        std::cout<<"ast start";
         local_sched_graph = std::make_shared<std::unordered_map<tiramisu::computation *,
                                                                 std::unordered_map<tiramisu::computation *, int>>>(fct->sched_graph);
-        std::cout<<"ast start 2";
         const std::vector<computation *> computations = fct->get_computations();
 
         for (tiramisu::computation *comp : computations)
         {
-               std::cout<<"ast start 3";
             // Get this computation buffer name
             isl_map *storage_map = comp->access;
-               std::cout<<"ast start 4";
             std::string buf_name = isl_map_get_tuple_name(storage_map, isl_dim_out);
-               std::cout<<"ast start 5";
 
             if (std::find(buffers_list.begin(), buffers_list.end(), buf_name) == buffers_list.end())
                 buffers_list.push_back(buf_name);
-                   std::cout<<"ast start 6";
 
             buffers_mapping[comp->get_name()] = buf_name;
-               std::cout<<"ast start 7";
 
             if (comp->get_expr().get_expr_type() == e_none)
                 continue;
-                   std::cout<<"ast start 8";
 
             // Insert this computation in the AST
             ast_node *node = new ast_node(comp, this);
-               std::cout<<"ast start 9";
             node->parent = nullptr;
 
             roots.push_back(node);
-               std::cout<<"ast start 10";
             computations_list.push_back(comp);
-               std::cout<<"ast start 11"; // at this level computations are stored in their declaration order, this list will be sorted by computing order after calling order_computations()
             computations_mapping[comp] = node->get_leftmost_node();
-               std::cout<<"ast start 12";
         }
 
-   std::cout<<"ast start 13";
         // Order the computations by the order specified by the user using "after" commands
         order_computations();
 
-   std::cout<<"ast start 14";
         create_initial_isl_state();
 
         // INITIALIZE the generator states as uninitialized
         generator_state::initialized = false;
-   std::cout<<"ast start 15";
         // Get the JSON representation of this AST iterators
         for (ast_node *node : roots)
             evaluate_by_learning_model::represent_iterators_from_nodes(node, iterators_json);
-   std::cout<<"ast start 16";
         iterators_json.pop_back();
-           std::cout<<"ast start 17";
 
         // Get the JSON representation of this tree
         tree_structure_json = evaluate_by_learning_model::get_tree_structure_json(*this);
-           std::cout<<"ast start 18";
-        std::cout<<"ast end";
-
     }
 
     ast_node::ast_node(tiramisu::computation *comp, syntax_tree *ast)
     {
         std::vector<ast_node *> nodes;
-        std::cout<<"ast node 1\n";
         // Get computation iterators
         isl_set *iter_domain = comp->get_iteration_domain();
-                std::cout<<"ast node 2\n";
 
         int nb_iterators = isl_set_dim(iter_domain, isl_dim_set);
-                std::cout<<"ast node 3\n";
-
 
         // The fist node is the one created by this constructor
         this->depth = 0;
         this->name = isl_set_get_dim_name(iter_domain, isl_dim_set, 0);
-                std::cout<<"ast node 4\n";
 
         this->low_bound = utility::get_bound(iter_domain, 0, false).get_int_val();
-                std::cout<<"ast node 5\n";
 
         this->up_bound = utility::get_bound(iter_domain, 0, true).get_int_val();
 
-        std::cout<<"ast node 6\n";
-
         nodes.push_back(this);
-
-        std::cout<<"ast node 7\n";
 
         // Create the other nodes, one for each iterator
         for (int i = 1; i < nb_iterators; ++i)
         {
-                    std::cout<<"ast node 8\n";
 
             ast_node *node = new ast_node();
-                    std::cout<<"ast node 9\n";
-
 
             node->depth = i;
-                    std::cout<<"ast node 10\n";
 
             node->name = isl_set_get_dim_name(iter_domain, isl_dim_set, i);
-                    std::cout<<"ast node 11\n";
 
             node->low_bound = utility::get_bound(iter_domain, i, false).get_int_val();
-                    std::cout<<"ast node 12\n";
 
             node->up_bound = utility::get_bound(iter_domain, i, true).get_int_val();
-        std::cout<<"ast node 13\n";
 
             nodes.push_back(node);
-                    std::cout<<"ast node 14\n";
-
         }
 
         // Chain the nodes together
         for (int i = 0; i < nodes.size() - 1; ++i)
         {
-                    std::cout<<"ast node 15\n";
 
             nodes[i]->children.push_back(nodes[i + 1]);
-                    std::cout<<"ast node 16\n";
 
             nodes[i + 1]->parent = nodes[i];
         }
-        std::cout<<"ast node 17\n";
 
         nodes.back()->computations.push_back(computation_info(comp, ast));
     }

@@ -71,7 +71,7 @@ float evaluate_by_execution::evaluate(syntax_tree& ast)
     return exec_time;
 }
 
-std::vector<float> evaluate_by_execution::get_measurements(syntax_tree& ast, bool exit_on_timeout, float timeout, bool code_gen_timeout )
+std::vector<float> evaluate_by_execution::get_measurements(syntax_tree &ast, bool exit_on_timeout, float timeout, bool code_gen_timeout)
 {
     // Apply all the optimizations
     apply_optimizations(ast);
@@ -103,9 +103,25 @@ std::vector<float> evaluate_by_execution::get_measurements(syntax_tree& ast, boo
         if (std::getenv("MAX_RUNS")!=NULL)
             nb_exec = std::stoi(std::getenv("MAX_RUNS"));
         cumulative_timeout = timeout * nb_exec; // the timeout for the total number of executions
-        cmd = std::string("timeout ") + std::to_string(cumulative_timeout) + std::string(" ") + wrapper_cmd;
+
+        if (std::stoi(std::getenv("RUN_REF")) == 1)
+        {
+
+            cmd = std::string("export RUN_REF=1;") + std::string("timeout ") + std::to_string(cumulative_timeout) + std::string(" ") + wrapper_cmd;
+        }
+        else
+        {
+            cmd = std::string("timeout ") + std::to_string(cumulative_timeout) + std::string(" ") + wrapper_cmd;
+        }
     }
 
+    std::cout << std::getenv("RUN_REF") << "\n";
+
+    if (timeout == 0 && std::stoi(std::getenv("RUN_REF")) == 1)
+    {
+
+        cmd = std::string("export RUN_REF=1;") + wrapper_cmd;
+    }
 
     // execute the command
     FILE *pipe = popen(cmd.c_str(), "r");
