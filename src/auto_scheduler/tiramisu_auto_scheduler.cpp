@@ -114,7 +114,7 @@ namespace tiramisu::auto_scheduler
         std::string tp;
 
         std::fstream newfile;
-        newfile.open("/home/zinou/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/test.txt", std::ios::in);
+        newfile.open("/data/cs7214/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/test.txt", std::ios::in);
         if (newfile.is_open())
         {
             while (getline(newfile, tp))
