@@ -17,121 +17,148 @@ namespace tiramisu::auto_scheduler
 
     void auto_scheduler::sample_search_space(std::string filename, bool timeout_schedules)
     {
-        std::chrono::steady_clock::time_point sampling_start = std::chrono::steady_clock::now();
-        fct->reset_all_static_dims_to_zero();
-
-        setenv("INIT_EXEC_TIME", "0", true); // set the INIT_EXEC_TIME to 0 meaning that it's the non scheduled version
-
-        setenv("RUN_REF", "1", true);
-
-        float initial_timeout = std::atof(read_env_var("INITIAL_TIMEOUT"));
-
-        std::vector<float> initial_measurements = exec_evaluator->get_measurements(ast, true, initial_timeout);
-
-        setenv("RUN_REF", "0", true);
-
-        initial_exec_time = min_eval(initial_measurements);
-        if (std::isinf(initial_exec_time))
+        try
         {
-            std::cerr << "error: Evaluation of the non scheduled version of the program failed " << std::endl;
-            exit(1);
-        }
-        ast.evaluation = initial_exec_time;
-        //    if (std::atoi(read_env_var("AS_VERBOSE"))==1)
-        std::cout << "Initial exec time : " << initial_exec_time << std::endl;
-        std::string program_json = evaluate_by_learning_model::get_program_json(ast);
-        std::vector<std::string> schedules_annotations;
+            std::chrono::steady_clock::time_point sampling_start = std::chrono::steady_clock::now();
+            fct->reset_all_static_dims_to_zero();
 
-        // add the no_schedule version to the schedule list
-        std::string empty_schedule_json = evaluate_by_learning_model::get_schedule_json(ast);
-        empty_schedule_json.pop_back(); // remove the last two characters }\n
-        empty_schedule_json.pop_back();
-        empty_schedule_json += ", \n\"execution_times\" : " + measurements_to_str(initial_measurements) + "\n}\n";
-        schedules_annotations.push_back(empty_schedule_json);
+            setenv("INIT_EXEC_TIME", "0", true); // set the INIT_EXEC_TIME to 0 meaning that it's the non scheduled version
 
-        // export the the initial execution time as an env var so that it can be used for adjusting the number of runs by the wrappers
-        setenv("INIT_EXEC_TIME", std::to_string(initial_exec_time).c_str(), true);
+            setenv("RUN_REF", "1", true);
 
-        // initialize the exploration trace root
-        candidate_trace exploration_trace_root = candidate_trace(&ast, 0);
+            float initial_timeout = std::atof(read_env_var("INITIAL_TIMEOUT"));
 
-        float schedule_timeout = 0;
-        float schedule_timeout_factor = 1.5;
-        if (std::getenv("SCHED_TIMEOUT_FACTOR") != nullptr)
-            schedule_timeout_factor = std::stof(std::getenv("SCHED_TIMEOUT_FACTOR"));
-        if (timeout_schedules)
-        {
-            // define a timeout for scheduler evaluation, the max between schedule_timeout_factor times the initial exec_time (converted to seconds) and 3s per run
-            schedule_timeout = initial_exec_time * schedule_timeout_factor / 1000;
-            //        if (std::atoi(read_env_var("AS_VERBOSE")) == 1)
-            std::cout << "Schedule measurements timeout set to " << schedule_timeout << "*" << read_env_var("MAX_RUNS") << "(MAX_RUNS) s" << std::endl;
-        }
+            std::vector<float> initial_measurements = exec_evaluator->get_measurements(ast, true, initial_timeout);
 
-        searcher->set_exec_eval(exec_evaluator);
-        // start exploration with fusion and explore other transformations recursivly
-        // searcher->explore_fusion(ast, &schedules_annotations, &exploration_trace_root, schedule_timeout);
-        // searcher->search_save_matrix(ast, &schedules_annotations, &exploration_trace_root, schedule_timeout);
-        ast.initialize_search_space_optimizations(DEFAULT_OPTIMIZATIONS_ORDER);
-        // // if we surpassed the MAX_MAT_DEPTH amount of matrices to explore OR we detected the parent of this level through
-        // // the child->search_depth<=child->nb_explored_matrices condition which means that the search level is greater than the number of applied matrices
-        searcher->search_save(ast, &schedules_annotations, &exploration_trace_root, schedule_timeout);
+            setenv("RUN_REF", "0", true);
 
-        std::string output_json;
-
-        output_json = "{\n\t\"filename\" : \"" + filename + "\"," +
-                      "\n\t\"node_name\" : \"" + read_env_var("SLURMD_NODENAME") + "\"," +
-                      "\n\t\"parameters\" : {" +
-                      "\n\t\t\"beam_size\" : " + read_env_var("BEAM_SIZE") + ", " +
-                      "\n\t\t\"max_depth\" : " + read_env_var("MAX_DEPTH") +
-                      //                  "\n\t\t\"nb_exec\" : " + nb_exec +
-                      "\n\t}, " +
-                      "\n\t\"program_annotation\" : " + program_json + ", " +
-                      "\n\t\"initial_execution_time\" : " + std::to_string(initial_exec_time) + ", " +
-                      "\n\t\"schedules_list\" : [\n";
-
-        for (std::string schedules_annot : schedules_annotations)
-            output_json += schedules_annot + ",\n";
-        if (!schedules_annotations.empty())
-        {
-            // remove the last comma
-            output_json.pop_back();
-            output_json.pop_back();
-            output_json += "\n";
-        }
-        output_json += "\t], \n";
-
-        output_json += "\"exploration_trace\": " + exploration_trace_root.get_exploration_trace_json();
-
-        output_json += " \n}\n";
-
-        std::ofstream file(filename);
-        file << output_json;
-        file.close();
-
-        std::chrono::steady_clock::time_point sampling_end = std::chrono::steady_clock::now();
-        //    if (std::atoi(read_env_var("AS_VERBOSE"))==1){
-        float ref_time = (float)0;
-        std::string tp;
-
-        std::fstream newfile;
-        newfile.open("/data/cs7214/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/test.txt", std::ios::in);
-        if (newfile.is_open())
-        {
-            while (getline(newfile, tp))
+            initial_exec_time = min_eval(initial_measurements);
+            if (std::isinf(initial_exec_time))
             {
-                std::cout << tp;
-                ref_time = std::stof(tp);
+                std::cerr << "error: Evaluation of the non scheduled version of the program failed " << std::endl;
+                exit(1);
             }
-            newfile.close();
-        }
+            ast.evaluation = initial_exec_time;
+            //    if (std::atoi(read_env_var("AS_VERBOSE"))==1)
+            std::cout << "Initial exec time 1 : " << initial_exec_time << std::endl;
+            std::cout << "\n\n.5";
 
-        std::cout << "Initial exec time : " << initial_exec_time << std::endl;
-        std::cout << "Search time : " << std::chrono::duration_cast<std::chrono::milliseconds>(sampling_end - sampling_start).count() << " ms" << std::endl;
-        std::cout << "Best execution time : " << searcher->get_best_evaluation() << std::endl;
-        std::cout << "Speedup : " << initial_exec_time / searcher->get_best_evaluation() << std::endl;
-        std::cout << "Reference code: " << ref_time << std::endl;
-        std::cout << "Speedup (compared to reference code): " << ref_time / searcher->get_best_evaluation() << std::endl;
-        //    }
+            // std::string program_json = evaluate_by_learning_model::get_program_json(ast);
+            std::cout << "\n\n1";
+
+            std::vector<std::string> schedules_annotations;
+            std::cout << "\n\n2";
+
+            // add the no_schedule version to the schedule list
+            std::string empty_schedule_json = evaluate_by_learning_model::get_schedule_json(ast);
+            std::cout << "\n\n3";
+
+            empty_schedule_json.pop_back(); // remove the last two characters }\n
+            empty_schedule_json.pop_back();
+            std::cout << "\n\n4";
+
+            empty_schedule_json += ", \n\"execution_times\" : " + measurements_to_str(initial_measurements) + "\n}\n";
+            std::cout << "\n\n5";
+
+            schedules_annotations.push_back(empty_schedule_json);
+            std::cout << "\n\n6";
+
+            // export the the initial execution time as an env var so that it can be used for adjusting the number of runs by the wrappers
+            setenv("INIT_EXEC_TIME", std::to_string(initial_exec_time).c_str(), true);
+
+            std::cout << "\n\n7";
+
+            // initialize the exploration trace root
+            candidate_trace exploration_trace_root = candidate_trace(&ast, 0);
+
+            float schedule_timeout = 0;
+            float schedule_timeout_factor = 1.5;
+            if (std::getenv("SCHED_TIMEOUT_FACTOR") != nullptr)
+                schedule_timeout_factor = std::stof(std::getenv("SCHED_TIMEOUT_FACTOR"));
+            if (timeout_schedules)
+            {
+                // define a timeout for scheduler evaluation, the max between schedule_timeout_factor times the initial exec_time (converted to seconds) and 3s per run
+                schedule_timeout = initial_exec_time * schedule_timeout_factor / 1000;
+                //        if (std::atoi(read_env_var("AS_VERBOSE")) == 1)
+                std::cout << "Schedule measurements timeout set to " << schedule_timeout << "*" << read_env_var("MAX_RUNS") << "(MAX_RUNS) s" << std::endl;
+            }
+            std::cout << "\n\n8";
+
+            searcher->set_exec_eval(exec_evaluator);
+            std::cout << "\n\n9";
+
+            // start exploration with fusion and explore other transformations recursivly
+            // searcher->explore_fusion(ast, &schedules_annotations, &exploration_trace_root, schedule_timeout);
+            // searcher->search_save_matrix(ast, &schedules_annotations, &exploration_trace_root, schedule_timeout);
+            ast.initialize_search_space_optimizations(DEFAULT_OPTIMIZATIONS_ORDER);
+            std::cout << "\n\n10";
+
+            // // if we surpassed the MAX_MAT_DEPTH amount of matrices to explore OR we detected the parent of this level through
+            // // the child->search_depth<=child->nb_explored_matrices condition which means that the search level is greater than the number of applied matrices
+            searcher->search_save(ast, &schedules_annotations, &exploration_trace_root, schedule_timeout);
+            std::cout << "\n\n11";
+
+            std::string output_json;
+
+            output_json = "{\n\t\"filename\" : \"" + filename + "\"," +
+                          "\n\t\"node_name\" : \"" + read_env_var("SLURMD_NODENAME") + "\"," +
+                          "\n\t\"parameters\" : {" +
+                          "\n\t\t\"beam_size\" : " + read_env_var("BEAM_SIZE") + ", " +
+                          "\n\t\t\"max_depth\" : " + read_env_var("MAX_DEPTH") +
+                          //                  "\n\t\t\"nb_exec\" : " + nb_exec +
+                          "\n\t}, " +
+                          "\n\t\"program_annotation\" : " + "program_json" + ", " +
+                          "\n\t\"initial_execution_time\" : " + std::to_string(initial_exec_time) + ", " +
+                          "\n\t\"schedules_list\" : [\n";
+
+            for (std::string schedules_annot : schedules_annotations)
+                output_json += schedules_annot + ",\n";
+            if (!schedules_annotations.empty())
+            {
+                // remove the last comma
+                output_json.pop_back();
+                output_json.pop_back();
+                output_json += "\n";
+            }
+            output_json += "\t], \n";
+
+            output_json += "\"exploration_trace\": " + exploration_trace_root.get_exploration_trace_json();
+
+            output_json += " \n}\n";
+
+            std::ofstream file(filename);
+            file << output_json;
+            file.close();
+
+            std::chrono::steady_clock::time_point sampling_end = std::chrono::steady_clock::now();
+            //    if (std::atoi(read_env_var("AS_VERBOSE"))==1){
+            float ref_time = (float)0;
+            std::string tp;
+
+            std::fstream newfile;
+            newfile.open("/home/zinou/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/test.txt", std::ios::in);
+            if (newfile.is_open())
+            {
+                while (getline(newfile, tp))
+                {
+                    ref_time = std::stof(tp);
+                }
+                newfile.close();
+            }
+
+            std::cout << "Initial exec time 2 : " << initial_exec_time << std::endl;
+            std::cout << "Search time : " << std::chrono::duration_cast<std::chrono::milliseconds>(sampling_end - sampling_start).count() << " ms" << std::endl;
+            std::cout << "Best execution time : " << searcher->get_best_evaluation() << std::endl;
+            std::cout << "Speedup : " << initial_exec_time / searcher->get_best_evaluation() << std::endl;
+            std::cout << "Reference code: " << ref_time << std::endl;
+            std::cout << "Speedup (compared to reference code): " << ref_time / searcher->get_best_evaluation() << std::endl;
+            //    }
+        }
+        catch (const std::bad_alloc &e)
+        {
+            std::cout << "\n\n\nhereherherherhrhehrherhehrhehrhehrehrhehrhehrehrh-----------------5";
+            std::cout << "Allocation failed: " << e.what() << "\n";
+        }
     }
 
     void auto_scheduler::find_schedule()
@@ -154,7 +181,7 @@ namespace tiramisu::auto_scheduler
         std::cout << "Best evaluation : " << searcher->get_best_evaluation() << std::endl;
 
         if (exec_evaluator != nullptr)
-            std::cout << "Initial exec time : " << initial_exec_time << std::endl;
+            std::cout << "Initial exec time 3 : " << initial_exec_time << std::endl;
 
         std::cout << "Initial evaluation : " << ast.evaluation << std::endl;
         std::cout << "Search time : " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << " ms " << std::endl;

@@ -115,7 +115,7 @@ std::vector<float> evaluate_by_execution::get_measurements(syntax_tree &ast, boo
         }
     }
 
-    std::cout << std::getenv("RUN_REF") << "\n";
+    // std::cout << std::getenv("RUN_REF") << "\n";
 
     if (timeout == 0 && std::stoi(std::getenv("RUN_REF")) == 1)
     {

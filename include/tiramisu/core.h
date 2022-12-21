@@ -5353,51 +5353,56 @@ public:
      */
      static expr extract_bound_expression(isl_ast_node *ast, int dim, bool upper);
 
-    /**
-     * Return a tiramisu::expr representing the bound of
-     * the dimension \p dim in \p set.  If \p upper is true
-     * then this function returns the upper bound otherwise
-     * it returns the lower bound.
-     *
-     * For example, assuming that
-     *
-     * S = {S[i,j]: 0<=i<N and 0<=j<N and i<M}
-     *
-     * then
-     *
-     * get_upper_bound(S, 1)
-     *
-     * would return N-1, while
-     *
-     * get_upper_bound(S, 0)
-     *
-     * would return min(N-1,M-1)
-     */
-    static tiramisu::expr get_bound(isl_set *set, int dim, int upper);
+     /**
+      * get constraints map
+      */
+     static std::unordered_map<std::string, int> get_constraints_map(isl_set *set);
 
-    /**
-     * Return the extent of the loop.
-     *
-     * For example:
-     *
-     * [N]->{C[i,j]: 0 <= i < N and N = 10}
-     *
-     * then get_extent(C,0) would return 10.
-     *
-     */
-    static int get_extent(isl_set *set, int dim);
+     /**
+      * Return a tiramisu::expr representing the bound of
+      * the dimension \p dim in \p set.  If \p upper is true
+      * then this function returns the upper bound otherwise
+      * it returns the lower bound.
+      *
+      * For example, assuming that
+      *
+      * S = {S[i,j]: 0<=i<N and 0<=j<N and i<M}
+      *
+      * then
+      *
+      * get_upper_bound(S, 1)
+      *
+      * would return N-1, while
+      *
+      * get_upper_bound(S, 0)
+      *
+      * would return min(N-1,M-1)
+      */
+     static tiramisu::expr get_bound(isl_set *set, int dim, int upper, std::unordered_map<std::string, int> constraints_map);
 
-    /**
-     * Create a comma separated string that represents the list
-     * of the parameters of \p set.
-     *
-     * For example, if the set is
-     *
-     * [N,M,K]->{S[i]}
-     *
-     * this function returns the string "N,M,K".
-     */
-    static std::string get_parameters_list(isl_set *set);
+     /**
+      * Return the extent of the loop.
+      *
+      * For example:
+      *
+      * [N]->{C[i,j]: 0 <= i < N and N = 10}
+      *
+      * then get_extent(C,0) would return 10.
+      *
+      */
+     static int get_extent(isl_set *set, int dim);
+
+     /**
+      * Create a comma separated string that represents the list
+      * of the parameters of \p set.
+      *
+      * For example, if the set is
+      *
+      * [N,M,K]->{S[i]}
+      *
+      * this function returns the string "N,M,K".
+      */
+     static std::string get_parameters_list(isl_set *set);
 };
 
 // TODO Jess: add doc comments
