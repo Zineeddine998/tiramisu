@@ -364,7 +364,7 @@ extern "C" {
          //    findex.close();
          // }
 
-         std::ofstream fw("/data/cs7214/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/test.txt", std::ofstream::out);
+         std::ofstream fw("/home/zinou/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/test.txt", std::ofstream::out);
          if (fw.is_open())
          {
 
