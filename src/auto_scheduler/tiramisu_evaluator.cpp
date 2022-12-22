@@ -224,18 +224,27 @@ float evaluate_by_learning_model::evaluate(syntax_tree& ast)
 std::string evaluate_by_learning_model::get_program_json(syntax_tree const& ast)
 {
     // Get the memory size allocated by the program, if declared
+    std::cout << "\n\n get_program_json 1";
     std::string mem_size_json = "\"memory_size\" : \"" + std::string(read_env_var("MEM_SIZE")) + "\" ";
+    std::cout << "\n\n get_program_json 2";
 
     // Get JSON for iterators from ast.iterators_json
     std::string iterators_json = "\"iterators\" : {" + ast.iterators_json + "}";
-    
+    std::cout << "\n\n get_program_json 3";
+
     // Use represent_computations_from_nodes to get JSON for computations
     std::string computations_json = "\"computations\" : {";
+    std::cout << "\n\n get_program_json 4";
+
     int comp_absolute_order = 1;
-    
+
     for (ast_node *node : ast.roots)
+    {
+        std::cout << "\n\n get_program_json 5";
+
         represent_computations_from_nodes(node, computations_json, comp_absolute_order);
-        
+    }
+
     computations_json.pop_back();
     computations_json += "}";
     
@@ -245,6 +254,7 @@ std::string evaluate_by_learning_model::get_program_json(syntax_tree const& ast)
 
 void evaluate_by_learning_model::represent_computations_from_nodes(ast_node *node, std::string& computations_json, int& comp_absolute_order)
 {
+    std::cout << "\n\n represent_computations_from_nodes";
     // Build the JSON for the computations stored in "node".
     for (computation_info const& comp_info : node->computations)
     {
@@ -726,70 +736,108 @@ std::string evaluate_by_learning_model::get_schedule_json(syntax_tree & ast)
 
 void evaluate_by_learning_model::represent_iterators_from_nodes(ast_node *node, std::string& iterators_json)
 {
+    std::cout << "\n\n\n------------------------------|-----------------------------------------\n\n\n";
+
+    std::cout << "\n\n\n------------------------------||||-----------------------------------------\n\n\n";
+    std::string iter_json = "";
+
     if (node->get_extent() <= 1)
+    {
+        std::cout << "\n\n\nextent is";
+        std::cout << node->get_extent();
+
+        iterators_json += "\"" + node->name + "\" : {},";
         return;
-        
-    std::string iter_json;
-    
-    // Represent basic information about this iterator
-    iter_json += "\"lower_bound\" : " + std::to_string(node->low_bound) + ",";
-    iter_json += "\"upper_bound\" : " + std::to_string(node->up_bound + 1) + ",";
-        
-    iter_json += "\"parent_iterator\" : ";
-    if (node->parent == nullptr)
-        iter_json += "null,";
-    else
-        iter_json += "\"" + node->parent->name + "\",";
-            
-    iter_json += "\"child_iterators\" : [";
-    bool printed_child = false;
-    
-    for (int i = 0; i < node->children.size(); ++i)
-    {
-        if (node->children[i]->get_extent() <= 1)
-            continue;
-            
-        iter_json += "\"" + node->children[i]->name + "\",";
-        printed_child = true;
     }
-        
-    if (printed_child)
-        iter_json.pop_back();
-    iter_json += "],";
-        
-    // Add the names of the computations computed at this loop level
-    iter_json += "\"computations_list\" : [";
-    bool has_computations = false;
-    
-    for (int i = 0; i < node->computations.size(); ++i)
-    {
-        iter_json += "\"" + node->computations[i].comp_ptr->get_name() + "\",";
-        has_computations = true;
-    }
-    
-    for (int i = 0; i < node->children.size(); ++i)
-    {
-        if (node->children[i]->get_extent() > 1)
-            continue;
-            
-        ast_node *dummy_child = node->children[i];
-        for (int j = 0; j < dummy_child->computations.size(); ++j)
+
+        // Represent basic information about this iterator
+        fw << iter_json << "\n";
+
+        iter_json += "\"lower_bound\" : " + std::to_string(node->low_bound) + ",";
+        fw << iter_json << "\n";
+
+        iter_json += "\"upper_bound\" : " + std::to_string(node->up_bound + 1) + ",";
+        fw << iter_json << "\n";
+
+        iter_json += "\"parent_iterator\" : ";
+        fw << iter_json << "\n";
+
+        if (node->parent == nullptr)
         {
-            iter_json += "\"" + dummy_child->computations[j].comp_ptr->get_name() + "\",";
-            has_computations = true;
+            iter_json += "null,";
+            fw << iter_json << "\n";
         }
-    }
-       
-    if (has_computations)
-        iter_json.pop_back();
-        
-    iter_json += "]";
-        
-    iterators_json += "\"" + node->name + "\" : {" + iter_json + "},";
-    
-    // Recursively represent other iterators
-    for (ast_node *child : node->children)
-        represent_iterators_from_nodes(child, iterators_json);
+                else
+                {
+            iter_json += "\"" + node->parent->name + "\",";
+            fw << iter_json << "\n";
+                }
+                iter_json += "\"child_iterators\" : [";
+                fw << iter_json << "\n";
+
+                bool printed_child = false;
+
+                for (int i = 0; i < node->children.size(); ++i)
+                {
+            if (node->children[i]->get_extent() <= 1)
+            continue;
+
+            iter_json += "\"" + node->children[i]->name + "\",";
+            fw << iter_json << "\n";
+
+            printed_child = true;
+                }
+
+                if (printed_child)
+                {
+            iter_json.pop_back();
+            fw << iter_json << "\n";
+                }
+                iter_json += "],";
+                fw << iter_json << "\n";
+
+                // Add the names of the computations computed at this loop level
+                iter_json += "\"computations_list\" : [";
+                fw << iter_json << "\n";
+
+                bool has_computations = false;
+
+                for (int i = 0; i < node->computations.size(); ++i)
+                {
+            iter_json += "\"" + node->computations[i].comp_ptr->get_name() + "\",";
+            fw << iter_json << "\n";
+
+            has_computations = true;
+                }
+
+                for (int i = 0; i < node->children.size(); ++i)
+                {
+            if (node->children[i]->get_extent() > 1)
+                continue;
+
+            ast_node *dummy_child = node->children[i];
+            for (int j = 0; j < dummy_child->computations.size(); ++j)
+            {
+                iter_json += "\"" + dummy_child->computations[j].comp_ptr->get_name() + "\",";
+                fw << iter_json << "\n";
+
+                has_computations = true;
+            }
+                }
+
+                if (has_computations)
+            iter_json.pop_back();
+
+                iter_json += "]";
+                fw << iter_json << "\n";
+
+                iterators_json += "\"" + node->name + "\" : {" + iter_json + "},";
+                fw << iter_json << "\n";
+
+                // Recursively represent other iterators
+                for (ast_node *child : node->children)
+            represent_iterators_from_nodes(child, iterators_json);
+}
 }
 
 std::string evaluate_by_learning_model::get_tree_structure_json(syntax_tree const& ast)

@@ -43,7 +43,7 @@ namespace tiramisu::auto_scheduler
             std::cout << "Initial exec time 1 : " << initial_exec_time << std::endl;
             std::cout << "\n\n.5";
 
-            // std::string program_json = evaluate_by_learning_model::get_program_json(ast);
+            std::string program_json = evaluate_by_learning_model::get_program_json(ast);
             std::cout << "\n\n1";
 
             std::vector<std::string> schedules_annotations;

@@ -6066,11 +6066,6 @@ int computation::compute_maximal_AST_depth()
  */
 tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper, std::unordered_map<std::string, int> constraints_map)
 {
-    // for (int i = 0; i < isl_set_dim(set, isl_dim_set); i++)
-    // {
-    //     std::cout << constraints_map[isl_set_get_dim_name(set, isl_dim_set, i)];
-    //     std::cout << "\n\n\n";
-    // }
     try{
     DEBUG_FCT_NAME(10);
     DEBUG_INDENT(4);
@@ -6084,11 +6079,6 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper, std::unorder
                                  " bound on the dimension " +
                                  std::to_string(dim) + " of the set ",
                                  isl_set_to_str(set)));
-
-    // std::cout << std::string("Getting the ") + (upper ? "upper" : "lower") +
-    //                  " bound on the dimension " +
-    //                  std::to_string(dim) + " of the set " +
-    //                  isl_set_to_str(set);
 
     tiramisu::expr e = tiramisu::expr(0);
     isl_ast_build *ast_build;
@@ -6108,11 +6098,6 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper, std::unorder
     isl_options_set_ast_build_group_coscheduled(ctx, 1);
     isl_options_set_ast_build_allow_else(ctx, 1);
     isl_options_set_ast_build_detect_min_max(ctx, 1);
-
-    // Computing the polyhedral hull of the input set.
-    //DEBUG(3, tiramisu::str_dump("Computing the polyhedral hull of the input set."));
-    //set = isl_set_from_basic_set(isl_set_affine_hull(isl_set_copy(set)));
-    //DEBUG(3, tiramisu::str_dump("The polyhedral hull is: ", isl_set_to_str(set)));
 
     // Intersect the iteration domain with the domain of the schedule.
     DEBUG(3, tiramisu::str_dump("Generating time-space domain."));
@@ -6163,104 +6148,9 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper, std::unorder
     // if the number of for levels is less or equal to the unrolled loop, skip the optimization (exception handled when getting measurements)
     // if(cpt <= dim){throw UnrollingException();}
 
-    // std::cout << "\n\n\n";
-    // std::cout << std::string(isl_ast_node_to_C_str(node));
-    // std::cout << "\n\n\n\n\n";
-    // std::cout << std::string(isl_ast_expr_to_C_str(isl_ast_node_for_get_iterator(node)));
-    // std::cout << "\n\n\n\n\n";
-
-    // // std::cout << std::string(isl_ast_node_to_C_str(isl_ast_node_for_get_body(node)));
-    // // std::cout << "\n\n\n\n\n";
-
-    // std::cout << std::string(isl_ast_expr_to_C_str(isl_ast_node_for_get_inc(node)));
-    // std::cout << "\n\n\n\n\n";
-
-    // std::cout << isl_set_dim(set, isl_dim_out);
-    // std::cout << "\n\n\n\n\n";
-    // std::cout << isl_set_get_dim_id(set, isl_dim_out, 0);
-    // std::cout << "\n\n\n\n\n";
-    // std::cout << isl_set_get_dim_name(set, isl_dim_out, 0);
-    // std::cout << "\n\n\n\n\n";
-    // isl_basic_set_list *bset_list = isl_set_get_basic_set_list(isl_set_copy(set));
-    // int constraints_map[isl_set_dim(set, isl_dim_out)] = {0};
-    // for (int h = 0; h < isl_set_dim(set, isl_dim_out); h++)
-    // {
-    //     std::cout << constraints_map[h];
-    //     std::cout << "\n";
-    // }
-
-    // for (int i = 0; i < isl_set_n_basic_set(set); i++)
-    // {
-    //     isl_basic_set *bset = isl_basic_set_list_get_basic_set(bset_list, i);
-    //     isl_constraint_list *cst_list = isl_basic_set_get_constraint_list(bset);
-    //     // isl_space *sp = isl_basic_set_get_space(bset);
-    //     // std::cout << "\n\n\nRetrieving the constraints of the bset:" +
-    //     //                  isl_set_to_str(isl_set_from_basic_set(isl_basic_set_copy(bset)));
-    //     // tiramisu::str_dump("\n\n\nRetrieving the constraints of the bset:",
-    //     //                    isl_set_to_str(isl_set_from_basic_set(isl_basic_set_copy(bset))));
-    //     // std::cout
-    //     //     << "\n\n\nNumber of constraints: " + std::to_string(
-    //     //                                              isl_constraint_list_n_constraint(cst_list));
-    //     // DEBUG(10, tiramisu::str_dump("List of constraints: "); );
-    //     // std::cout << "\n\n\nList of constraints: ";
-    //     // isl_constraint_list_dump(cst_list);
-    //     for (int j = 0; j < isl_constraint_list_n_constraint(cst_list); j++)
-    //     {
-    //         // DEBUG(10, tiramisu::str_dump("Checking the constraint number " + std::to_string(j)));
-    //         // std::cout << "\n\n\nChecking the constraint number" + std::to_string(j);
-    //         isl_constraint *cst = isl_constraint_list_get_constraint(cst_list, j);
-    //         // std::cout << "\n\n\nConstraint: ";
-    //         // isl_constraint_dump(cst);
-    //         for (int k = 0; k < isl_set_dim(set, isl_dim_out); k++)
-    //         {
-
-    //             // std::cout << "\n\n\n Dim: ";
-    //             // std::cout << isl_set_get_dim_name(set, isl_dim_out, k);
-    //             // std::cout << "has upper bound: ";
-    //             // std::cout << isl_set_dim_has_upper_bound(set, isl_dim_out, k);
-    //             // std::cout << "has lower bound: ";
-    //             // std::cout << isl_set_dim_has_lower_bound(set, isl_dim_out, k);
-    //             // std::cout << "\n\n\n- - - - - - - - - - - - - -";
-    //             // std::cout << isl_aff_to_str(isl_constraint_get_bound(cst, isl_dim_set, k));
-    //             // std::cout << "\n\n\n- - - - - - - - - - - - - -";
-
-    //             // std::cout << "\n\n\n\nDim output: ";
-    //             // std::cout << isl_set_get_dim_name(set, isl_dim_out, k);
-    //             // std::cout << "\n\n\n\nDim set: ";
-    //             // std::cout << isl_set_get_dim_name(set, isl_dim_set, k);
-    //             // std::cout << "\n\n\n\nDim parameter: ";
-    //             // std::cout << isl_set_get_dim_name(set, isl_dim_param, k);
-    //             // std::cout << "\n\n\n\nDim div: ";
-    //             // std::cout << isl_set_get_dim_name(set, isl_dim_div, k);
-    //             // std::cout << "\n\n\n\nDim all: ";
-    //             // std::cout << isl_set_get_dim_name(set, isl_dim_all, k);
-
-    //             if (isl_constraint_involves_dims(cst, isl_dim_set, k, 1))
-    //             {
-    //                 constraints_map[k]++;
-    //                 break;
-    //             }
-    //         }
-    //         isl_constraint_free(cst);
-    //     }
-    //     isl_constraint_list_free(cst_list);
-
-    //     isl_basic_set_free(bset);
-    // }
-
-    // std::cout << "\n\n\n ---------------------------  \n\n\n";
-    // for (int h = 0; h < isl_set_dim(set, isl_dim_out); h++)
-    // {
-    //     std::cout << constraints_map[h];
-    //     std::cout << "\n";
-    // }
-    // std::cout << "\n\n\n ---------------------------  \n\n\n";
-
-    // std::cout << "\n\n\nStart extract bounds for: ";
     std::string dim_name = isl_set_get_dim_name(set, isl_dim_set, dim);
     if (constraints_map.find(dim_name) != constraints_map.end() && constraints_map[dim_name] != 0)
     {
-        // std::cout << "\n\n\n iterator has bounds";
         int offset = 0;
         for (int o = 0; o < dim; o++)
         {   std::string current_dim_name = isl_set_get_dim_name(set, isl_dim_set, o);
@@ -6269,23 +6159,9 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper, std::unorder
                 offset = offset+ 1;
             }
         }
-        // std::cout << "\n\n--------------------------------\n\n";
-        // std::cout << dim;
-        // std::cout << "\n\n\n";
-        // std::cout << isl_set_get_dim_name(set, isl_dim_out, dim);
-        // std::cout << "\n\n\n";
-
-        // std::cout << "\n\n\n iterator offset: ";
-        // std::cout << offset;
-        // std::cout << "\n\n\nnew iterator position: ";
-        // std::cout << dim - offset;
-        // std::cout << "\n\n--------------------------------\n\n";
-
         e = utility::extract_bound_expression(node, dim - offset, upper);
     }
-    // std::cout << "\n\n\n";
     isl_ast_build_free(ast_build);
-
     assert(e.is_defined() && "The computed bound expression is undefined.");
     DEBUG(10, tiramisu::str_dump(std::string("The ") + (upper ? "upper" : "lower") + " bound is : "); e.dump(false));
     // std::cout << std::string("\nThe ") + (upper ? "upper" : "lower") + " bound is : ";
@@ -6301,92 +6177,39 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper, std::unorder
 }
 std::unordered_map<std::string, int> utility::get_constraints_map(isl_set *set)
 {
-    try {
-
     isl_basic_set_list *bset_list = isl_set_get_basic_set_list(set);
-    // int constraints_map[isl_set_dim(set, isl_dim_out)] = {0};
     std::unordered_map<std::string, int> constraints_map{};
 
-    // for (int h = 0; h < isl_set_dim(set, isl_dim_out); h++)
-    // {
-    //     std::cout << constraints_map[h];
-    //     std::cout << "\n";
-    // }
     int n_basic_set = isl_set_n_basic_set(set);
     for (int i = 0; i < n_basic_set; i++)
     {
         isl_basic_set *bset = isl_basic_set_list_get_basic_set(bset_list, i);
         isl_constraint_list *cst_list = isl_basic_set_get_constraint_list(bset);
-        // isl_space *sp = isl_basic_set_get_space(bset);
-        // std::cout << "\n\n\nRetrieving the constraints of the bset:" +
-        //                  isl_set_to_str(isl_set_from_basic_set(isl_basic_set_copy(bset)));
-        // tiramisu::str_dump("\n\n\nRetrieving the constraints of the bset:",
-        //                    isl_set_to_str(isl_set_from_basic_set(isl_basic_set_copy(bset))));
-        // std::cout
-        //     << "\n\n\nNumber of constraints: " + std::to_string(
-        //                                              isl_constraint_list_n_constraint(cst_list));
-        // DEBUG(10, tiramisu::str_dump("List of constraints: "); );
-        // std::cout << "\n\n\nList of constraints: ";
-        // isl_constraint_list_dump(cst_list);
         for (int j = 0; j < isl_constraint_list_n_constraint(cst_list); j++)
         {
-            // DEBUG(10, tiramisu::str_dump("Checking the constraint number " + std::to_string(j)));
-            // std::cout << "\n\n\nChecking the constraint number" + std::to_string(j);
-            isl_constraint *cst = isl_constraint_list_get_constraint(cst_list, j);
-            // std::cout << "\n\n\nConstraint: ";
-            // isl_constraint_dump(cst);
-            for (int k = 0; k < isl_set_dim(set, isl_dim_out); k++)
+        isl_constraint *cst = isl_constraint_list_get_constraint(cst_list, j);
+
+        for (int k = 0; k < isl_set_dim(set, isl_dim_out); k++)
+        {
+            std::string dim_name = isl_set_get_dim_name(set, isl_dim_out, k);
+
+            if (isl_constraint_involves_dims(cst, isl_dim_set, k, 1))
             {
-
-                // std::cout << "\n\n\n Dim: ";
-                // std::cout << isl_set_get_dim_name(set, isl_dim_out, k);
-                // std::cout << "has upper bound: ";
-                // std::cout << isl_set_dim_has_upper_bound(set, isl_dim_out, k);
-                // std::cout << "has lower bound: ";
-                // std::cout << isl_set_dim_has_lower_bound(set, isl_dim_out, k);
-                // std::cout << "\n\n\n- - - - - - - - - - - - - -";
-                // std::cout << isl_aff_to_str(isl_constraint_get_bound(cst, isl_dim_set, k));
-                // std::cout << "\n\n\n- - - - - - - - - - - - - -";
-
-                // std::cout << "\n\n\n\nDim output: ";
-                // std::cout << isl_set_get_dim_name(set, isl_dim_out, k);
-                // std::cout << "\n\n\n\nDim set: ";
-                // std::cout << isl_set_get_dim_name(set, isl_dim_set, k);
-                // std::cout << "\n\n\n\nDim parameter: ";
-                // std::cout << isl_set_get_dim_name(set, isl_dim_param, k);
-                // std::cout << "\n\n\n\nDim div: ";
-                // std::cout << isl_set_get_dim_name(set, isl_dim_div, k);
-                // std::cout << "\n\n\n\nDim all: ";
-                // std::cout << isl_set_get_dim_name(set, isl_dim_all, k);
-                std::string dim_name = isl_set_get_dim_name(set, isl_dim_out, k);
-                                std::cout << "\n";
-
-                std::cout << dim_name;
-                std::cout << "\n";
-                
-                if (isl_constraint_involves_dims(cst, isl_dim_set, k, 1))
+                if (constraints_map.find(dim_name) != constraints_map.end())
                 {
-                    if (constraints_map.find(dim_name) != constraints_map.end())
-                    {
-                        constraints_map.at(dim_name) = constraints_map[dim_name] + 1;
-                    }
-                    else
-                    {
-                        constraints_map.insert({dim_name, 0});
-                    }
-                    break;
+                    constraints_map.at(dim_name) = constraints_map[dim_name] + 1;
                 }
+                else
+                {
+                    constraints_map.insert({dim_name, 0});
+                }
+                break;
             }
         }
-
+        }
     }
 
     return constraints_map;
-
-    } catch (const std::bad_alloc& e) {
-        std::cout<<"\n\n\nhereherherherhrhehrherhehrhehrhehrehrhehrhehrehrh-----------------1";
-        std::cout << "Allocation failed: " << e.what() << "\n";
-    }
 }
 
 bool computation::separateAndSplit(tiramisu::var L0, int sizeX)
@@ -8041,6 +7864,7 @@ std::vector<std::string> computation::get_loop_level_names()
             }
 
             DEBUG(3, tiramisu::str_dump("Names of loop levels: " + names_to_print_for_debugging));
+            std::cout << "\n\n\nNames of loop levels: " + names_to_print_for_debugging;
             DEBUG_INDENT(-4);
 
             return names;
