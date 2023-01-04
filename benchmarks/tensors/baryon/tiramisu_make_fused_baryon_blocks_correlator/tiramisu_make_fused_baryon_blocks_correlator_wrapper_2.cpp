@@ -1,7 +1,9 @@
 #include "Halide.h"
 #include <tiramisu/utils.h>
+#include <tiramisu/mpi_comm.h>
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
 #include <complex>
 #include "benchmarks.h"
 
@@ -13,91 +15,66 @@ extern "C" {
 #include "tiramisu_make_fused_baryon_blocks_correlator_ref.cpp"
 
 #define RUN_REFERENCE 1
-#define RUN_CHECK 1
-int nb_tests = 1;
-int randommode = 1;
+#define RUN_CHECK 0
+   int nb_tests = 1;
+   int randommode = 0;
 
-void tiramisu_make_nucleon_2pt(double *C_re,
-                               double *C_im,
-                               double *B1_prop_re,
-                               double *B1_prop_im,
-                               int *src_color_weights_r1,
-                               int *src_spin_weights_r1,
-                               double *src_weights_r1,
-                               int *src_color_weights_r2,
-                               int *src_spin_weights_r2,
-                               double *src_weights_r2,
-                               int *perms,
-                               int *sigs,
-                               double *src_psi_B1_re,
-                               double *src_psi_B1_im,
-                               double *snk_psi_B1_re,
-                               double *snk_psi_B1_im)
-{
-
-   int q, t, iC, iS, jC, jS, y, x, x1, x2, m, n, k, wnum, b, rp, r;
-   int iC1, iS1, iC2, iS2, jC1, jS1, jC2, jS2, kC1, kS1, kC2, kS2;
-
-   int rank = 0;
-
-   // printf("hi I'm rank %d \n", rank);
-
-   if (rank == 0)
+   void tiramisu_make_nucleon_2pt(double *C_re,
+                                  double *C_im,
+                                  double *B1_prop_re,
+                                  double *B1_prop_im,
+                                  int *src_color_weights_r1,
+                                  int *src_spin_weights_r1,
+                                  double *src_weights_r1,
+                                  int *src_color_weights_r2,
+                                  int *src_spin_weights_r2,
+                                  double *src_weights_r2,
+                                  int *perms,
+                                  int *sigs,
+                                  double *src_psi_B1_re,
+                                  double *src_psi_B1_im,
+                                  double *snk_psi_B1_re,
+                                  double *snk_psi_B1_im)
    {
-      long mega = 1024 * 1024;
-      std::cout << "Array sizes" << std::endl;
-      std::cout << "Prop:" << std::endl;
-      std::cout << "	Max index size = " << Nq * Vsnk * Vsrc * Nc * Ns * Nc * Ns * Lt << std::endl;
-      std::cout << "	Array size = " << Nq * Vsnk * Vsrc * Nc * Ns * Nc * Ns * Lt * sizeof(std::complex<double>) / mega << " Mega bytes" << std::endl;
-      std::cout << "Q, O & P:" << std::endl;
-      std::cout << "	Max index size = " << Vsnk * Vsrc * Nc * Ns * Nc * Ns << std::endl;
-      std::cout << "	Array size = " << Vsnk * Vsrc * Nc * Ns * Nc * Ns * sizeof(std::complex<double>) / mega << " Mega bytes" << std::endl;
 
-      long kilo = 1024;
-      std::cout << "Blocal:" << std::endl;
-      std::cout << "	Max index size = " << Vsnk * NsrcHex * Nc * Ns * Nc * Ns * Nc * Ns << std::endl;
-      std::cout << "	Array size = " << Vsnk * NsrcHex * Nc * Ns * Nc * Ns * Nc * Ns * sizeof(std::complex<double>) / kilo << " kilo bytes" << std::endl;
-      std::cout << "Blocal, Bsingle, Bdouble:" << std::endl;
-      std::cout << "	Max index size = " << Nc * Ns * Nc * Ns * Nc * Ns << std::endl;
-      std::cout << "	Array size = " << Nc * Ns * Nc * Ns * Nc * Ns * sizeof(std::complex<double>) / kilo << " kilo bytes" << std::endl;
-      std::cout << std::endl;
-   }
+      int q, t, iC, iS, jC, jS, y, x, x1, x2, m, n, k, wnum, b, rp, r;
+      int iC1, iS1, iC2, iS2, jC1, jS1, jC2, jS2, kC1, kS1, kC2, kS2;
 
-   // Halide buffers
-   Halide::Buffer<double> b_C_r(NsnkHex, B1Nrows, NsrcHex, B1Nrows, Vsnk/sites_per_rank, Lt, "C_r");
-   Halide::Buffer<double> b_C_i(NsnkHex, B1Nrows, NsrcHex, B1Nrows, Vsnk/sites_per_rank, Lt, "C_i");
+      int rank = 0;
 
-   Halide::Buffer<int> b_src_color_weights(Nq, Nw, B1Nrows, "src_color_weights");
-   Halide::Buffer<int> b_src_spin_weights(Nq, Nw, B1Nrows, "src_spin_weights");
-   Halide::Buffer<double> b_src_weights(Nw, B1Nrows, "src_weights");
+      // Halide buffers
+      Halide::Buffer<double> b_C_r(NsnkHex, B1Nrows, NsrcHex, B1Nrows, Vsnk / sites_per_rank, Lt, "C_r");
+      Halide::Buffer<double> b_C_i(NsnkHex, B1Nrows, NsrcHex, B1Nrows, Vsnk / sites_per_rank, Lt, "C_i");
 
-   Halide::Buffer<int> b_src_spins(B1Nrows, "src_spins");
-   Halide::Buffer<int> b_snk_color_weights(Nq, Nw, B1Nperms, B1Nrows, "snk_color_weights");
-   Halide::Buffer<int> b_snk_spin_weights(Nq, Nw, B1Nperms, B1Nrows, "snk_spin_weights");
-   Halide::Buffer<double> b_snk_weights(Nw, B1Nrows, "snk_weights");
+      Halide::Buffer<int> b_src_color_weights(Nq, Nw, B1Nrows, "src_color_weights");
+      Halide::Buffer<int> b_src_spin_weights(Nq, Nw, B1Nrows, "src_spin_weights");
+      Halide::Buffer<double> b_src_weights(Nw, B1Nrows, "src_weights");
 
-    // prop
-    Halide::Buffer<double> b_B1_prop_r((double *)B1_prop_re, {Vsrc, Vsnk, Ns, Nc, Ns, Nc, Lt, Nq});
-    Halide::Buffer<double> b_B1_prop_i((double *)B1_prop_im, {Vsrc, Vsnk, Ns, Nc, Ns, Nc, Lt, Nq});
+      Halide::Buffer<int> b_src_spins(B1Nrows, "src_spins");
+      Halide::Buffer<int> b_snk_color_weights(Nq, Nw, B1Nperms, B1Nrows, "snk_color_weights");
+      Halide::Buffer<int> b_snk_spin_weights(Nq, Nw, B1Nperms, B1Nrows, "snk_spin_weights");
+      Halide::Buffer<double> b_snk_weights(Nw, B1Nrows, "snk_weights");
 
-    if (rank == 0)
-   printf("prop elem %4.9f \n", b_B1_prop_r(0,0,0,0,0,0,0,0));
+      // prop
+      Halide::Buffer<double> b_B1_prop_r((double *)B1_prop_re, {Vsrc, Vsnk, Ns, Nc, Ns, Nc, Lt, Nq});
+      Halide::Buffer<double> b_B1_prop_i((double *)B1_prop_im, {Vsrc, Vsnk, Ns, Nc, Ns, Nc, Lt, Nq});
 
-    // psi
-    Halide::Buffer<double> b_B1_src_psi_r((double *)src_psi_B1_re, {NsrcHex, Vsrc});
-    Halide::Buffer<double> b_B1_src_psi_i((double *)src_psi_B1_im, {NsrcHex, Vsrc});
-    Halide::Buffer<double> b_B1_snk_psi_r((double *)snk_psi_B1_re, {NsnkHex, sites_per_rank, Vsnk/sites_per_rank});
-    Halide::Buffer<double> b_B1_snk_psi_i((double *)snk_psi_B1_im, {NsnkHex, sites_per_rank, Vsnk/sites_per_rank});
+      // psi
+      Halide::Buffer<double> b_B1_src_psi_r((double *)src_psi_B1_re, {NsrcHex, Vsrc});
+      Halide::Buffer<double> b_B1_src_psi_i((double *)src_psi_B1_im, {NsrcHex, Vsrc});
+      Halide::Buffer<double> b_B1_snk_psi_r((double *)snk_psi_B1_re, {NsnkHex, sites_per_rank, Vsnk / sites_per_rank});
+      Halide::Buffer<double> b_B1_snk_psi_i((double *)snk_psi_B1_im, {NsnkHex, sites_per_rank, Vsnk / sites_per_rank});
 
-   Halide::Buffer<int> b_sigs((int *)sigs, {B1Nperms});
+      Halide::Buffer<int> b_sigs((int *)sigs, {B1Nperms});
 
-   // Weights
- 
-   int* snk_color_weights_r1 = (int *) malloc(Nw * Nq * sizeof (int));
-   int* snk_color_weights_r2 = (int *) malloc(Nw * Nq * sizeof (int));
-   int* snk_spin_weights_r1 = (int *) malloc(Nw * Nq * sizeof (int));
-   int* snk_spin_weights_r2 = (int *) malloc(Nw * Nq * sizeof (int));
-   for (int nB1=0; nB1<Nw; nB1++) {
+      // Weights
+
+      int *snk_color_weights_r1 = (int *)malloc(Nw * Nq * sizeof(int));
+      int *snk_color_weights_r2 = (int *)malloc(Nw * Nq * sizeof(int));
+      int *snk_spin_weights_r1 = (int *)malloc(Nw * Nq * sizeof(int));
+      int *snk_spin_weights_r2 = (int *)malloc(Nw * Nq * sizeof(int));
+      for (int nB1 = 0; nB1 < Nw; nB1++)
+      {
          b_src_weights(nB1, 0) = src_weights_r1[nB1];
          b_src_weights(nB1, 1) = src_weights_r2[nB1];
          b_snk_weights(nB1, 0) = src_weights_r1[nB1];
@@ -110,7 +87,7 @@ void tiramisu_make_nucleon_2pt(double *C_re,
             snk_color_weights_r2[index_2d(nB1,nq ,Nq)] = src_color_weights_r2[index_2d(nB1,nq ,Nq)];
             snk_spin_weights_r2[index_2d(nB1,nq ,Nq)] = src_spin_weights_r2[index_2d(nB1,nq ,Nq)];
          }
-   }
+      }
    b_src_spins(0) = 1;
    b_src_spins(1) = 2;
    for (int nperm=0; nperm<B1Nperms; nperm++) {
@@ -156,14 +133,8 @@ void tiramisu_make_nucleon_2pt(double *C_re,
                   for (int x=0; x<Vsnk/sites_per_rank; x++) {
                      b_C_r(n,r,m,rp,x,t) = 0.0;
                      b_C_i(n,r,m,rp,x,t) = 0.0;
-                  } 
+                  }
 
-   if (rank == 0) {
-   printf("prop 1 %4.9f + I %4.9f \n", b_B1_prop_r(0,0,0,0,0,0,0,0), b_B1_prop_i(0,0,0,0,0,0,0,0));
-   printf("psi src 1 %4.9f + I %4.9f \n", b_B1_src_psi_r(0,0), b_B1_src_psi_i(0,0));
-   printf("psi snk %4.9f + I %4.9f \n", b_B1_snk_psi_r(0,0,0,0), b_B1_snk_psi_i(0,0,0,0));
-   printf("weights snk %4.9f \n", b_snk_weights(0,0));
-   }
    tiramisu_make_fused_baryon_blocks_correlator(
 				    b_C_r.raw_buffer(),
 				    b_C_i.raw_buffer(),
@@ -182,29 +153,7 @@ void tiramisu_make_nucleon_2pt(double *C_re,
 				    b_snk_weights.raw_buffer(),
 				    b_sigs.raw_buffer());
 
-   if (rank == 0) {
-   printf("non-zero r1? %4.1f + I %4.1f ", b_C_r(0,0,0,0,0,0), b_C_i(0,0,0,0,0,0) );
-   printf("non-zero r2? %4.1f + I %4.1f ", b_C_r(0,1,0,1,0,0), b_C_i(0,1,0,1,0,0) );
-   }
-
-    // symmetrize and such
-#ifdef WITH_MPI
-   
-   for (int rp=0; rp<B1Nrows; rp++)
-      for (int m=0; m<NsrcHex; m++)
-         for (int r=0; r<B1Nrows; r++)
-            for (int n=0; n<NsnkHex; n++)
-               for (int t=0; t<Lt; t++)  {
-                  double number0r;
-                  double number0i;
-                  double this_number0r = b_C_r(n,r,m,rp,rank,t);
-                  double this_number0i = b_C_i(n,r,m,rp,rank,t);
-                  MPI_Allreduce(&this_number0r, &number0r, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-                  MPI_Allreduce(&this_number0i, &number0i, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-                  C_re[index_5d(rp,m,r,n,t, NsrcHex,B1Nrows,NsnkHex,Lt)] += number0r;
-                  C_im[index_5d(rp,m,r,n,t, NsrcHex,B1Nrows,NsnkHex,Lt)] += number0i;
-               }
-#else
+   // symmetrize and such
    for (int rp=0; rp<B1Nrows; rp++)
       for (int m=0; m<NsrcHex; m++)
 
@@ -218,26 +167,13 @@ void tiramisu_make_nucleon_2pt(double *C_re,
                   number0i = b_C_i(n,r,m,rp,x,t);
                   C_re[index_5d(rp,m,r,n,t, NsrcHex,B1Nrows,NsnkHex,Lt)] += number0r;
                   C_im[index_5d(rp,m,r,n,t, NsrcHex,B1Nrows,NsnkHex,Lt)] += number0i;
-               }
-#endif
-
-    if (rank == 0) {
-   for (int rp=0; rp<B1Nrows; rp++) {
-      printf("\n");
-      for (int m=0; m<NsrcHex; m++)
-         for (int r=0; r<B1Nrows; r++)
-            for (int n=0; n<NsnkHex; n++)
-               for (int t=0; t<Lt; t++) {
-                  printf("rp=%d, m=%d, r=%d, n=%d, t=%d: %4.1f + I (%4.1f) \n", rp, m, r, n, t, C_re[index_5d(rp,m,r,n,t, NsrcHex,B1Nrows,NsnkHex,Lt)],  C_im[index_5d(rp,m,r,n,t, NsrcHex,B1Nrows,NsnkHex,Lt)]);
-            }
+                }
    }
-   }
-}
 
-int main(int, char **)
-{
+   int main(int, char **)
+   {
 
-   int rank = 0;
+      int rank = 0;
 #ifdef WITH_MPI
    rank = tiramisu_MPI_init();
 #endif
@@ -316,14 +252,7 @@ int main(int, char **)
          snk_psi_B1_im[index_2d(x,n ,Nsnk)] = v2 ;// / Vsnk;
       }
    }
-   // Weights
-   /*static int src_color_weights_r1_P[Nw][Nq] = { {0,1,2}, {0,2,1}, {1,0,2} ,{0,1,2}, {0,2,1}, {1,0,2}, {1,2,0}, {2,1,0}, {2,0,1} };
-   static int src_spin_weights_r1_P[Nw][Nq] = { {0,1,0}, {0,1,0}, {0,1,0}, {1,0,0}, {1,0,0}, {1,0,0}, {1,0,0}, {1,0,0}, {1,0,0} };
-   static double src_weights_r1_P[Nw] = {-2/ sqrt(2), 2/sqrt(2), 2/sqrt(2), 1/sqrt(2), -1/sqrt(2), -1/sqrt(2), 1/sqrt(2), -1/sqrt(2), 1/sqrt(2)};
-   static int src_color_weights_r2_P[Nw][Nq] = { {0,1,2}, {0,2,1}, {1,0,2} ,{1,2,0}, {2,1,0}, {2,0,1}, {0,1,2}, {0,2,1}, {1,0,2} };
-   static int src_spin_weights_r2_P[Nw][Nq] = { {0,1,1}, {0,1,1}, {0,1,1}, {0,1,1}, {0,1,1}, {0,1,1}, {1,0,1}, {1,0,1}, {1,0,1} };
-   static double src_weights_r2_P[Nw] = {1/ sqrt(2), -1/sqrt(2), -1/sqrt(2), 1/sqrt(2), -1/sqrt(2), 1/sqrt(2), -2/sqrt(2), 2/sqrt(2), 2/sqrt(2)}; */
-   
+
    static int src_color_weights_r1_P[Nw][Nq] = { {0,1,2}, {0,2,1}, {1,0,2}, {1,2,0}, {2,1,0}, {2,0,1}, {0,1,2}, {0,2,1}, {1,0,2}, {1,2,0}, {2,1,0}, {2,0,1} };
    static int src_spin_weights_r1_P[Nw][Nq] = { {0,1,0}, {0,1,0}, {0,1,0}, {0,1,0}, {0,1,0}, {0,1,0}, {1,0,0}, {1,0,0}, {1,0,0}, {1,0,0}, {1,0,0}, {1,0,0} };
    static double src_weights_r1_P[Nw] = {-1/ sqrt(2), 1/sqrt(2), 1/sqrt(2), -1/sqrt(2), 1/sqrt(2), -1/sqrt(2), 1/ sqrt(2), -1/sqrt(2), -1/sqrt(2), 1/sqrt(2), -1/sqrt(2), 1/sqrt(2)};
@@ -376,13 +305,76 @@ int main(int, char **)
                   t_C_im[index_5d(rp,m,r,n,t, NsrcHex,B1Nrows,NsnkHex,Lt)] = 0.0;
                }
 
-   if (rank == 0)
-   std::cout << "Start Tiramisu code." <<  std::endl;
+   // if (rank == 0)
+   // std::cout << "Start Tiramisu code." <<  std::endl;
 
    for (int i = 0; i < nb_tests; i++)
    {
-      if (rank == 0)
-         std::cout << "Run " << i << "/" << nb_tests <<  std::endl;
+      std::fstream newfile;
+      int index;
+      std::string tp;
+      // bool done = false;
+
+      // newfile.open("/home/zinou/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/index.txt", std::ios::in);
+      // if (newfile.is_open())
+      // {
+      //    while (getline(newfile, tp))
+      //    {
+      //       index = std::stoi(tp);
+      //       if (index > 1)
+      //       {
+      //          done = true;
+      //       }
+      //       index++;
+      //    }
+      //    newfile.close();
+      // }
+
+      // newfile.open("/home/zinou/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/index.txt", std::ios::in);
+      // if (newfile.is_open())
+      // {
+      //    while (getline(newfile, tp))
+      //    {
+      //       index = std::stoi(tp);
+      //       index++;
+      //    }
+      //    newfile.close();
+      // }
+      // std::ofstream findex("/home/zinou/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/index.txt", std::ofstream::out);
+      // if (findex.is_open())
+      // {
+
+      //    findex << std::to_string(index) << "\n";
+      //    findex.close();
+      // }
+      auto start2 = std::chrono::high_resolution_clock::now();
+
+      make_nucleon_2pt(C_re, C_im, B1_prop_re, B1_prop_im, src_color_weights_r1, src_spin_weights_r1, src_weights_r1, src_color_weights_r2, src_spin_weights_r2, src_weights_r2, src_psi_B1_re, src_psi_B1_im, snk_psi_B1_re, snk_psi_B1_im, Nc, Ns, Vsrc, Vsnk, Lt, Nw, Nq, NsrcHex, NsnkHex);
+
+      auto end2 = std::chrono::high_resolution_clock::now();
+      auto ref_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start2).count() / (double)1000000;
+      float float_ref_time = (float)ref_time;
+      // std::ofstream findex("/home/zinou/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/index.txt", std::ofstream::out);
+      // if (findex.is_open())
+      // {
+
+      //    findex << std::to_string(index) << "\n";
+      //    findex.close();
+      // }
+
+      std::ofstream fw("/home/zinou/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/test.txt", std::ofstream::out);
+      if (fw.is_open())
+      {
+
+         fw << std::to_string(float_ref_time) << "\n";
+         fw.close();
+      }
+   }
+
+   for (int i = 0; i < nb_tests; i++)
+   {
+      // if (rank == 0)
+      //    std::cout << "Run " << i << "/" << nb_tests <<  std::endl;
       auto start1 = std::chrono::high_resolution_clock::now();
 
        tiramisu_make_nucleon_2pt(t_C_re,
@@ -403,85 +395,50 @@ int main(int, char **)
            snk_psi_B1_im); //, Nc, Ns, Vsrc, Vsnk, Lt, Nw, Nq, NsrcHex, NsnkHex);
        
       auto end1 = std::chrono::high_resolution_clock::now();
-      std::chrono::duration<double,std::milli> duration1 = end1 - start1;
-      duration_vector_1.push_back(duration1);
+      std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(end1 - start1).count() / (double)1000000 << " " << std::flush;
+      // duration_vector_1.push_back(duration1);
    }
-
-   if (rank == 0) {
-    std::cout << "End Tiramisu code." <<  std::endl;
-
-   for (rp=0; rp<B1Nrows; rp++) {
-      printf("\n");
-      for (m=0; m<NsrcHex; m++)
-         for (r=0; r<B1Nrows; r++)
-            for (n=0; n<NsnkHex; n++)
-               for (t=0; t<Lt; t++) {
-                  printf("rp=%d, m=%d, r=%d, n=%d, t=%d: %4.1f + I (%4.1f) \n", rp, m, r, n, t, t_C_re[index_5d(rp,m,r,n,t, NsrcHex,B1Nrows,NsnkHex,Lt)],  t_C_im[index_5d(rp,m,r,n,t, NsrcHex,B1Nrows,NsnkHex,Lt)]);
-            }
-   }
-
-
-
-#if RUN_REFERENCE
-   std::cout << "Start reference C code." <<  std::endl;
-   for (int i = 0; i < nb_tests; i++)
+   std::cout << std::endl;
+   bool is_legal = true;
+   std::ofstream legal_fs("legal_results.txt", std::ofstream::app);
+   if (legal_fs.is_open())
    {
-	   std::cout << "Run " << i << "/" << nb_tests <<  std::endl;
-	   auto start2 = std::chrono::high_resolution_clock::now();
-
-      make_nucleon_2pt(C_re, C_im, B1_prop_re, B1_prop_im, src_color_weights_r1, src_spin_weights_r1, src_weights_r1, src_color_weights_r2, src_spin_weights_r2, src_weights_r2, src_psi_B1_re, src_psi_B1_im, snk_psi_B1_re, snk_psi_B1_im, Nc, Ns, Vsrc, Vsnk, Lt, Nw, Nq, NsrcHex, NsnkHex);
-
-	   auto end2 = std::chrono::high_resolution_clock::now();
-	   std::chrono::duration<double,std::milli> duration2 = end2 - start2;
-	   duration_vector_2.push_back(duration2);
+      for (rp = 0; rp < B1Nrows; rp++)
+      {
+         for (m = 0; m < NsrcHex; m++)
+            for (r = 0; r < B1Nrows; r++)
+               for (n = 0; n < NsnkHex; n++)
+                  for (t = 0; t < Lt; t++)
+                  {
+                     // if (legal_fs.is_open())
+                     // {
+                     legal_fs << "\n\n\n------------------------------";
+                     legal_fs << "C_re\n";
+                     legal_fs << std::to_string(C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]) << "\n";
+                     legal_fs << "t_C_re\n";
+                     legal_fs << std::to_string(t_C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]) << "\n";
+                     legal_fs << "C_im\n";
+                     legal_fs << std::to_string(C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]) << "\n";
+                     legal_fs << "t_C_im\n";
+                     legal_fs << std::to_string(t_C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]) << "\n";
+                     legal_fs << "\n----------------------------\n";
+                     if ((std::abs(C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)] - t_C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]) >= 0.01 * Vsnk * Vsnk) ||
+                         (std::abs(C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)] - t_C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]) >= 0.01 * Vsnk * Vsnk))
+                     {
+                        is_legal = false;
+                        break;
+                     }
+                  }
+      }
    }
-   std::cout << "End reference C code." <<  std::endl;
-#endif
-
-    print_time("performance_CPU.csv", "dibaryon", {"Tiramisu"}, {median(duration_vector_1)/1000.});
-
-#if RUN_CHECK
-    print_time("performance_CPU.csv", "dibaryon", {"Ref", "Tiramisu"}, {median(duration_vector_2)/1000., median(duration_vector_1)/1000.});
-    std::cout << "\nSpeedup = " << median(duration_vector_2)/median(duration_vector_1) << std::endl;
-    
-   for (rp=0; rp<B1Nrows; rp++) {
-      printf("\n");
-      for (m=0; m<NsrcHex; m++)
-         for (r=0; r<B1Nrows; r++)
-            for (n=0; n<NsnkHex; n++)
-               for (t=0; t<Lt; t++) {
-                  std::cout << "\n\n\n--------------------------------";
-                  std::cout << "C_re\n";
-                  std::cout << std::to_string(C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]) << "\n";
-                  std::cout << "t_C_re\n";
-                  std::cout << std::to_string(t_C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]) << "\n";
-                  std::cout << "C_im\n";
-                  std::cout << std::to_string(C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]) << "\n";
-                  std::cout << "t_C_im\n";
-                  std::cout << std::to_string(t_C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]) << "\n";
-                  std::cout << "\n----------------------------\n";
-                  if ((std::abs(C_re[index_5d(rp,m,r,n,t, NsrcHex,B1Nrows,NsnkHex,Lt)] - t_C_re[index_5d(rp,m,r,n,t, NsrcHex,B1Nrows,NsnkHex,Lt)]) >= 0.01*Vsnk*Vsnk) ||
-	               (std::abs(C_im[index_5d(rp,m,r,n,t, NsrcHex,B1Nrows,NsnkHex,Lt)] -  t_C_im[index_5d(rp,m,r,n,t, NsrcHex,B1Nrows,NsnkHex,Lt)]) >= 0.01*Vsnk*Vsnk))
-	            {
-                  printf("rp=%d, m=%d, n=%d, t=%d: %4.1f + I (%4.1f) vs %4.1f + I (%4.1f) \n", rp, m, n, t, C_re[index_5d(rp,m,r,n,t, NsrcHex,B1Nrows,NsnkHex,Lt)], C_im[index_5d(rp,m,r,n,t, NsrcHex,B1Nrows,NsnkHex,Lt)],  t_C_re[index_5d(rp,m,r,n,t, NsrcHex,B1Nrows,NsnkHex,Lt)],  t_C_im[index_5d(rp,m,r,n,t, NsrcHex,B1Nrows,NsnkHex,Lt)]);
-		            std::cout << "Error: different computed values for C_r or C_i!" << std::endl;
-		            exit(1);
-	            }
-            }
-   }
-
-#endif
-   printf("Finished\n");
-
-    std::cout << "\n\n\033[1;32mSuccess: computed values are equal!\033[0m\n\n" << std::endl;
-   }
+   legal_fs.close();
 
 #ifdef WITH_MPI
     tiramisu_MPI_cleanup();
 #endif
 
     return 0;
-}
+   }
 
 #ifdef __cplusplus
 }  // extern "C"

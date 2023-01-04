@@ -41,32 +41,23 @@ namespace tiramisu::auto_scheduler
             ast.evaluation = initial_exec_time;
             //    if (std::atoi(read_env_var("AS_VERBOSE"))==1)
             std::cout << "Initial exec time 1 : " << initial_exec_time << std::endl;
-            std::cout << "\n\n.5";
 
             std::string program_json = evaluate_by_learning_model::get_program_json(ast);
-            std::cout << "\n\n1";
 
             std::vector<std::string> schedules_annotations;
-            std::cout << "\n\n2";
 
             // add the no_schedule version to the schedule list
             std::string empty_schedule_json = evaluate_by_learning_model::get_schedule_json(ast);
-            std::cout << "\n\n3";
 
             empty_schedule_json.pop_back(); // remove the last two characters }\n
             empty_schedule_json.pop_back();
-            std::cout << "\n\n4";
 
             empty_schedule_json += ", \n\"execution_times\" : " + measurements_to_str(initial_measurements) + "\n}\n";
-            std::cout << "\n\n5";
 
             schedules_annotations.push_back(empty_schedule_json);
-            std::cout << "\n\n6";
 
             // export the the initial execution time as an env var so that it can be used for adjusting the number of runs by the wrappers
             setenv("INIT_EXEC_TIME", std::to_string(initial_exec_time).c_str(), true);
-
-            std::cout << "\n\n7";
 
             // initialize the exploration trace root
             candidate_trace exploration_trace_root = candidate_trace(&ast, 0);
@@ -82,21 +73,17 @@ namespace tiramisu::auto_scheduler
                 //        if (std::atoi(read_env_var("AS_VERBOSE")) == 1)
                 std::cout << "Schedule measurements timeout set to " << schedule_timeout << "*" << read_env_var("MAX_RUNS") << "(MAX_RUNS) s" << std::endl;
             }
-            std::cout << "\n\n8";
 
             searcher->set_exec_eval(exec_evaluator);
-            std::cout << "\n\n9";
 
             // start exploration with fusion and explore other transformations recursivly
             // searcher->explore_fusion(ast, &schedules_annotations, &exploration_trace_root, schedule_timeout);
             // searcher->search_save_matrix(ast, &schedules_annotations, &exploration_trace_root, schedule_timeout);
             ast.initialize_search_space_optimizations(DEFAULT_OPTIMIZATIONS_ORDER);
-            std::cout << "\n\n10";
 
             // // if we surpassed the MAX_MAT_DEPTH amount of matrices to explore OR we detected the parent of this level through
             // // the child->search_depth<=child->nb_explored_matrices condition which means that the search level is greater than the number of applied matrices
             searcher->search_save(ast, &schedules_annotations, &exploration_trace_root, schedule_timeout);
-            std::cout << "\n\n11";
 
             std::string output_json;
 
@@ -156,7 +143,6 @@ namespace tiramisu::auto_scheduler
         }
         catch (const std::bad_alloc &e)
         {
-            std::cout << "\n\n\nhereherherherhrhehrherhehrhehrhehrehrhehrhehrehrh-----------------5";
             std::cout << "Allocation failed: " << e.what() << "\n";
         }
     }

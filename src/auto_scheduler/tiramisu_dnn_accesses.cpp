@@ -16,10 +16,8 @@ namespace tiramisu::auto_scheduler
         {
             std::string name = isl_set_get_dim_name(iter_domain, isl_dim_set, i);
             std::unordered_map<std::string, int> constraints_map = utility::get_constraints_map(iter_domain);
-            std::cout << "\nhere 17";
 
             int low_bound = utility::get_bound(iter_domain, i, false, constraints_map).get_int_val();
-            std::cout << "\nhere 18";
 
             int up_bound = utility::get_bound(iter_domain, i, true, constraints_map).get_int_val();
 

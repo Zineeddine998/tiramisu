@@ -1045,10 +1045,8 @@ std::string utility::get_parameters_list(isl_set *set)
 int utility::get_extent(isl_set *set, int dim)
 {
     std::unordered_map<std::string, int> constraints_map = utility::get_constraints_map(set);
-    std::cout << "\nhere 2";
 
     tiramisu::expr lower_bound = tiramisu::utility::get_bound(set, dim, false, constraints_map);
-    std::cout << "\nhere 3";
 
     tiramisu::expr upper_bound = tiramisu::utility::get_bound(set, dim, true, constraints_map);
 
@@ -1122,10 +1120,8 @@ std::vector<tiramisu::expr> computation::compute_buffer_size()
 
         DEBUG(3, tiramisu::str_dump("Extracting bounds of the following set:", isl_set_to_str(union_iter_domain)));
         std::unordered_map<std::string, int> constraints_map = utility::get_constraints_map(union_iter_domain);
-        std::cout << "\nhere 4";
 
         tiramisu::expr lower = utility::get_bound(union_iter_domain, i, false, constraints_map);
-        std::cout << "\nhere 5";
 
         tiramisu::expr upper = utility::get_bound(union_iter_domain, i, true, constraints_map);
         tiramisu::expr diff = (upper - lower + 1);
@@ -5987,10 +5983,10 @@ tiramisu::expr utility::extract_bound_expression(isl_ast_node *node, int dim, bo
     DEBUG_INDENT(-4);
 
     return result;
-
-    } catch (const std::bad_alloc& e) {
-        std::cout<<"\n\n\nhereherherherhrhehrherhehrhehrhehrehrhehrhehrehrh-----------------3";
-        std::cout << "Allocation failed: " << e.what() << "\n";
+    }
+    catch (const std::bad_alloc &e)
+    {
+    std::cout << "Allocation failed: " << e.what() << "\n";
     }
 }
 
@@ -6165,14 +6161,15 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper, std::unorder
     assert(e.is_defined() && "The computed bound expression is undefined.");
     DEBUG(10, tiramisu::str_dump(std::string("The ") + (upper ? "upper" : "lower") + " bound is : "); e.dump(false));
     // std::cout << std::string("\nThe ") + (upper ? "upper" : "lower") + " bound is : ";
-    e.dump(false);
-    std::cout << "\n";
+    // e.dump(false);
+    // std::cout << "\n";
     DEBUG_INDENT(-4);
 
     return e;
-    } catch (const std::bad_alloc& e) {
-        std::cout<<"\n\n\nhereherherherhrhehrherhehrhehrhehrehrhehrhehrehrh-----------------2";
-        std::cout << "Allocation failed: " << e.what() << "\n";
+    }
+    catch (const std::bad_alloc &e)
+    {
+    std::cout << "Allocation failed: " << e.what() << "\n";
     }
 }
 std::unordered_map<std::string, int> utility::get_constraints_map(isl_set *set)
@@ -6242,14 +6239,12 @@ bool computation::separateAndSplit(int L0, int v)
     DEBUG(3, tiramisu::str_dump("Computing upper bound at loop level " + std::to_string(L0)));
 
     std::unordered_map<std::string, int> constraints_map = utility::get_constraints_map(this->get_trimmed_time_processor_domain());
-    std::cout << "\nhere 6";
 
     tiramisu::expr loop_upper_bound =
         tiramisu::expr(o_cast, global::get_loop_iterator_data_type(),
                        tiramisu::utility::get_bound(this->get_trimmed_time_processor_domain(), L0, true, constraints_map));
 
     DEBUG(3, tiramisu::str_dump("Computing lower bound at loop level " + std::to_string(L0)));
-    std::cout << "\nhere 7";
 
     tiramisu::expr loop_lower_bound =
         tiramisu::expr(o_cast, global::get_loop_iterator_data_type(),
@@ -7864,7 +7859,6 @@ std::vector<std::string> computation::get_loop_level_names()
             }
 
             DEBUG(3, tiramisu::str_dump("Names of loop levels: " + names_to_print_for_debugging));
-            std::cout << "\n\n\nNames of loop levels: " + names_to_print_for_debugging;
             DEBUG_INDENT(-4);
 
             return names;
@@ -9109,19 +9103,17 @@ expr tiramisu::computation::get_span(int level)
 {
             this->check_dimensions_validity({level});
             std::unordered_map<std::string, int> constraints_map = utility::get_constraints_map(this->get_trimmed_time_processor_domain());
-            std::cout << "\nhere 8";
 
-    tiramisu::expr loop_upper_bound =
-        tiramisu::utility::get_bound(this->get_trimmed_time_processor_domain(),
-                                     level, true, constraints_map);
-    std::cout << "\nhere 9";
+            tiramisu::expr loop_upper_bound =
+                tiramisu::utility::get_bound(this->get_trimmed_time_processor_domain(),
+                                             level, true, constraints_map);
 
-    tiramisu::expr loop_lower_bound =
-        tiramisu::utility::get_bound(this->get_trimmed_time_processor_domain(),
-                                     level, false, constraints_map);
+            tiramisu::expr loop_lower_bound =
+                tiramisu::utility::get_bound(this->get_trimmed_time_processor_domain(),
+                                             level, false, constraints_map);
 
-    tiramisu::expr loop_bound = loop_upper_bound - loop_lower_bound + value_cast(global::get_loop_iterator_data_type(), 1);
-    return loop_bound.simplify();
+            tiramisu::expr loop_bound = loop_upper_bound - loop_lower_bound + value_cast(global::get_loop_iterator_data_type(), 1);
+            return loop_bound.simplify();
 }
 
 void tiramisu::buffer::tag_gpu_shared() {
