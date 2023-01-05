@@ -1248,51 +1248,39 @@ void tiramisu::computation::vectorize(tiramisu::var L0_var, int v, tiramisu::var
 {
     DEBUG_FCT_NAME(3);
     DEBUG_INDENT(4);
-    tiramisu::str_dump("\n111111111111111111111111111\n");
     std::vector<std::string> original_loop_level_names = this->get_loop_level_names();
-    tiramisu::str_dump("\n22222222222222222222222222\n");
 
     assert(L0_var.get_name().length() > 0);
     std::vector<int> dimensions =
         this->get_loop_level_numbers_from_dimension_names({L0_var.get_name()});
-    tiramisu::str_dump("\n333333333333333333333333333333333\n");
 
     this->check_dimensions_validity(dimensions);
-    tiramisu::str_dump("\n4444444444444444444444444444444444444444\n");
 
     int L0 = dimensions[0];
 
     bool split_happened = this->separateAndSplit(L0_var, v, L0_outer, L0_inner);
-    tiramisu::str_dump("\n55555555555555555555555555555555555\n");
 
     if (split_happened)
     {
         // Tag the inner loop after splitting to be vectorized. That loop
         // is supposed to have a constant extent.
         this->get_update(0).tag_vector_level(L0 + 1, v);
-        tiramisu::str_dump("\n6-split666666666666666666666666666666666\n");
 
         // Replace the original dimension name with two new dimension names
         this->update_names(original_loop_level_names, {L0_outer.get_name(), L0_inner.get_name()}, L0, 1);
-        tiramisu::str_dump("\n7-split77777777777777777777777777777777777777\n");
     }
     else
     {
-        tiramisu::str_dump("\n6-no-split66666666666666666666666666666666666666666\n");
 
         this->get_update(0).tag_vector_level(L0, v);
-        tiramisu::str_dump("\n7-no-split77777777777777777777777777777777777777777777777777\n");
 
         this->set_loop_level_names({L0}, {L0_outer.get_name()});
-        tiramisu::str_dump("\n8-no-split88888888888888888888888888888888888888888888888888\n");
 
         // Replace the original dimension name with two new dimension names
         this->update_names(original_loop_level_names, {L0_inner.get_name()}, L0, 1);
-        tiramisu::str_dump("\n9-no-split9999999999999999999999999999999999999999999999999999\n");
     }
 
     this->get_function()->align_schedules();
-    tiramisu::str_dump("\n777777777777777777777777777777777777777777777777777777\n");
 
     DEBUG_INDENT(-4);
 }
@@ -2597,12 +2585,10 @@ void computation::assert_names_not_assigned(
 
 void computation::check_dimensions_validity(std::vector<int> dimensions)
 {
-    tiramisu::str_dump("\n-------------\n");
     for (int dimension : dimensions)
     {
         tiramisu::str_dump(std::to_string(dimension));
     }
-    tiramisu::str_dump("\n-------------\n");
 
     assert(dimensions.size() > 0);
 
@@ -2612,19 +2598,13 @@ void computation::check_dimensions_validity(std::vector<int> dimensions)
                                      std::to_string(dim)));
 
         assert(dim >= computation::root_dimension);
-        tiramisu::str_dump("\n||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
 
-        tiramisu::str_dump(std::to_string(loop_level_into_dynamic_dimension(dim)));
-        tiramisu::str_dump("\n");
-        tiramisu::str_dump(std::to_string(isl_space_dim(isl_map_get_space(this->get_schedule()),
-                                                        isl_dim_out)));
-        tiramisu::str_dump("\n||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
+
 
         if (loop_level_into_dynamic_dimension(dim) >=
             isl_space_dim(isl_map_get_space(this->get_schedule()),
                           isl_dim_out))
         {
-            tiramisu::str_dump("\n|||||||||||||||||||78493274923874089374893473892473984729384723894732098|||||||||||||||||||||||||||||||||||\n");
 
             ERROR("The dynamic dimension " +
                             std::to_string(loop_level_into_dynamic_dimension(dim)) +
@@ -6114,22 +6094,13 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper)
 {
     DEBUG_FCT_NAME(10);
     DEBUG_INDENT(4);
-    tiramisu::str_dump("\nget bound1\n");
 
     std::unordered_map<std::string, int> constraints_map = utility::get_constraints_map(set);
-    tiramisu::str_dump("\nget bound2\n");
 
     assert(set != NULL);
     assert(dim >= 0);
     assert(dim < isl_space_dim(isl_set_get_space(set), isl_dim_set));
     assert(isl_set_is_empty(set) == isl_bool_false);
-    tiramisu::str_dump("\nget bound3\n");
-
-    tiramisu::str_dump(std::string("Getting the ") + (upper ? "upper" : "lower") +
-                           " bound on the dimension " +
-                           std::to_string(dim) + " of the set ",
-                       isl_set_to_str(set));
-    tiramisu::str_dump("\nget bound4\n");
 
     tiramisu::expr e = tiramisu::expr(0);
     isl_ast_build *ast_build;
@@ -6215,13 +6186,10 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper)
     }
     isl_ast_build_free(ast_build);
     assert(e.is_defined() && "The computed bound expression is undefined.");
-    tiramisu::str_dump(std::string("The ") + (upper ? "upper" : "lower") + " bound is : ");
-    e.dump(false);
     // std::cout << std::string("\nThe ") + (upper ? "upper" : "lower") + " bound is : ";
     // e.dump(false);
     // std::cout << "\n";
 
-    tiramisu::str_dump("\n");
     DEBUG_INDENT(-4);
 
     return e;
@@ -6250,20 +6218,14 @@ bool computation::separateAndSplit(int L0, int v)
 
     DEBUG(3, tiramisu::str_dump("Applying separateAndSplit on loop level " + std::to_string(L0) + " with a split factor of " + std::to_string(v)));
 
-    tiramisu::str_dump("\ninner seperate and split 1\n");
     this->gen_time_space_domain();
-    tiramisu::str_dump("\ninner seperate and split 2\n");
 
     // Compute the depth before any scheduling.
     int original_depth = this->compute_maximal_AST_depth();
 
-    tiramisu::str_dump("\ninner seperate and split 3\n");
 
-    tiramisu::str_dump("Computing upper bound at loop level " + std::to_string(L0));
 
-    tiramisu::str_dump("\n trimmed time start\n");
     tiramisu::str_dump(isl_set_to_str(this->get_trimmed_time_processor_domain()));
-    tiramisu::str_dump("\n trimmed time end\n");
 
     // tiramisu::expr expression_test = tiramisu::utility::get_bound(this->get_trimmed_time_processor_domain(), L0, true);
     // expression_test.dump(false);
@@ -6271,7 +6233,6 @@ bool computation::separateAndSplit(int L0, int v)
     tiramisu::expr loop_upper_bound =
         tiramisu::expr(o_cast, global::get_loop_iterator_data_type(),
                        tiramisu::utility::get_bound(this->get_trimmed_time_processor_domain(), L0, true));
-    tiramisu::str_dump("\ninner seperate and split 4\n");
 
     loop_upper_bound.dump(false);
 
@@ -6283,10 +6244,8 @@ bool computation::separateAndSplit(int L0, int v)
 
     loop_lower_bound.dump(false);
 
-    tiramisu::str_dump("\ninner seperate and split 5\n");
 
     std::string lower_without_cast = loop_lower_bound.to_str();
-    tiramisu::str_dump("\ninner seperate and split 6\n");
 
     while (lower_without_cast.find("cast") != std::string::npos) // while there is a "cast" in the expression
     {
@@ -6294,19 +6253,15 @@ bool computation::separateAndSplit(int L0, int v)
         // An alternative to this would be to actually mutate the expression N and remove the cast
         // operator, but that is more time consuming to implement than replacing the string directly.
         int pos = lower_without_cast.find("cast");
-        tiramisu::str_dump("\ninner seperate and split 7\n");
 
         lower_without_cast = lower_without_cast.erase(pos, 4);
-        tiramisu::str_dump("\ninner seperate and split 8\n");
     }
 
     tiramisu::expr loop_bound = loop_upper_bound - loop_lower_bound +
                                 tiramisu::expr(o_cast, global::get_loop_iterator_data_type(), tiramisu::expr((int32_t)1));
-    tiramisu::str_dump("\ninner seperate and split 9\n");
 
     loop_bound = loop_bound.simplify();
 
-    tiramisu::str_dump("\ninner seperate and split 10\n");
 
     DEBUG(3, tiramisu::str_dump("Loop bound for the loop to be separated and split: "); loop_bound.dump(false));
 
@@ -6326,13 +6281,11 @@ bool computation::separateAndSplit(int L0, int v)
      */
     this->separate(L0, loop_bound, v, loop_lower_bound);
 
-    tiramisu::str_dump("\ninner seperate and split 11\n");
 
     // Make a copy of the schedule before splitting so that we revert the
     // schedule if splitting did not have any effect (i.e., did not happen).
     isl_map *sc = isl_map_copy(this->get_schedule());
 
-    tiramisu::str_dump("\ninner seperate and split 12\n");
 
     /**
      * Split the full computation since the full computation will be vectorized.
@@ -6340,18 +6293,15 @@ bool computation::separateAndSplit(int L0, int v)
     // this->get_update(0).split(L0, v);
     this->get_update(0).split_with_lower_bound(L0, v, lower_without_cast);
 
-    tiramisu::str_dump("\ninner seperate and split 13\n");
 
     // Compute the depth after scheduling.
     int depth = this->compute_maximal_AST_depth();
 
-    tiramisu::str_dump("\ninner seperate and split 14\n");
 
     bool split_happened = false;
     if (depth == original_depth)
     {
         DEBUG(3, tiramisu::str_dump("Split did not happen."));
-        tiramisu::str_dump("\ninner seperate and split 15\n");
 
         split_happened = false;
 
@@ -6364,11 +6314,9 @@ bool computation::separateAndSplit(int L0, int v)
     {
         split_happened = true;
         DEBUG(3, tiramisu::str_dump("Split happenned."));
-        tiramisu::str_dump("\ninner seperate and split 17\n");
     }
 
     this->get_function()->align_schedules();
-    tiramisu::str_dump("\ninner seperate and split 18\n");
 
     DEBUG_INDENT(-4);
 
@@ -6382,35 +6330,28 @@ bool computation::separateAndSplit(tiramisu::var L0_var, int v,
     DEBUG_INDENT(4);
 
     std::vector<std::string> original_loop_level_names = this->get_loop_level_names();
-    tiramisu::str_dump("\n seperate and split 1\n");
     assert(L0_var.get_name().length() > 0);
     std::vector<int> dimensions =
         this->get_loop_level_numbers_from_dimension_names({L0_var.get_name()});
-    tiramisu::str_dump("\n seperate and split 2\n");
 
     this->check_dimensions_validity(dimensions);
 
-    tiramisu::str_dump("\n seperate and split 3\n");
 
     int L0 = dimensions[0];
 
-    tiramisu::str_dump("\n seperate and split 4\n");
 
     bool split_happened = this->separateAndSplit(L0, v);
 
-    tiramisu::str_dump("\n seperate and split 5\n");
 
     if (split_happened == false)
     {
         // Replace the original dimension name with the name of the outermost loop
         this->update_names(original_loop_level_names, {L0_outer.get_name()}, L0, 1);
-        tiramisu::str_dump("\n seperate and split 6\n");
     }
     else
     {
         // Replace the original dimension name with two new dimension names
         this->update_names(original_loop_level_names, {L0_outer.get_name(), L0_inner.get_name()}, L0, 1);
-        tiramisu::str_dump("\n seperate and split 7\n");
     }
 
     return split_happened;
@@ -7855,19 +7796,14 @@ isl_map *tiramisu::computation::gen_identity_schedule_for_iteration_domain()
 
 isl_set *tiramisu::computation::get_trimmed_time_processor_domain()
 {
-    tiramisu::str_dump("\nget_trimmed_time_processor_domain 1\n");
     isl_set *tp_domain = isl_set_copy(this->get_time_processor_domain());
-    tiramisu::str_dump("\nget_trimmed_time_processor_domain 2\n");
 
     const char *name = isl_set_get_tuple_name(isl_set_copy(tp_domain));
-    tiramisu::str_dump("\nget_trimmed_time_processor_domain 3\n");
 
     isl_set *tp_domain_without_duplicate_dim =
         isl_set_project_out(isl_set_copy(tp_domain), isl_dim_set, 0, 1);
-    tiramisu::str_dump("\nget_trimmed_time_processor_domain 4\n");
 
     tp_domain_without_duplicate_dim = isl_set_set_tuple_name(tp_domain_without_duplicate_dim, name);
-    tiramisu::str_dump("\nget_trimmed_time_processor_domain 5\n");
 
     return tp_domain_without_duplicate_dim ;
 }

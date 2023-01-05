@@ -710,11 +710,15 @@ std::string evaluate_by_learning_model::get_schedule_json(syntax_tree & ast)
 
 void evaluate_by_learning_model::represent_iterators_from_nodes(ast_node *node, std::string& iterators_json)
 {
+    std::string iter_json = "";
+
     if (node->get_extent() <= 1)
+    {
+
+        iterators_json += "\"" + node->name + "\" : {},";
         return;
-        
-    std::string iter_json;
-    
+    }
+
     // Represent basic information about this iterator
     iter_json += "\"lower_bound\" : " + std::to_string(node->low_bound) + ",";
     iter_json += "\"upper_bound\" : " + std::to_string(node->up_bound + 1) + ",";
