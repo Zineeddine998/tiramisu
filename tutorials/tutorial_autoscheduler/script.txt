@@ -1,0 +1,14 @@
+export BEAM_SIZE=1
+export DYNAMIC_RUNS=1
+export MAX_RUNS=1
+export NB_EXEC=1
+export AS_VERBOSE=1
+export MAX_DEPTH=4
+export MIN_RUNS=1
+export TIRAMISU_ROOT=/home/zinou/tiramisu/
+mkdir build ; cd build
+cmake ..
+make
+../generator
+g++ -shared -o function.o.so function000274.o
+g++ -std=c++11 -fno-rtti -I${TIRAMISU_ROOT}/include -I${TIRAMISU_ROOT}/3rdParty/Halide/include -I${TIRAMISU_ROOT}/3rdParty/isl/include/ -I${TIRAMISU_ROOT}/benchmarks -L${TIRAMISU_ROOT}/build -L${TIRAMISU_ROOT}/3rdParty/Halide/lib/ -L${TIRAMISU_ROOT}/3rdParty/isl/build/lib -o function000274_wrapper -ltiramisu -lHalide -ldl -lpthread -lz -lm -Wl,-rpath,${TIRAMISU_ROOT}/build ../function000274_wrapper.cpp ./function.o.so -ltiramisu -lHalide -ldl -lpthread -lz -lm

@@ -5353,6 +5353,11 @@ public:
      */
      static expr extract_bound_expression(isl_ast_node *ast, int dim, bool upper);
 
+          /**
+      * get constraints map
+      */
+     static std::unordered_map<std::string, int> get_constraints_map(isl_set *set);
+
     /**
      * Return a tiramisu::expr representing the bound of
      * the dimension \p dim in \p set.  If \p upper is true

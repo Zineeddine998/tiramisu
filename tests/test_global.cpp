@@ -28,7 +28,8 @@ std::vector<std::pair<std::string, bool>> test_results;
 #define SIZE	   10
 #define FCT_NAME   "name"
 
-#define SET_1D_0   "[N]->{S0[i]: 0 <= i <= N}"
+// #define SET_1D_0   "[N]->{S0[i]: 0 <= i <= N}"
+#define SET_1D_0 "[N] -> { S2[0, j, 0, t86 = 0, 0, t87 = 0, 0, t88 = 0, 0] : 0 <= j < N }"
 #define SET_1D_1   "[N]->{S0[i]: 0 <= i <  N}"
 #define SET_1D_2   "[N]->{S0[i]: 0 <= i <  N-1}"
 #define SET_1D_3   "[N]->{S0[i]: 1  < i <  N+1}"

@@ -261,13 +261,21 @@ public:
     expr(tiramisu::op_t o, tiramisu::primitive_t dtype, tiramisu::expr expr0)
     {
         assert((o == tiramisu::o_cast) && "Only support cast operator.");
-
+        tiramisu::str_dump("\nexpr 1\n");
         this->_operator = o;
+        tiramisu::str_dump("\nexpr 2\n");
+
         this->etype = tiramisu::e_op;
+        tiramisu::str_dump("\nexpr 3\n");
+
         this->dtype = dtype;
+        tiramisu::str_dump("\nexpr 4\n");
+
         this->defined = true;
+        tiramisu::str_dump("\nexpr 5\n");
 
         this->op.push_back(expr0);
+        tiramisu::str_dump("\nexpr 6\n");
     }
 
     /**
