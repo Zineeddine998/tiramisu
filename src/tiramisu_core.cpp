@@ -1250,15 +1250,19 @@ void tiramisu::computation::vectorize(tiramisu::var L0_var, int v, tiramisu::var
     DEBUG_INDENT(4);
     std::vector<std::string> original_loop_level_names = this->get_loop_level_names();
 
+    std::string isl_map_str = isl_map_to_str(this->get_schedule());
     assert(L0_var.get_name().length() > 0);
     std::vector<int> dimensions =
         this->get_loop_level_numbers_from_dimension_names({L0_var.get_name()});
 
+
     this->check_dimensions_validity(dimensions);
+
 
     int L0 = dimensions[0];
 
     bool split_happened = this->separateAndSplit(L0_var, v, L0_outer, L0_inner);
+
 
     if (split_happened)
     {
@@ -2585,11 +2589,6 @@ void computation::assert_names_not_assigned(
 
 void computation::check_dimensions_validity(std::vector<int> dimensions)
 {
-    for (int dimension : dimensions)
-    {
-        tiramisu::str_dump(std::to_string(dimension));
-    }
-
     assert(dimensions.size() > 0);
 
     for (auto const dim: dimensions)
@@ -5678,21 +5677,36 @@ void computation::compute_at(computation &consumer, int L)
 
 std::unordered_map<std::string, int> utility::get_constraints_map(isl_set *set)
 {
-    isl_basic_set_list *bset_list = isl_set_get_basic_set_list(set);
+
+    // isl set -> isl map -> isl map get constraints list
+
     std::unordered_map<std::string, int> constraints_map{};
 
+    isl_basic_set_list *bset_list = isl_set_get_basic_set_list(set);
+
     int n_basic_set = isl_set_n_basic_set(set);
+
+
     for (int i = 0; i < n_basic_set; i++)
     {
         isl_basic_set *bset = isl_basic_set_list_get_basic_set(bset_list, i);
         isl_constraint_list *cst_list = isl_basic_set_get_constraint_list(bset);
+
         for (int j = 0; j < isl_constraint_list_n_constraint(cst_list); j++)
         {
             isl_constraint *cst = isl_constraint_list_get_constraint(cst_list, j);
 
             for (int k = 0; k < isl_set_dim(set, isl_dim_out); k++)
             {
-                std::string dim_name = isl_set_get_dim_name(set, isl_dim_out, k);
+                std::string dim_name = "";
+                if (isl_set_get_dim_name(set, isl_dim_out, k) != NULL)
+                {
+                    dim_name = isl_set_get_dim_name(set, isl_dim_out, k);
+                }
+                else
+                {
+                    continue;
+                }
 
                 if (isl_constraint_involves_dims(cst, isl_dim_set, k, 1))
                 {
@@ -5709,13 +5723,12 @@ std::unordered_map<std::string, int> utility::get_constraints_map(isl_set *set)
             }
         }
     }
-
     return constraints_map;
 }
 
 /**
-  * Wrapper around compute_at(computation &consumer, int L).
-  */
+ * Wrapper around compute_at(computation &consumer, int L).
+ */
 void computation::compute_at(computation &consumer, tiramisu::var L_var)
 {
     DEBUG_FCT_NAME(3);
@@ -5769,7 +5782,6 @@ bool isl_constraint_is_simple(isl_constraint *cst, int dim)
     return simple;
 }
 
-
 /**
  * Extract a tiramisu expression that represents the bound on the dimension
  * \p dim in the constraint \p cst.
@@ -5787,8 +5799,7 @@ tiramisu::expr extract_tiramisu_expr_from_cst(isl_constraint *cst, int dim, bool
     isl_space *space = isl_constraint_get_space(cst);
     tiramisu::expr e = tiramisu::expr();
 
-    DEBUG(10, tiramisu::str_dump("Computing the expression that correspond to the following constraint at dimension "
-                                 + std::to_string(dim) + " : "));
+    DEBUG(10, tiramisu::str_dump("Computing the expression that correspond to the following constraint at dimension " + std::to_string(dim) + " : "));
     DEBUG(10, isl_constraint_dump(cst));
 
     // Add the parameter to the expression
@@ -5811,7 +5822,8 @@ tiramisu::expr extract_tiramisu_expr_from_cst(isl_constraint *cst, int dim, bool
 
                 param = tiramisu::expr(o_mul,
                                        tiramisu::expr(o_cast, tiramisu::global::get_loop_iterator_data_type(),
-                                                      tiramisu::expr((int32_t) c)), param);
+                                                      tiramisu::expr((int32_t)c)),
+                                       param);
             }
 
             if (e.is_defined() == false)
@@ -5836,7 +5848,7 @@ tiramisu::expr extract_tiramisu_expr_from_cst(isl_constraint *cst, int dim, bool
             v = -1 * v;
         }
 
-        tiramisu::expr c = tiramisu::expr(o_cast, global::get_loop_iterator_data_type(), tiramisu::expr((int32_t) v));
+        tiramisu::expr c = tiramisu::expr(o_cast, global::get_loop_iterator_data_type(), tiramisu::expr((int32_t)v));
 
         if (e.is_defined() == false)
         {
@@ -5914,16 +5926,16 @@ int compute_recursively_max_AST_depth(isl_ast_node *node)
 }
 
 /**
-  * Traverse recursively the ISL AST tree
-  *
-  * \p node represents the root of the tree to be traversed.
-  *
-  * \p dim is the dimension of the loop from which the bounds have to be
-  * extracted.
-  *
-  * \p upper is a boolean that should be set to true to extract
-  * the upper bound and false to extract the lower bound.
-  */
+ * Traverse recursively the ISL AST tree
+ *
+ * \p node represents the root of the tree to be traversed.
+ *
+ * \p dim is the dimension of the loop from which the bounds have to be
+ * extracted.
+ *
+ * \p upper is a boolean that should be set to true to extract
+ * the upper bound and false to extract the lower bound.
+ */
 tiramisu::expr utility::extract_bound_expression(isl_ast_node *node, int dim, bool upper)
 {
     assert(node != NULL);
@@ -5957,20 +5969,20 @@ tiramisu::expr utility::extract_bound_expression(isl_ast_node *node, int dim, bo
                 isl_ast_expr *cond = isl_ast_node_for_get_cond(node);
 
                 /**
-                  * If we have an expression
-                  *  i < N
-                  * or an expression
-                  *  i <= N - 1
-                  *
-                  * In both cases, the returned bound should be (N-1).
-                  */
+                 * If we have an expression
+                 *  i < N
+                 * or an expression
+                 *  i <= N - 1
+                 *
+                 * In both cases, the returned bound should be (N-1).
+                 */
                 if (isl_ast_expr_get_op_type(cond) == isl_ast_op_lt)
                 {
                     // Create an expression of "1".
                     isl_val *one = isl_val_one(isl_ast_node_get_ctx(node));
                     // Add 1 to the ISL ast upper bound to transform it into a strinct bound.
                     result = tiramisu_expr_from_isl_ast_expr(isl_ast_expr_sub(isl_ast_expr_get_op_arg(cond, 1),
-                                                             isl_ast_expr_from_val(one)));
+                                                                              isl_ast_expr_from_val(one)));
                 }
                 else if (isl_ast_expr_get_op_type(cond) == isl_ast_op_le)
                 {
@@ -5986,7 +5998,7 @@ tiramisu::expr utility::extract_bound_expression(isl_ast_node *node, int dim, bo
         else
         {
             isl_ast_node *body = isl_ast_node_for_get_body(node);
-            result = utility::extract_bound_expression(body, dim-1, upper);
+            result = utility::extract_bound_expression(body, dim - 1, upper);
             isl_ast_node_free(body);
         }
 
@@ -6011,7 +6023,7 @@ tiramisu::expr utility::extract_bound_expression(isl_ast_node *node, int dim, bo
             ERROR("If Then Else is unsupported in bound extraction.", true);
         }
         else
-            result = then_bound; //tiramisu::expr(tiramisu::o_cond, cond_bound, then_bound);
+            result = then_bound; // tiramisu::expr(tiramisu::o_cond, cond_bound, then_bound);
     }
 
     DEBUG(3, tiramisu::str_dump("Extracted bound:"); result.dump(false));
@@ -6030,7 +6042,7 @@ int computation::compute_maximal_AST_depth()
     assert(set != NULL);
 
     DEBUG(10, tiramisu::str_dump(std::string("Getting the ") +
-                                 " maximal AST depth of the set ",
+                                     " maximal AST depth of the set ",
                                  isl_set_to_str(set)));
 
     isl_ast_build *ast_build;
@@ -6113,7 +6125,7 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper)
     sched = isl_map_set_tuple_name(sched, isl_dim_out, "");
 
     // Generate the AST.
-    tiramisu::str_dump("Setting ISL AST generator options.");
+    // tiramisu::str_dump("Setting ISL AST generator options.");
     // std::cout << "\n Setting ISL AST generator options.";
     isl_options_set_ast_build_atomic_upper_bound(ctx, 1);
     isl_options_get_ast_build_exploit_nested_bounds(ctx);
@@ -6122,7 +6134,7 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper)
     isl_options_set_ast_build_detect_min_max(ctx, 1);
 
     // Intersect the iteration domain with the domain of the schedule.
-    tiramisu::str_dump("Generating time-space domain.");
+    // tiramisu::str_dump("Generating time-space domain.");
     // std::cout << "\n Generating time-space domain";
     isl_map *map =
         isl_map_intersect_domain(
@@ -6130,7 +6142,6 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper)
             isl_set_copy(set));
 
     // Set iterator names
-    str_dump("Setting the iterator names.");
     // std::cout << "\n Setting the iterator names";
     int length = isl_map_dim(map, isl_dim_out);
     isl_id_list *iterators = isl_id_list_alloc(ctx, length);
@@ -6154,7 +6165,7 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper)
     isl_ast_node* node1 = node;
     int cpt = 0;
     bool stop = false;
-    // calculate the number of for loops 
+    // calculate the number of for loops
     while(!stop){
         if(isl_ast_node_get_type(node1) == isl_ast_node_for ){
             cpt++;
@@ -6165,25 +6176,34 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper)
         }
         else if(isl_ast_node_get_type(node1) == isl_ast_node_if){
             node1 = isl_ast_node_if_get_then(node1);
-        }             
+        }
     }
     // if the number of for levels is less or equal to the unrolled loop, skip the optimization (exception handled when getting measurements)
     // if(cpt <= dim){throw UnrollingException();}
 
-    std::string dim_name = isl_set_get_dim_name(set, isl_dim_set, dim);
-    if (constraints_map.find(dim_name) != constraints_map.end() && constraints_map[dim_name] != 0)
+    std::string dim_name = "";
+    if (isl_set_get_dim_name(set, isl_dim_set, dim) == NULL)
     {
-        int offset = 0;
-        for (int o = 0; o < dim; o++)
-        {
-            std::string current_dim_name = isl_set_get_dim_name(set, isl_dim_set, o);
-            if (constraints_map.find(current_dim_name) != constraints_map.end() && constraints_map[current_dim_name] == 0)
-            {
-                offset = offset + 1;
-            }
-        }
-        e = utility::extract_bound_expression(node, dim - offset, upper);
+        e = utility::extract_bound_expression(node, dim, upper);
     }
+    else
+    {
+        dim_name = isl_set_get_dim_name(set, isl_dim_set, dim);
+        if (constraints_map.find(dim_name) != constraints_map.end() && constraints_map[dim_name] != 0)
+        {
+            int offset = 0;
+            for (int o = 0; o < dim; o++)
+            {
+                std::string current_dim_name = isl_set_get_dim_name(set, isl_dim_set, o);
+                if (constraints_map.find(current_dim_name) != constraints_map.end() && constraints_map[current_dim_name] == 0)
+                {
+                    offset = offset + 1;
+                }
+            }
+            e = utility::extract_bound_expression(node, dim - offset, upper);
+        }
+    }
+
     isl_ast_build_free(ast_build);
     assert(e.is_defined() && "The computed bound expression is undefined.");
     // std::cout << std::string("\nThe ") + (upper ? "upper" : "lower") + " bound is : ";
@@ -6194,6 +6214,149 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper)
 
     return e;
 }
+
+// tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper)
+// {
+
+//     tiramisu::str_dump("\n start of get bound: 1\n");
+//     // DEBUG_FCT_NAME(10);
+//     tiramisu::str_dump("\n start of get bound: 2\n");
+
+//     // DEBUG_INDENT(4);
+//     tiramisu::str_dump("\n start of get bound: 3\n");
+
+//     // std::unordered_map<std::string, int> constraints_map = utility::get_constraints_map(isl_set_copy(set));
+//     tiramisu::str_dump("\n start of get bound: 4\n");
+
+//     assert(set != NULL);
+//     tiramisu::str_dump("\n start of get bound: 5\n");
+
+//     assert(dim >= 0);
+//     tiramisu::str_dump("\n start of get bound: 6\n");
+
+//     assert(dim < isl_space_dim(isl_set_get_space(set), isl_dim_set));
+//     tiramisu::str_dump("\n start of get bound: 7\n");
+
+//     assert(isl_set_is_empty(set) == isl_bool_false);
+//     tiramisu::str_dump("\n start of get bound: 8\n");
+
+//     DEBUG(10, tiramisu::str_dump(std::string("Getting the ") + (upper ? "upper" : "lower") +
+//                                      " bound on the dimension " +
+//                                      std::to_string(dim) + " of the set ",
+//                                  isl_set_to_str(set)));
+//     tiramisu::str_dump("\n start of get bound: 9\n");
+
+//     tiramisu::expr e = tiramisu::expr();
+//     tiramisu::str_dump("\n start of get bound: 10\n");
+
+//     isl_ast_build *ast_build;
+//     tiramisu::str_dump("\n start of get bound: 11\n");
+
+//     isl_ctx *ctx = isl_set_get_ctx(set);
+//     tiramisu::str_dump("\n start of get bound: 12\n");
+
+//     ast_build = isl_ast_build_alloc(ctx);
+//     tiramisu::str_dump("\n start of get bound: 13\n");
+
+//     // Create identity map for set.
+//     isl_space *sp = isl_set_get_space(set);
+//     tiramisu::str_dump("\n start of get bound: 14\n");
+
+//     isl_map *sched = isl_map_identity(isl_space_copy(isl_space_map_from_set(sp)));
+//     tiramisu::str_dump("\n start of get bound: 15\n");
+
+//     sched = isl_map_set_tuple_name(sched, isl_dim_out, "");
+//     tiramisu::str_dump("\n start of get bound: 16\n");
+
+//     // Generate the AST.
+//     DEBUG(3, tiramisu::str_dump("Setting ISL AST generator options."));
+//     tiramisu::str_dump("\n start of get bound: 17\n");
+
+//     isl_options_set_ast_build_atomic_upper_bound(ctx, 1);
+//     tiramisu::str_dump("\n start of get bound: 18\n");
+
+//     isl_options_get_ast_build_exploit_nested_bounds(ctx);
+//     tiramisu::str_dump("\n start of get bound: 19\n");
+
+//     isl_options_set_ast_build_group_coscheduled(ctx, 1);
+//     tiramisu::str_dump("\n start of get bound: 20\n");
+
+//     isl_options_set_ast_build_allow_else(ctx, 1);
+//     tiramisu::str_dump("\n start of get bound: 21\n");
+
+//     isl_options_set_ast_build_detect_min_max(ctx, 1);
+//     tiramisu::str_dump("\n start of get bound: 22\n");
+
+//     // Computing the polyhedral hull of the input set.
+//     // DEBUG(3, tiramisu::str_dump("Computing the polyhedral hull of the input set."));
+//     // set = isl_set_from_basic_set(isl_set_affine_hull(isl_set_copy(set)));
+//     // DEBUG(3, tiramisu::str_dump("The polyhedral hull is: ", isl_set_to_str(set)));
+
+//     // Intersect the iteration domain with the domain of the schedule.
+//     DEBUG(3, tiramisu::str_dump("Generating time-space domain."));
+//     isl_map *map =
+//         isl_map_intersect_domain(
+//             isl_map_copy(sched),
+//             isl_set_copy(set));
+
+//     // Set iterator names
+//     DEBUG(3, tiramisu::str_dump("Setting the iterator names."));
+//     int length = isl_map_dim(map, isl_dim_out);
+//     isl_id_list *iterators = isl_id_list_alloc(ctx, length);
+
+//     for (int i = 0; i < length; i++)
+//     {
+//         std::string name;
+//         if (isl_set_has_dim_name(set, isl_dim_set, i) == true)
+//             name = isl_set_get_dim_name(set, isl_dim_set, i);
+//         else
+//             name = generate_new_variable_name();
+//         isl_id *id = isl_id_alloc(ctx, name.c_str(), NULL);
+//         iterators = isl_id_list_add(iterators, id);
+//     }
+
+//     ast_build = isl_ast_build_set_iterators(ast_build, iterators);
+
+//     isl_ast_node *node = isl_ast_build_node_from_schedule_map(ast_build, isl_union_map_from_map(map));
+
+//     // handle the case when the actual number of for loops is less than the target unrolled loop
+//     isl_ast_node *node1 = node;
+//     int cpt = 0;
+//     bool stop = false;
+//     // calculate the number of for loops
+//     while (!stop)
+//     {
+//         if (isl_ast_node_get_type(node1) == isl_ast_node_for)
+//         {
+//             cpt++;
+//             node1 = isl_ast_node_for_get_body(node1);
+//         }
+//         else if (isl_ast_node_get_type(node1) == isl_ast_node_user)
+//         {
+//             stop = true;
+//         }
+//         else if (isl_ast_node_get_type(node1) == isl_ast_node_if)
+//         {
+//             node1 = isl_ast_node_if_get_then(node1);
+//         }
+//     }
+//     // if the number of for levels is less or equal to the unrolled loop, skip the optimization (exception handled when getting measurements)
+//     if (cpt <= dim)
+//     {
+//         std::cout << "tiramisu core unrolling error hererererererererererererer\n\n\n\n";
+//         throw UnrollingException();
+//     }
+//     e = utility::extract_bound_expression(node, dim, upper);
+//     isl_ast_build_free(ast_build);
+
+//     assert(e.is_defined() && "The computed bound expression is undefined.");
+//     DEBUG(10, tiramisu::str_dump(std::string("The ") + (upper ? "upper" : "lower") + " bound is : "); e.dump(false));
+//     DEBUG_INDENT(-4);
+
+//     tiramisu::str_dump("\n end of get bound: \n");
+
+//     return e;
+// }
 
 bool computation::separateAndSplit(tiramisu::var L0, int sizeX)
 {
@@ -6216,33 +6379,30 @@ bool computation::separateAndSplit(int L0, int v)
     DEBUG_FCT_NAME(3);
     DEBUG_INDENT(4);
 
-    DEBUG(3, tiramisu::str_dump("Applying separateAndSplit on loop level " + std::to_string(L0) + " with a split factor of " + std::to_string(v)));
 
     this->gen_time_space_domain();
 
     // Compute the depth before any scheduling.
     int original_depth = this->compute_maximal_AST_depth();
 
-
-
-    tiramisu::str_dump(isl_set_to_str(this->get_trimmed_time_processor_domain()));
+    // tiramisu::str_dump(isl_set_to_str(this->get_trimmed_time_processor_domain()));
 
     // tiramisu::expr expression_test = tiramisu::utility::get_bound(this->get_trimmed_time_processor_domain(), L0, true);
     // expression_test.dump(false);
+    // tiramisu::str_dump("\n construct constraints map");
+
+    // std::unordered_map<std::string, int> constraints_map = utility::get_constraints_map(isl_set_copy(this->get_trimmed_time_processor_domain()));
+
 
     tiramisu::expr loop_upper_bound =
         tiramisu::expr(o_cast, global::get_loop_iterator_data_type(),
                        tiramisu::utility::get_bound(this->get_trimmed_time_processor_domain(), L0, true));
-
-    loop_upper_bound.dump(false);
 
     DEBUG(3, tiramisu::str_dump("Computing lower bound at loop level " + std::to_string(L0)));
 
     tiramisu::expr loop_lower_bound =
         tiramisu::expr(o_cast, global::get_loop_iterator_data_type(),
                        tiramisu::utility::get_bound(this->get_trimmed_time_processor_domain(), L0, false));
-
-    loop_lower_bound.dump(false);
 
 
     std::string lower_without_cast = loop_lower_bound.to_str();
@@ -6262,7 +6422,6 @@ bool computation::separateAndSplit(int L0, int v)
 
     loop_bound = loop_bound.simplify();
 
-
     DEBUG(3, tiramisu::str_dump("Loop bound for the loop to be separated and split: "); loop_bound.dump(false));
 
     /*
@@ -6281,11 +6440,9 @@ bool computation::separateAndSplit(int L0, int v)
      */
     this->separate(L0, loop_bound, v, loop_lower_bound);
 
-
     // Make a copy of the schedule before splitting so that we revert the
     // schedule if splitting did not have any effect (i.e., did not happen).
     isl_map *sc = isl_map_copy(this->get_schedule());
-
 
     /**
      * Split the full computation since the full computation will be vectorized.
@@ -6293,10 +6450,8 @@ bool computation::separateAndSplit(int L0, int v)
     // this->get_update(0).split(L0, v);
     this->get_update(0).split_with_lower_bound(L0, v, lower_without_cast);
 
-
     // Compute the depth after scheduling.
     int depth = this->compute_maximal_AST_depth();
-
 
     bool split_happened = false;
     if (depth == original_depth)
@@ -6306,7 +6461,6 @@ bool computation::separateAndSplit(int L0, int v)
         split_happened = false;
 
         DEBUG(3, tiramisu::str_dump("Cancel splitting."));
-        tiramisu::str_dump("\ninner seperate and split 16\n");
 
         this->set_schedule(sc);
     }
@@ -6319,7 +6473,6 @@ bool computation::separateAndSplit(int L0, int v)
     this->get_function()->align_schedules();
 
     DEBUG_INDENT(-4);
-
     return split_happened;
 }
 
@@ -6329,13 +6482,13 @@ bool computation::separateAndSplit(tiramisu::var L0_var, int v,
     DEBUG_FCT_NAME(3);
     DEBUG_INDENT(4);
 
+
     std::vector<std::string> original_loop_level_names = this->get_loop_level_names();
     assert(L0_var.get_name().length() > 0);
     std::vector<int> dimensions =
         this->get_loop_level_numbers_from_dimension_names({L0_var.get_name()});
 
     this->check_dimensions_validity(dimensions);
-
 
     int L0 = dimensions[0];
 

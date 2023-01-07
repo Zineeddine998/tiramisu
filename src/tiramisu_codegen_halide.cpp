@@ -1406,7 +1406,6 @@ isl_ast_node *generator::stmt_code_generator(isl_ast_node *node, isl_ast_build *
                         // it should have an access function.
                         if ((!comp->is_let_stmt()) && (!comp->is_library_call()))
                         {
-                            tiramisu::str_dump("This is computation " + comp->get_name() +"\n");
                             // TODO better error message
                             ERROR("An access function should be provided for computation " + comp->get_name() + "'s #" + std::to_string(i) + " access before generating code.", true);
                         }
