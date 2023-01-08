@@ -15,11 +15,10 @@ namespace tiramisu::auto_scheduler
         for (int i = 0; i < nb_iterators; ++i)
         {
             std::string name = isl_set_get_dim_name(iter_domain, isl_dim_set, i);
-            std::unordered_map<std::string, int> constraints_map = utility::get_constraints_map(iter_domain);
 
-            int low_bound = utility::get_bound(iter_domain, i, false, constraints_map).get_int_val();
+            int low_bound = utility::get_bound(iter_domain, i, false).get_int_val();
 
-            int up_bound = utility::get_bound(iter_domain, i, true, constraints_map).get_int_val();
+            int up_bound = utility::get_bound(iter_domain, i, true).get_int_val();
 
             iters_list.push_back(dnn_iterator(name, low_bound, up_bound));
         }

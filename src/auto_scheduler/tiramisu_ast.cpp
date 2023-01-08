@@ -186,11 +186,9 @@ namespace tiramisu::auto_scheduler
         this->depth = 0;
         this->name = isl_set_get_dim_name(iter_domain, isl_dim_set, 0);
 
-        std::unordered_map<std::string, int> constraints_map = utility::get_constraints_map(iter_domain);
+        this->low_bound = utility::get_bound(iter_domain, 0, false).get_int_val();
 
-        this->low_bound = utility::get_bound(iter_domain, 0, false, constraints_map).get_int_val();
-
-        this->up_bound = utility::get_bound(iter_domain, 0, true, constraints_map).get_int_val();
+        this->up_bound = utility::get_bound(iter_domain, 0, true).get_int_val();
 
         nodes.push_back(this);
 
@@ -203,12 +201,10 @@ namespace tiramisu::auto_scheduler
             node->depth = i;
 
             node->name = isl_set_get_dim_name(iter_domain, isl_dim_set, i);
-            std::unordered_map<std::string, int> constraints_map = utility::get_constraints_map(iter_domain);
 
-            node->low_bound = utility::get_bound(iter_domain, i, false, constraints_map).get_int_val();
+            node->low_bound = utility::get_bound(iter_domain, i, false).get_int_val();
 
-
-            node->up_bound = utility::get_bound(iter_domain, i, true, constraints_map).get_int_val();
+            node->up_bound = utility::get_bound(iter_domain, i, true).get_int_val();
 
             nodes.push_back(node);
         }

@@ -263,23 +263,30 @@ int main(int, char **)
                      for (y = 0; y < Vsrc; y++) {
                         for (x = 0; x < Vsnk; x++) {
 			   if (randommode == 1) {
-	                        double v1 = rand()%10;
-	                        double v2 = rand()%10;
-	                        double v3 = rand()%10;
-	                        double v4 = rand()%10;
-                           B1_prop_re[prop_index(q,t,jC,jS,iC,iS,y,x ,Nc,Ns,Vsrc,Vsnk,Lt)] = v1;
-                           B1_prop_im[prop_index(q,t,jC,jS,iC,iS,y,x ,Nc,Ns,Vsrc,Vsnk,Lt)] = v3;
-			   }
-			   else {
-                           if ((jC == iC) && (jS == iS)) {
-                              B1_prop_re[prop_index(q,t,jC,jS,iC,iS,y,x ,Nc,Ns,Vsrc,Vsnk,Lt)] = 1/mq*cos(2*M_PI/6);
-                              B1_prop_im[prop_index(q,t,jC,jS,iC,iS,y,x ,Nc,Ns,Vsrc,Vsnk,Lt)] = 1/mq*sin(2*M_PI/6);
-                           }
-                           else {
-                              B1_prop_re[prop_index(q,t,jC,jS,iC,iS,y,x ,Nc,Ns,Vsrc,Vsnk,Lt)] = 0;
-                              B1_prop_im[prop_index(q,t,jC,jS,iC,iS,y,x ,Nc,Ns,Vsrc,Vsnk,Lt)] = 0;
-                           }
-			   }
+               // double v1 = rand()%10;
+               // double v2 = rand()%10;
+               // double v3 = rand()%10;
+               // double v4 = rand()%10;
+               double v1 = 1;
+               double v2 = 2;
+               double v3 = 3;
+               double v4 = 4;
+               B1_prop_re[prop_index(q, t, jC, jS, iC, iS, y, x, Nc, Ns, Vsrc, Vsnk, Lt)] = v1;
+               B1_prop_im[prop_index(q, t, jC, jS, iC, iS, y, x, Nc, Ns, Vsrc, Vsnk, Lt)] = v3;
+            }
+            else
+            {
+               if ((jC == iC) && (jS == iS))
+               {
+                  B1_prop_re[prop_index(q, t, jC, jS, iC, iS, y, x, Nc, Ns, Vsrc, Vsnk, Lt)] = 1 / mq * cos(2 * M_PI / 6);
+                  B1_prop_im[prop_index(q, t, jC, jS, iC, iS, y, x, Nc, Ns, Vsrc, Vsnk, Lt)] = 1 / mq * sin(2 * M_PI / 6);
+               }
+               else
+               {
+                  B1_prop_re[prop_index(q, t, jC, jS, iC, iS, y, x, Nc, Ns, Vsrc, Vsnk, Lt)] = 0;
+                  B1_prop_im[prop_index(q, t, jC, jS, iC, iS, y, x, Nc, Ns, Vsrc, Vsnk, Lt)] = 0;
+               }
+            }
                         }
                      }
                   }
@@ -296,9 +303,11 @@ int main(int, char **)
 	      double v1 = 1.0;
 	      double v2 = 0.0;
 	      if (randommode == 1) {
-	      v1 = rand()%10;
-	      v2 = rand()%10;
-	      }
+            // v1 = rand()%10;
+            // v2 = rand()%10;
+            v1 = 8;
+            v2 = 7;
+         }
          src_psi_B1_re[index_2d(x,m ,Nsrc)] = v1 ;// / Vsrc;
          src_psi_B1_im[index_2d(x,m ,Nsrc)] = v2 ;// / Vsrc;
       }
@@ -309,9 +318,11 @@ int main(int, char **)
 	      double v1 = 1.0;
 	      double v2 = 0.0;
 	      if (randommode == 1) {
-	      v1 = rand()%10;
-	      v2 = rand()%10;
-	      }
+            // v1 = rand()%10;
+            // v2 = rand()%10;
+            v1 = 9;
+            v2 = 1;
+         }
          snk_psi_B1_re[index_2d(x,n ,Nsnk)] = v1  ;// / Vsnk;
          snk_psi_B1_im[index_2d(x,n ,Nsnk)] = v2 ;// / Vsnk;
       }

@@ -245,7 +245,7 @@ extern "C" {
                                  double v2 = rand() % 10;
                                  double v3 = rand() % 10;
                                  double v4 = rand() % 10;
-                                 B1_prop_re[prop_index(q, t, jC, jS, iC, iS, y, x, Nc, Ns, Vsrc, Vsnk, Lt)] = v1;
+                                  B1_prop_re[prop_index(q, t, jC, jS, iC, iS, y, x, Nc, Ns, Vsrc, Vsnk, Lt)] = v1;
                                  B1_prop_im[prop_index(q, t, jC, jS, iC, iS, y, x, Nc, Ns, Vsrc, Vsnk, Lt)] = v3;
                               }
                               else
@@ -436,6 +436,8 @@ extern "C" {
          std::ofstream legal_fs("legal_results.txt", std::ofstream::app);
          if (legal_fs.is_open())
          {
+            legal_fs << "\n\n\n|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n";
+
             for (rp = 0; rp < B1Nrows; rp++)
             {
                for (m = 0; m < NsrcHex; m++)
@@ -454,7 +456,7 @@ extern "C" {
                            legal_fs << std::to_string(C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]) << "\n";
                            legal_fs << "t_C_im\n";
                            legal_fs << std::to_string(t_C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]) << "\n";
-                           legal_fs << "\n----------------------------\n";
+                           legal_fs << "\n\n\n------------------------------\n";
                            double diff = std::sqrt(std::pow(std::abs(C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)] - t_C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]), 2) + std::pow(std::abs(C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)] - t_C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]), 2));
                            double mag = std::sqrt(std::pow(std::abs(C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]), 2) + std::pow(std::abs(C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]), 2));
                            if (diff / mag >= 1 / 1e12)
@@ -464,9 +466,15 @@ extern "C" {
 
                               break;
                            }
+                           else
+                           {
+                              legal_fs << "true\n";
+                           }
                         }
             }
+            legal_fs << "\n\n\n|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n";
          }
+
          legal_fs.close();
 
 #endif

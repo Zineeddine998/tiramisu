@@ -5378,7 +5378,7 @@ public:
       *
       * would return min(N-1,M-1)
       */
-     static tiramisu::expr get_bound(isl_set *set, int dim, int upper, std::unordered_map<std::string, int> constraints_map);
+     static tiramisu::expr get_bound(isl_set *set, int dim, int upper);
 
      /**
       * Return the extent of the loop.

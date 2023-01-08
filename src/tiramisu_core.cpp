@@ -1044,11 +1044,10 @@ std::string utility::get_parameters_list(isl_set *set)
 
 int utility::get_extent(isl_set *set, int dim)
 {
-    std::unordered_map<std::string, int> constraints_map = utility::get_constraints_map(set);
 
-    tiramisu::expr lower_bound = tiramisu::utility::get_bound(set, dim, false, constraints_map);
+    tiramisu::expr lower_bound = tiramisu::utility::get_bound(set, dim, false);
 
-    tiramisu::expr upper_bound = tiramisu::utility::get_bound(set, dim, true, constraints_map);
+    tiramisu::expr upper_bound = tiramisu::utility::get_bound(set, dim, true);
 
     if(lower_bound.get_expr_type() != tiramisu::e_val or upper_bound.get_expr_type() != tiramisu::e_val)
         ERROR("Check if the context is set for constants of distributed dimension", true);
@@ -1119,11 +1118,11 @@ std::vector<tiramisu::expr> computation::compute_buffer_size()
         }
 
         DEBUG(3, tiramisu::str_dump("Extracting bounds of the following set:", isl_set_to_str(union_iter_domain)));
-        std::unordered_map<std::string, int> constraints_map = utility::get_constraints_map(union_iter_domain);
 
-        tiramisu::expr lower = utility::get_bound(union_iter_domain, i, false, constraints_map);
+        tiramisu::expr lower = utility::get_bound(union_iter_domain, i, false);
 
-        tiramisu::expr upper = utility::get_bound(union_iter_domain, i, true, constraints_map);
+        tiramisu::expr upper = utility::get_bound(union_iter_domain, i, true);
+
         tiramisu::expr diff = (upper - lower + 1);
 
         DEBUG(3, tiramisu::str_dump("Buffer dimension size (dim = " + std::to_string(i) + ") : "); diff.dump(false));
@@ -6060,21 +6059,17 @@ int computation::compute_maximal_AST_depth()
  * - During the traversal, assert that the loop is fully nested.
  *
  */
-tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper, std::unordered_map<std::string, int> constraints_map)
+tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper)
 {
-    try{
     DEBUG_FCT_NAME(10);
     DEBUG_INDENT(4);
+
+    std::unordered_map<std::string, int> constraints_map = utility::get_constraints_map(set);
 
     assert(set != NULL);
     assert(dim >= 0);
     assert(dim < isl_space_dim(isl_set_get_space(set), isl_dim_set));
     assert(isl_set_is_empty(set) == isl_bool_false);
-
-    DEBUG(10, tiramisu::str_dump(std::string("Getting the ") + (upper ? "upper" : "lower") +
-                                 " bound on the dimension " +
-                                 std::to_string(dim) + " of the set ",
-                                 isl_set_to_str(set)));
 
     tiramisu::expr e = tiramisu::expr(0);
     isl_ast_build *ast_build;
@@ -6087,7 +6082,7 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper, std::unorder
     sched = isl_map_set_tuple_name(sched, isl_dim_out, "");
 
     // Generate the AST.
-    DEBUG(3, tiramisu::str_dump("Setting ISL AST generator options."));
+    // tiramisu::str_dump("Setting ISL AST generator options.");
     // std::cout << "\n Setting ISL AST generator options.";
     isl_options_set_ast_build_atomic_upper_bound(ctx, 1);
     isl_options_get_ast_build_exploit_nested_bounds(ctx);
@@ -6096,7 +6091,7 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper, std::unorder
     isl_options_set_ast_build_detect_min_max(ctx, 1);
 
     // Intersect the iteration domain with the domain of the schedule.
-    DEBUG(3, tiramisu::str_dump("Generating time-space domain."));
+    // tiramisu::str_dump("Generating time-space domain.");
     // std::cout << "\n Generating time-space domain";
     isl_map *map =
         isl_map_intersect_domain(
@@ -6104,7 +6099,6 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper, std::unorder
             isl_set_copy(set));
 
     // Set iterator names
-    DEBUG(3, tiramisu::str_dump("Setting the iterator names."));
     // std::cout << "\n Setting the iterator names";
     int length = isl_map_dim(map, isl_dim_out);
     isl_id_list *iterators = isl_id_list_alloc(ctx, length);
@@ -6128,7 +6122,7 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper, std::unorder
     isl_ast_node* node1 = node;
     int cpt = 0;
     bool stop = false;
-    // calculate the number of for loops 
+    // calculate the number of for loops
     while(!stop){
         if(isl_ast_node_get_type(node1) == isl_ast_node_for ){
             cpt++;
@@ -6139,73 +6133,91 @@ tiramisu::expr utility::get_bound(isl_set *set, int dim, int upper, std::unorder
         }
         else if(isl_ast_node_get_type(node1) == isl_ast_node_if){
             node1 = isl_ast_node_if_get_then(node1);
-        }             
+        }
     }
     // if the number of for levels is less or equal to the unrolled loop, skip the optimization (exception handled when getting measurements)
     // if(cpt <= dim){throw UnrollingException();}
 
-    std::string dim_name = isl_set_get_dim_name(set, isl_dim_set, dim);
-    if (constraints_map.find(dim_name) != constraints_map.end() && constraints_map[dim_name] != 0)
+    std::string dim_name = "";
+    if (isl_set_get_dim_name(set, isl_dim_set, dim) == NULL)
     {
-        int offset = 0;
-        for (int o = 0; o < dim; o++)
-        {   std::string current_dim_name = isl_set_get_dim_name(set, isl_dim_set, o);
+        e = utility::extract_bound_expression(node, dim, upper);
+    }
+    else
+    {
+        dim_name = isl_set_get_dim_name(set, isl_dim_set, dim);
+        if (constraints_map.find(dim_name) != constraints_map.end() && constraints_map[dim_name] != 0)
+        {
+            int offset = 0;
+            for (int o = 0; o < dim; o++)
+            {
+            std::string current_dim_name = isl_set_get_dim_name(set, isl_dim_set, o);
             if (constraints_map.find(current_dim_name) != constraints_map.end() && constraints_map[current_dim_name] == 0)
             {
-                offset = offset+ 1;
+                offset = offset + 1;
             }
+            }
+            e = utility::extract_bound_expression(node, dim - offset, upper);
         }
-        e = utility::extract_bound_expression(node, dim - offset, upper);
     }
+
     isl_ast_build_free(ast_build);
     assert(e.is_defined() && "The computed bound expression is undefined.");
-    DEBUG(10, tiramisu::str_dump(std::string("The ") + (upper ? "upper" : "lower") + " bound is : "); e.dump(false));
     // std::cout << std::string("\nThe ") + (upper ? "upper" : "lower") + " bound is : ";
     // e.dump(false);
     // std::cout << "\n";
+
     DEBUG_INDENT(-4);
 
     return e;
-    }
-    catch (const std::bad_alloc &e)
-    {
-    std::cout << "Allocation failed: " << e.what() << "\n";
-    }
 }
 std::unordered_map<std::string, int> utility::get_constraints_map(isl_set *set)
 {
-    isl_basic_set_list *bset_list = isl_set_get_basic_set_list(set);
+
+    // isl set -> isl map -> isl map get constraints list
+
     std::unordered_map<std::string, int> constraints_map{};
 
+    isl_basic_set_list *bset_list = isl_set_get_basic_set_list(set);
+
     int n_basic_set = isl_set_n_basic_set(set);
+
     for (int i = 0; i < n_basic_set; i++)
     {
         isl_basic_set *bset = isl_basic_set_list_get_basic_set(bset_list, i);
         isl_constraint_list *cst_list = isl_basic_set_get_constraint_list(bset);
+
         for (int j = 0; j < isl_constraint_list_n_constraint(cst_list); j++)
         {
-        isl_constraint *cst = isl_constraint_list_get_constraint(cst_list, j);
+            isl_constraint *cst = isl_constraint_list_get_constraint(cst_list, j);
 
-        for (int k = 0; k < isl_set_dim(set, isl_dim_out); k++)
-        {
-            std::string dim_name = isl_set_get_dim_name(set, isl_dim_out, k);
+            for (int k = 0; k < isl_set_dim(set, isl_dim_out); k++)
+            {
+            std::string dim_name = "";
+            if (isl_set_get_dim_name(set, isl_dim_out, k) != NULL)
+            {
+                dim_name = isl_set_get_dim_name(set, isl_dim_out, k);
+            }
+            else
+            {
+                continue;
+            }
 
             if (isl_constraint_involves_dims(cst, isl_dim_set, k, 1))
             {
                 if (constraints_map.find(dim_name) != constraints_map.end())
                 {
                     constraints_map.at(dim_name) = constraints_map[dim_name] + 1;
-                }
-                else
-                {
+                    }
+                    else
+                    {
                     constraints_map.insert({dim_name, 0});
+                    }
+                    break;
                 }
-                break;
             }
         }
-        }
     }
-
     return constraints_map;
 }
 
@@ -6238,17 +6250,15 @@ bool computation::separateAndSplit(int L0, int v)
 
     DEBUG(3, tiramisu::str_dump("Computing upper bound at loop level " + std::to_string(L0)));
 
-    std::unordered_map<std::string, int> constraints_map = utility::get_constraints_map(this->get_trimmed_time_processor_domain());
-
     tiramisu::expr loop_upper_bound =
         tiramisu::expr(o_cast, global::get_loop_iterator_data_type(),
-                       tiramisu::utility::get_bound(this->get_trimmed_time_processor_domain(), L0, true, constraints_map));
+                       tiramisu::utility::get_bound(this->get_trimmed_time_processor_domain(), L0, true));
 
     DEBUG(3, tiramisu::str_dump("Computing lower bound at loop level " + std::to_string(L0)));
 
     tiramisu::expr loop_lower_bound =
         tiramisu::expr(o_cast, global::get_loop_iterator_data_type(),
-                       tiramisu::utility::get_bound(this->get_trimmed_time_processor_domain(), L0, false, constraints_map));
+                       tiramisu::utility::get_bound(this->get_trimmed_time_processor_domain(), L0, false));
 
     std::string lower_without_cast = loop_lower_bound.to_str();
     while (lower_without_cast.find("cast") != std::string::npos) // while there is a "cast" in the expression
@@ -9102,15 +9112,14 @@ isl_map *isl_map_add_free_var(const std::string &free_var_name, isl_map *map, is
 expr tiramisu::computation::get_span(int level)
 {
             this->check_dimensions_validity({level});
-            std::unordered_map<std::string, int> constraints_map = utility::get_constraints_map(this->get_trimmed_time_processor_domain());
 
             tiramisu::expr loop_upper_bound =
                 tiramisu::utility::get_bound(this->get_trimmed_time_processor_domain(),
-                                             level, true, constraints_map);
+                                             level, true);
 
             tiramisu::expr loop_lower_bound =
                 tiramisu::utility::get_bound(this->get_trimmed_time_processor_domain(),
-                                             level, false, constraints_map);
+                                             level, false);
 
             tiramisu::expr loop_bound = loop_upper_bound - loop_lower_bound + value_cast(global::get_loop_iterator_data_type(), 1);
             return loop_bound.simplify();
