@@ -123,7 +123,7 @@ namespace tiramisu::auto_scheduler
             std::string tp;
 
             std::fstream newfile;
-            newfile.open("/home/zinou/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/test.txt", std::ios::in);
+            newfile.open("/data/cs7214/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/test.txt", std::ios::in);
             if (newfile.is_open())
             {
                 while (getline(newfile, tp))
@@ -133,7 +133,7 @@ namespace tiramisu::auto_scheduler
                 newfile.close();
             }
 
-            std::cout << "Initial exec time 2 : " << initial_exec_time << std::endl;
+            std::cout << "Initial exec time : " << initial_exec_time << std::endl;
             std::cout << "Search time : " << std::chrono::duration_cast<std::chrono::milliseconds>(sampling_end - sampling_start).count() << " ms" << std::endl;
             std::cout << "Best execution time : " << searcher->get_best_evaluation() << std::endl;
             std::cout << "Speedup : " << initial_exec_time / searcher->get_best_evaluation() << std::endl;

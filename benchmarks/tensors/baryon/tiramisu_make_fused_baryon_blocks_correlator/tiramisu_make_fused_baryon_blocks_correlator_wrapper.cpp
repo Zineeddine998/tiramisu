@@ -15,7 +15,7 @@ extern "C" {
 #define RUN_REFERENCE 1
 #define RUN_CHECK 1
    int nb_tests = 1;
-   int randommode = 1;
+   int randommode = 0;
 
    void tiramisu_make_nucleon_2pt(double *C_re,
                                   double *C_im,
@@ -400,8 +400,27 @@ extern "C" {
 #if RUN_REFERENCE
          for (int i = 0; i < nb_tests; i++)
          {
+            // {
+            //    auto start1 = std::chrono::high_resolution_clock::now();
+            //    make_nucleon_2pt(C_re, C_im, B1_prop_re, B1_prop_im, src_color_weights_r1, src_spin_weights_r1, src_weights_r1, src_color_weights_r2, src_spin_weights_r2, src_weights_r2, src_psi_B1_re, src_psi_B1_im, snk_psi_B1_re, snk_psi_B1_im, Nc, Ns, Vsrc, Vsnk, Lt, Nw, Nq, NsrcHex, NsnkHex);
+            //    auto end1 = std::chrono::high_resolution_clock::now();
+            //    std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(end1 - start1).count() / (double)1000000 << " " << std::flush;
+
+            auto start2 = std::chrono::high_resolution_clock::now();
 
             make_nucleon_2pt(C_re, C_im, B1_prop_re, B1_prop_im, src_color_weights_r1, src_spin_weights_r1, src_weights_r1, src_color_weights_r2, src_spin_weights_r2, src_weights_r2, src_psi_B1_re, src_psi_B1_im, snk_psi_B1_re, snk_psi_B1_im, Nc, Ns, Vsrc, Vsnk, Lt, Nw, Nq, NsrcHex, NsnkHex);
+
+            auto end2 = std::chrono::high_resolution_clock::now();
+            auto ref_time = std::chrono::duration_cast<std::chrono::nanoseconds>(end2 - start2).count() / (double)1000000;
+            float float_ref_time = (float)ref_time;
+
+            std::ofstream fw("/data/cs7214/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/test.txt", std::ofstream::out);
+            if (fw.is_open())
+            {
+
+               fw << std::to_string(float_ref_time) << "\n";
+               fw.close();
+            }
          }
 #endif
 
@@ -432,50 +451,72 @@ extern "C" {
          //             }
          //          }
          // }
-         bool is_legal = true;
-         std::ofstream legal_fs("legal_results.txt", std::ofstream::app);
-         if (legal_fs.is_open())
+         std::ofstream legality_check_fs("legality_check.txt", std::ofstream::app);
+
+         std::fstream schedule_nb_fs;
+         int index = 0;
+         std::string tp;
+         schedule_nb_fs.open("index.txt", std::ios::in);
+         if (schedule_nb_fs.is_open())
          {
-            legal_fs << "\n\n\n|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n";
-
-            for (rp = 0; rp < B1Nrows; rp++)
+            while (getline(schedule_nb_fs, tp))
             {
-               for (m = 0; m < NsrcHex; m++)
-                  for (r = 0; r < B1Nrows; r++)
-                     for (n = 0; n < NsnkHex; n++)
-                        for (t = 0; t < Lt; t++)
-                        {
-                           // if (legal_fs.is_open())
-                           // {
-                           legal_fs << "\n\n\n------------------------------\n";
-                           legal_fs << "C_re\n";
-                           legal_fs << std::to_string(C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]) << "\n";
-                           legal_fs << "t_C_re\n";
-                           legal_fs << std::to_string(t_C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]) << "\n";
-                           legal_fs << "C_im\n";
-                           legal_fs << std::to_string(C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]) << "\n";
-                           legal_fs << "t_C_im\n";
-                           legal_fs << std::to_string(t_C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]) << "\n";
-                           legal_fs << "\n\n\n------------------------------\n";
-                           double diff = std::sqrt(std::pow(std::abs(C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)] - t_C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]), 2) + std::pow(std::abs(C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)] - t_C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]), 2));
-                           double mag = std::sqrt(std::pow(std::abs(C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]), 2) + std::pow(std::abs(C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]), 2));
-                           if (diff / mag >= 1 / 1e12)
-                           {
-
-                              legal_fs << "false\n";
-
-                              break;
-                           }
-                           else
-                           {
-                              legal_fs << "true\n";
-                           }
-                        }
+               index = std::stoi(tp);
+               index++;
             }
-            legal_fs << "\n\n\n|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n";
+            schedule_nb_fs.close();
          }
 
-         legal_fs.close();
+         std::ofstream ofs;
+
+         ofs.open("index.txt", std::ofstream::out);
+
+         if (ofs.is_open())
+         {
+            ofs << std::to_string(index) << "\n";
+            ofs.close();
+         }
+
+         bool break_flag = false;
+         for (rp = 0; rp < B1Nrows; rp++)
+         {
+            if (break_flag == true)
+               break;
+            for (m = 0; m < NsrcHex; m++)
+            {
+               if (break_flag == true)
+                  break;
+         for (r = 0; r < B1Nrows; r++)
+         {
+                  if (break_flag == true)
+                     break;
+                  for (n = 0; n < NsnkHex; n++)
+                  {
+                     if (break_flag == true)
+                        break;
+
+                     for (t = 0; t < Lt; t++)
+                     {
+                        double diff = std::sqrt(std::pow(std::abs(C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)] - t_C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]), 2) + std::pow(std::abs(C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)] - t_C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]), 2));
+                        double mag = std::sqrt(std::pow(std::abs(C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]), 2) + std::pow(std::abs(C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)]), 2));
+                        if (diff / mag >= 1 / 1e12)
+                        {
+                           if (legality_check_fs.is_open())
+                           {
+                              legality_check_fs << "\n Schedule number: ";
+                              legality_check_fs << std::to_string(index);
+                              legality_check_fs << " is not legal";
+                              break_flag = true;
+                              break;
+                           }
+                        }
+                     }
+                  }
+         }
+      }
+         }
+
+         legality_check_fs.close();
 
 #endif
       }

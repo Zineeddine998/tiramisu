@@ -4,8 +4,9 @@
 #define DATA_SET_1 0
 #define DATA_SET_2 0
 #define DATA_SET_3 0
-#define DATA_SET_4 1
+#define DATA_SET_4 0
 #define DATA_SET_5 0
+#define DATA_SET_9 1
 
 #if DATA_SET_1
 
@@ -123,7 +124,7 @@
 #define P_sites_per_rank 4
 #define P_src_sites_per_rank 4
 
-#elif DATA_SET_5
+#elif DATA_SET_9
 
 #define P_size 64
 #define P_Vsrc P_size
