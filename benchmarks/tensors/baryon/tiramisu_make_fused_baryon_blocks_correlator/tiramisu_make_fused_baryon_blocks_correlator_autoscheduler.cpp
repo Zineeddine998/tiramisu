@@ -323,7 +323,7 @@ void generate_function(std::string name)
         performe_full_dependency_analysis();
     }
 
-    const int beam_size = 8;
+    const int beam_size = 16;
     const int max_depth = 16;
     // declare_memory_usage();
 

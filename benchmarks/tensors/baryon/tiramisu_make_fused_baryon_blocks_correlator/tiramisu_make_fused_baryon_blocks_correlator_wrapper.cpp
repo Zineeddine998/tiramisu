@@ -456,7 +456,7 @@ extern "C" {
          std::fstream schedule_nb_fs;
          int index = 0;
          std::string tp;
-         schedule_nb_fs.open("index.txt", std::ios::in);
+         schedule_nb_fs.open("/data/cs7214/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/index.txt", std::ios::in);
          if (schedule_nb_fs.is_open())
          {
             while (getline(schedule_nb_fs, tp))
@@ -469,7 +469,7 @@ extern "C" {
 
          std::ofstream ofs;
 
-         ofs.open("index.txt", std::ofstream::out);
+         ofs.open("/data/cs7214/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/index.txt", std::ofstream::out);
 
          if (ofs.is_open())
          {
