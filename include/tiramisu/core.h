@@ -5356,7 +5356,7 @@ public:
      /**
       * get constraints map
       */
-     static std::unordered_map<std::string, int> get_constraints_map(isl_set *set);
+     static std::unordered_map<std::string, bool> get_constraints_map(isl_set *set);
 
      /**
       * Return a tiramisu::expr representing the bound of
@@ -5379,6 +5379,12 @@ public:
       * would return min(N-1,M-1)
       */
      static tiramisu::expr get_bound(isl_set *set, int dim, int upper);
+
+     /**
+      * Return single iterator bound
+      *
+      */
+     static int get_single_iterator_bound(isl_set *set, int dim);
 
      /**
       * Return the extent of the loop.

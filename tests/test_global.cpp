@@ -410,44 +410,20 @@ public:
 
 int main(int, char **)
 {
-    isl_ctx *ctx = isl_ctx_alloc();
-    isl_set *set_0 = isl_set_read_from_str(ctx, SET_1D_0);
+isl_ctx *ctx = isl_ctx_alloc();
 
-    // std::unordered_map<std::string, bool> result = utility::get_constraints_map(set_0);
+test_get_upper_bounds(ctx);
+test_get_parameters_list(ctx);
+test_get_lower_bounds(ctx);
+computation_tester::test_get_iteration_domain_dimension_names();
+computation_tester::test_get_dimension_numbers_from_dimension_names();
+computation_tester::test_dynamic_dimension_into_loop_level();
+computation_tester::test_names_functions();
 
-    tiramisu::str_dump("\n\n\n||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n\n\n\n");
-
-    tiramisu::str_dump("\n get upper bound dim 0: ");
-    utility::get_bound(set_0, 0, 1);
-    tiramisu::str_dump("\n get lower bound dim 0: ");
-    utility::get_bound(set_0, 0, 0);
-
-    tiramisu::str_dump("\n get upper bound dim 1: ");
-    utility::get_bound(set_0, 1, 1);
-
-    tiramisu::str_dump("\n get lower bound dim 1: ");
-    utility::get_bound(set_0, 1, 0);
-
-    tiramisu::str_dump("\n get upper bound dim 2: ");
-    utility::get_bound(set_0, 2, 1);
-
-    tiramisu::str_dump("\n get lower bound dim 2: ");
-    utility::get_bound(set_0, 2, 0);
-
-    tiramisu::str_dump("\n\n\n||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n\n\n\n");
-
-    test_get_upper_bounds(ctx);
-    // test_get_parameters_list(ctx);
-    // test_get_lower_bounds(ctx);
-    // computation_tester::test_get_iteration_domain_dimension_names();
-    // computation_tester::test_get_dimension_numbers_from_dimension_names();
-    // computation_tester::test_dynamic_dimension_into_loop_level();
-    // computation_tester::test_names_functions();
-
-    for (auto const res: test_results)
-    {
+for (auto const res : test_results)
+{
     print_test_results(res.first, res.second);
-    }
+}
 
     return 0;
 }
