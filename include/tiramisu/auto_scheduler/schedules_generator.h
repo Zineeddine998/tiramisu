@@ -69,6 +69,11 @@ namespace tiramisu::auto_scheduler
         virtual ~schedules_generator() {}
 
         /**
+         * A map
+         */
+        std::unordered_map<optimization_type, double> optimization_duration_map{};
+
+        /**
          * Given an AST, and an optimization to apply,
          * generate new ASTs by applying the given optimization.
          */

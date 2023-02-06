@@ -40,7 +40,7 @@ namespace tiramisu::auto_scheduler
             }
             ast.evaluation = initial_exec_time;
             //    if (std::atoi(read_env_var("AS_VERBOSE"))==1)
-            std::cout << "Initial exec time 1 : " << initial_exec_time << std::endl;
+            std::cout << "Initial exec time : " << initial_exec_time << std::endl;
 
             std::string program_json = evaluate_by_learning_model::get_program_json(ast);
 
@@ -83,8 +83,9 @@ namespace tiramisu::auto_scheduler
 
             // // if we surpassed the MAX_MAT_DEPTH amount of matrices to explore OR we detected the parent of this level through
             // // the child->search_depth<=child->nb_explored_matrices condition which means that the search level is greater than the number of applied matrices
+            std::chrono::steady_clock::time_point search_time_start = std::chrono::steady_clock::now();
             searcher->search_save(ast, &schedules_annotations, &exploration_trace_root, schedule_timeout);
-
+            std::chrono::steady_clock::time_point search_time_end = std::chrono::steady_clock::now();
             std::string output_json;
 
             output_json = "{\n\t\"filename\" : \"" + filename + "\"," +
@@ -134,7 +135,8 @@ namespace tiramisu::auto_scheduler
             }
 
             std::cout << "Initial exec time : " << initial_exec_time << std::endl;
-            std::cout << "Search time : " << std::chrono::duration_cast<std::chrono::milliseconds>(sampling_end - sampling_start).count() << " ms" << std::endl;
+            std::cout << "Autoscheduler Execution time : " << std::chrono::duration_cast<std::chrono::milliseconds>(sampling_end - sampling_start).count() << " ms" << std::endl;
+            std::cout << "Search time : " << std::chrono::duration_cast<std::chrono::milliseconds>(search_time_end - search_time_start).count() << " ms" << std::endl;
             std::cout << "Best execution time : " << searcher->get_best_evaluation() << std::endl;
             std::cout << "Speedup : " << initial_exec_time / searcher->get_best_evaluation() << std::endl;
             std::cout << "Reference code: " << ref_time << std::endl;

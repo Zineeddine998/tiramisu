@@ -10,8 +10,8 @@ include_directories($ENV{TIRAMISU_ROOT}/3rdParty/Halide/include $ENV{TIRAMISU_RO
 
 link_directories($ENV{TIRAMISU_ROOT}/build $ENV{TIRAMISU_ROOT}/3rdParty/Halide/lib $ENV{TIRAMISU_ROOT}/3rdParty/isl/build/lib)
 
-set(generator_SOURCES tiramisu_make_fused_baryon_blocks_correlator_autoscheduler.cpp)
-#set(generator_SOURCES tiramisu_make_fused_baryon_blocks_correlator_generator.cpp)
+#set(generator_SOURCES tiramisu_make_fused_baryon_blocks_correlator_autoscheduler.cpp)
+set(generator_SOURCES tiramisu_make_fused_baryon_blocks_correlator_generator.cpp)
 add_executable(generator ${generator_SOURCES})
  
 target_link_libraries(generator tiramisu tiramisu_auto_scheduler Halide isl)

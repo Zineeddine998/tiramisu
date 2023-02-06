@@ -6,7 +6,8 @@
 #include "benchmarks.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include "tiramisu_make_fused_baryon_blocks_correlator_wrapper.h"
@@ -185,21 +186,21 @@ extern "C" {
                      C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)] += number0i;
                   }
 #else
-      for (int rp = 0; rp < B1Nrows; rp++)
-         for (int m = 0; m < NsrcHex; m++)
+   for (int rp = 0; rp < B1Nrows; rp++)
+      for (int m = 0; m < NsrcHex; m++)
 
-            for (int r = 0; r < B1Nrows; r++)
-               for (int n = 0; n < NsnkHex; n++)
-                  for (int t = 0; t < Lt; t++)
-                     for (int x = 0; x < Vsnk; x++)
-                     {
-                        double number0r;
-                        double number0i;
-                        number0r = b_C_r(n, r, m, rp, x, t);
-                        number0i = b_C_i(n, r, m, rp, x, t);
-                        C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)] += number0r;
-                        C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)] += number0i;
-                     }
+         for (int r = 0; r < B1Nrows; r++)
+            for (int n = 0; n < NsnkHex; n++)
+               for (int t = 0; t < Lt; t++)
+                  for (int x = 0; x < Vsnk; x++)
+                  {
+                     double number0r;
+                     double number0i;
+                     number0r = b_C_r(n, r, m, rp, x, t);
+                     number0i = b_C_i(n, r, m, rp, x, t);
+                     C_re[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)] += number0r;
+                     C_im[index_5d(rp, m, r, n, t, NsrcHex, B1Nrows, NsnkHex, Lt)] += number0i;
+                  }
 #endif
    }
 
@@ -245,7 +246,7 @@ extern "C" {
                                  double v2 = rand() % 10;
                                  double v3 = rand() % 10;
                                  double v4 = rand() % 10;
-                                  B1_prop_re[prop_index(q, t, jC, jS, iC, iS, y, x, Nc, Ns, Vsrc, Vsnk, Lt)] = v1;
+                                 B1_prop_re[prop_index(q, t, jC, jS, iC, iS, y, x, Nc, Ns, Vsrc, Vsnk, Lt)] = v1;
                                  B1_prop_im[prop_index(q, t, jC, jS, iC, iS, y, x, Nc, Ns, Vsrc, Vsnk, Lt)] = v3;
                               }
                               else
@@ -486,8 +487,8 @@ extern "C" {
             {
                if (break_flag == true)
                   break;
-         for (r = 0; r < B1Nrows; r++)
-         {
+               for (r = 0; r < B1Nrows; r++)
+               {
                   if (break_flag == true)
                      break;
                   for (n = 0; n < NsnkHex; n++)
@@ -512,8 +513,8 @@ extern "C" {
                         }
                      }
                   }
-         }
-      }
+               }
+            }
          }
 
          legality_check_fs.close();
@@ -522,12 +523,12 @@ extern "C" {
       }
 
 #ifdef WITH_MPI
-    tiramisu_MPI_cleanup();
+      tiramisu_MPI_cleanup();
 #endif
 
-    return 0;
+      return 0;
    }
 
 #ifdef __cplusplus
-}  // extern "C"
+} // extern "C"
 #endif
