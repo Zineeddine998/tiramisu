@@ -1358,7 +1358,7 @@ namespace tiramisu::auto_scheduler
         if (optimization_count_map.find(current_optimization) != optimization_count_map.end())
         {
             auto prev_count = optimization_count_map.at(current_optimization);
-            optimization_count_map.at(current_optimization) = prev_count++;
+            optimization_count_map.at(current_optimization) = prev_count + 1;
         }
         else
         {
@@ -1370,8 +1370,7 @@ namespace tiramisu::auto_scheduler
             for (auto &element : optimization_duration_map)
             {
                 optimization_duration_map_fs << "\nTime for " << std::to_string(element.first) << ": " << element.second << "ms\n";
-                optimization_duration_map_fs << "\nCount for " << std::to_string(element.first) << ": " << optimization_count_map.at(element.first) << "ms\n";
-                optimization_duration_map_fs << "-------------------------------------------";
+                optimization_duration_map_fs << "\nCount for " << std::to_string(element.first) << ": " << optimization_count_map.at(element.first) << "\n";
             }
         optimization_duration_map_fs << "/////////////////////////////////////////////////" << std::endl;
         optimization_duration_map_fs.close();
