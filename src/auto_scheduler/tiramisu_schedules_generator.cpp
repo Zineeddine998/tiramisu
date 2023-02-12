@@ -1343,6 +1343,7 @@ namespace tiramisu::auto_scheduler
 
         auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(sampling_end - sampling_start).count() / (double)1000000;
 
+        // duration map
         if (optimization_duration_map.find(current_optimization) != optimization_duration_map.end())
         {
             auto prev_duration = optimization_duration_map.at(current_optimization);
@@ -1353,11 +1354,24 @@ namespace tiramisu::auto_scheduler
             optimization_duration_map.insert({current_optimization, duration});
         }
 
+        // count map
+        if (optimization_count_map.find(current_optimization) != optimization_count_map.end())
+        {
+            auto prev_count = optimization_count_map.at(current_optimization);
+            optimization_count_map.at(current_optimization) = prev_count++;
+        }
+        else
+        {
+            optimization_count_map.insert({current_optimization, 1});
+        }
+
         std::ofstream optimization_duration_map_fs("optimization_duration_map.txt", std::ofstream::app);
         if (optimization_duration_map_fs.is_open())
             for (auto &element : optimization_duration_map)
             {
                 optimization_duration_map_fs << "\nTime for " << std::to_string(element.first) << ": " << element.second << "ms\n";
+                optimization_duration_map_fs << "\nCount for " << std::to_string(element.first) << ": " << optimization_count_map.at(element.first) << "ms\n";
+                optimization_duration_map_fs << "-------------------------------------------";
             }
         optimization_duration_map_fs << "/////////////////////////////////////////////////" << std::endl;
         optimization_duration_map_fs.close();

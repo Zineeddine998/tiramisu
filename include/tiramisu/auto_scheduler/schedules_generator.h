@@ -39,7 +39,7 @@ namespace tiramisu::auto_scheduler
         /**
          * Max Number of dimension to explore for unrolling, starting from the innermost loop level,
          */
-        int unrolling_search_deapth = 4;
+        int unrolling_search_deapth = 1; // just unroll the innermost loop
 
         /**
          * Max Number of dimension to explore for parallelism, starting from the outermost loop level.
@@ -69,9 +69,14 @@ namespace tiramisu::auto_scheduler
         virtual ~schedules_generator() {}
 
         /**
-         * A map
+         * A map that contains the optimisation type and the generation time
          */
         std::unordered_map<optimization_type, double> optimization_duration_map{};
+
+        /**
+         * A map that contains the optimisation type and the number of schedules that contains the optimization_type
+         */
+        std::unordered_map<optimization_type, int> optimization_count_map{};
 
         /**
          * Given an AST, and an optimization to apply,
