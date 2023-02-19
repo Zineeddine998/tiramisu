@@ -2673,7 +2673,7 @@ void generate_function(std::string name)
     std::cout << "\nprepare_schedules_for_legality_checks...\n\n";
     prepare_schedules_for_legality_checks();
     std::cout << "\nperforme_full_dependency_analysis...\n\n";
-    performe_full_dependency_analysis();
+    //performe_full_dependency_analysis();
 
     const int beam_size = 1;
     const int max_depth = 4;

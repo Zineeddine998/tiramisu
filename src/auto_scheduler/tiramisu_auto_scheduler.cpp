@@ -120,27 +120,12 @@ namespace tiramisu::auto_scheduler
 
             std::chrono::steady_clock::time_point sampling_end = std::chrono::steady_clock::now();
             //    if (std::atoi(read_env_var("AS_VERBOSE"))==1){
-            float ref_time = (float)0;
-            std::string tp;
-
-            std::fstream newfile;
-            newfile.open("/data/cs7214/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/test.txt", std::ios::in);
-            if (newfile.is_open())
-            {
-                while (getline(newfile, tp))
-                {
-                    ref_time = std::stof(tp);
-                }
-                newfile.close();
-            }
 
             std::cout << "Initial exec time : " << initial_exec_time << std::endl;
             std::cout << "Autoscheduler Execution time : " << std::chrono::duration_cast<std::chrono::milliseconds>(sampling_end - sampling_start).count() << " ms" << std::endl;
             std::cout << "Search time : " << std::chrono::duration_cast<std::chrono::milliseconds>(search_time_end - search_time_start).count() << " ms" << std::endl;
             std::cout << "Best execution time : " << searcher->get_best_evaluation() << std::endl;
             std::cout << "Speedup : " << initial_exec_time / searcher->get_best_evaluation() << std::endl;
-            std::cout << "Reference code: " << ref_time << std::endl;
-            std::cout << "Speedup (compared to reference code): " << ref_time / searcher->get_best_evaluation() << std::endl;
             //    }
         }
         catch (const std::bad_alloc &e)

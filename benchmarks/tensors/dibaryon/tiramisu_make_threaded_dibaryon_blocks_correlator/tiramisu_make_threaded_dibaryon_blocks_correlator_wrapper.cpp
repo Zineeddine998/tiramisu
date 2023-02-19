@@ -97,10 +97,10 @@ extern "C" {
       Halide::Buffer<double> b_B2_prop_r((double *)B2_prop_re, {Vsrc, Vsnk, Ns, Nc, Ns, Nc, Lt, Nq});
       Halide::Buffer<double> b_B2_prop_i((double *)B2_prop_im, {Vsrc, Vsnk, Ns, Nc, Ns, Nc, Lt, Nq});
 
-      if (rank == 0)
-      {
-         printf("prop elem %4.9f \n", b_B1_prop_r(0, 0, 0, 0, 0, 0, 0, 0));
-      }
+      // if (rank == 0)
+      // {
+      //    printf("prop elem %4.9f \n", b_B1_prop_r(0, 0, 0, 0, 0, 0, 0, 0));
+      // }
 
       // psi
       Halide::Buffer<double> b_B1_src_psi_r((double *)src_psi_B1_re, {Nsrc, Vsrc});
@@ -345,16 +345,7 @@ extern "C" {
                      b_C_i(n, b, m, x, t) = 0.0;
                   }
 
-      if (rank == 0)
-      {
-         printf("prop 1 %4.9f + I %4.9f \n", b_B1_prop_r(0, 0, 0, 0, 0, 0, 0, 0), b_B1_prop_i(0, 0, 0, 0, 0, 0, 0, 0));
-         printf("prop 2 %4.9f + I %4.9f \n", b_B2_prop_r(0, 0, 0, 0, 0, 0, 0, 0), b_B2_prop_i(0, 0, 0, 0, 0, 0, 0, 0));
-         printf("psi src 1 %4.9f + I %4.9f \n", b_B1_src_psi_r(0, 0), b_B1_src_psi_i(0, 0));
-         printf("psi src 2 %4.9f + I %4.9f \n", b_B2_src_psi_r(0, 0), b_B2_src_psi_i(0, 0));
-         printf("psi snk %4.9f + I %4.9f \n", b_snk_psi_r(0, 0, 0), b_snk_psi_i(0, 0, 0));
-         printf("weights snk %4.1f \n", b_snk_weights(0, 0));
-         printf("sigs %d \n", b_sigs(0));
-      }
+ 
       tiramisu_make_threaded_dibaryon_blocks_correlator(
           b_C_r.raw_buffer(),
           b_C_i.raw_buffer(),
@@ -389,45 +380,7 @@ extern "C" {
           b_hex_snk_spin_weights.raw_buffer(),
           b_hex_snk_weights.raw_buffer());
 
-      if (rank == 0)
-      {
-         printf("BB-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0, 0, 0, 0, 0), b_C_i(0, 0, 0, 0, 0));
-         printf("BB-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0, 1, 0, 0, 0), b_C_i(0, 1, 0, 0, 0));
-         printf("BB-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0, 2, 0, 0, 0), b_C_i(0, 2, 0, 0, 0));
-         printf("BB-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0, 3, 0, 0, 0), b_C_i(0, 3, 0, 0, 0));
-         printf("BB-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0, 4, 0, 0, 0), b_C_i(0, 4, 0, 0, 0));
-         printf("BB-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0, 5, 0, 0, 0), b_C_i(0, 5, 0, 0, 0));
-         printf("H-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0, 0, Nsrc, 0, 0), b_C_i(0, 0, Nsrc, 0, 0));
-         printf("H-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0, 1, Nsrc, 0, 0), b_C_i(0, 1, Nsrc, 0, 0));
-         printf("H-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0, 2, Nsrc, 0, 0), b_C_i(0, 2, Nsrc, 0, 0));
-         printf("H-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0, 3, Nsrc, 0, 0), b_C_i(0, 3, Nsrc, 0, 0));
-         printf("H-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0, 4, Nsrc, 0, 0), b_C_i(0, 4, Nsrc, 0, 0));
-         printf("H-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0, 5, Nsrc, 0, 0), b_C_i(0, 5, Nsrc, 0, 0));
-         printf("H-H non-zero? %4.9e + I %4.9e \n", b_C_r(Nsnk, 0, Nsrc, 0, 0), b_C_i(Nsnk, 0, Nsrc, 0, 0));
-         printf("H-H non-zero? %4.9e + I %4.9e \n", b_C_r(Nsnk, 1, Nsrc, 0, 0), b_C_i(Nsnk, 1, Nsrc, 0, 0));
-         printf("H-H non-zero? %4.9e + I %4.9e \n", b_C_r(Nsnk, 2, Nsrc, 0, 0), b_C_i(Nsnk, 2, Nsrc, 0, 0));
-         printf("H-H non-zero? %4.9e + I %4.9e \n", b_C_r(Nsnk, 3, Nsrc, 0, 0), b_C_i(Nsnk, 3, Nsrc, 0, 0));
-         printf("H-H non-zero? %4.9e + I %4.9e \n", b_C_r(Nsnk, 4, Nsrc, 0, 0), b_C_i(Nsnk, 4, Nsrc, 0, 0));
-         printf("H-H non-zero? %4.9e + I %4.9e \n", b_C_r(Nsnk, 5, Nsrc, 0, 0), b_C_i(Nsnk, 5, Nsrc, 0, 0));
-         /*   printf("BB-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0,0,0,0), b_C_i(0,0,0,0) );
-            printf("BB-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0,1,0,0), b_C_i(0,1,0,0) );
-            printf("BB-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0,2,0,0), b_C_i(0,2,0,0) );
-            printf("BB-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0,3,0,0), b_C_i(0,3,0,0) );
-            printf("BB-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0,4,0,0), b_C_i(0,4,0,0) );
-            printf("BB-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0,5,0,0), b_C_i(0,5,0,0) );
-            printf("H-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0,0,Nsrc,0), b_C_i(0,0,Nsrc,0) );
-            printf("H-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0,1,Nsrc,0), b_C_i(0,1,Nsrc,0) );
-            printf("H-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0,2,Nsrc,0), b_C_i(0,2,Nsrc,0) );
-            printf("H-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0,3,Nsrc,0), b_C_i(0,3,Nsrc,0) );
-            printf("H-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0,4,Nsrc,0), b_C_i(0,4,Nsrc,0) );
-            printf("H-BB non-zero? %4.9e + I %4.9e \n", b_C_r(0,5,Nsrc,0), b_C_i(0,5,Nsrc,0) );
-            printf("H-H non-zero? %4.9e + I %4.9e \n", b_C_r(Nsnk,0,Nsrc,0), b_C_i(Nsnk,0,Nsrc,0) );
-            printf("H-H non-zero? %4.9e + I %4.9e \n", b_C_r(Nsnk,1,Nsrc,0), b_C_i(Nsnk,1,Nsrc,0) );
-            printf("H-H non-zero? %4.9e + I %4.9e \n", b_C_r(Nsnk,2,Nsrc,0), b_C_i(Nsnk,2,Nsrc,0) );
-            printf("H-H non-zero? %4.9e + I %4.9e \n", b_C_r(Nsnk,3,Nsrc,0), b_C_i(Nsnk,3,Nsrc,0) );
-            printf("H-H non-zero? %4.9e + I %4.9e \n", b_C_r(Nsnk,4,Nsrc,0), b_C_i(Nsnk,4,Nsrc,0) );
-            printf("H-H non-zero? %4.9e + I %4.9e \n", b_C_r(Nsnk,5,Nsrc,0), b_C_i(Nsnk,5,Nsrc,0) );  */
-      }
+     
 
       // symmetrize and such
       /*  for (int m=0; m<Nsrc; m++)
@@ -667,19 +620,19 @@ extern "C" {
                   C_im[index_4d(3, m, n, t, Nsrc + NsrcHex, Nsnk + NsnkHex, Lt)] += number1i;
                }
 
-      if (rank == 0)
-      {
-         for (int b = 0; b < 4; b++)
-         {
-            printf("\n");
-            for (int m = 0; m < Nsrc + NsrcHex; m++)
-               for (int n = 0; n < Nsnk + NsnkHex; n++)
-                  for (int t = 0; t < Lt; t++)
-                  {
-                     printf("r=%d, m=%d, n=%d, t=%d: %4.1f + I (%4.1f) \n", b, m, n, t, C_re[index_4d(b, m, n, t, Nsrc + NsrcHex, Nsnk + NsnkHex, Lt)], C_im[index_4d(b, m, n, t, Nsrc + NsrcHex, Nsnk + NsnkHex, Lt)]);
-                  }
-         }
-      }
+      // if (rank == 0)
+      // {
+      //    for (int b = 0; b < 4; b++)
+      //    {
+      //       printf("\n");
+      //       for (int m = 0; m < Nsrc + NsrcHex; m++)
+      //          for (int n = 0; n < Nsnk + NsnkHex; n++)
+      //             for (int t = 0; t < Lt; t++)
+      //             {
+      //                printf("r=%d, m=%d, n=%d, t=%d: %4.1f + I (%4.1f) \n", b, m, n, t, C_re[index_4d(b, m, n, t, Nsrc + NsrcHex, Nsnk + NsnkHex, Lt)], C_im[index_4d(b, m, n, t, Nsrc + NsrcHex, Nsnk + NsnkHex, Lt)]);
+      //             }
+      //    }
+      // }
    }
 
    int main(int, char **)
@@ -1014,7 +967,7 @@ extern "C" {
       {
 
 #if RUN_REFERENCE
-         std::ofstream ref_time_fs("../../../tmp/test.txt", std::ofstream::app);
+         // std::ofstream ref_time_fs("/data/cs7214/tiramisu/benchmarks/tensors/baryon/tiramisu_make_fused_baryon_blocks_correlator/test.txt", std::ofstream::app);
 
          for (int i = 0; i < nb_tests; i++)
          {
@@ -1023,11 +976,11 @@ extern "C" {
             make_two_nucleon_2pt(C_re, C_im, B1_prop_re, B1_prop_im, B2_prop_re, B2_prop_im, src_color_weights_r1, src_spin_weights_r1, src_weights_r1, src_color_weights_r2, src_spin_weights_r2, src_weights_r2, perms, sigs, src_psi_B1_re, src_psi_B1_im, src_psi_B2_re, src_psi_B2_im, snk_psi_re, snk_psi_im, snk_psi_B1_re, snk_psi_B1_im, snk_psi_B2_re, snk_psi_B2_im, hex_src_psi_re, hex_src_psi_im, hex_snk_psi_re, hex_snk_psi_im, space_symmetric, snk_entangled, Nc, Ns, Vsrc, Vsnk, Lt, Nw, Nq, Nsrc, Nsnk, NsrcHex, NsnkHex, Nperms);
 
             auto end2 = std::chrono::high_resolution_clock::now();
-            if (ref_time_fs.is_open())
-            {
-               ref_time_fs << std::chrono::duration_cast<std::chrono::milliseconds>(end2 - start2).count() << std::endl;
-            }
-            ref_time_fs.close();
+            // if (ref_time_fs.is_open())
+            // {
+            //    ref_time_fs << std::chrono::duration_cast<std::chrono::milliseconds>(end2 - start2).count() << std::endl;
+            // }
+            // ref_time_fs.close();
          }
 #endif
 
@@ -1051,13 +1004,6 @@ extern "C" {
             schedule_nb_fs.close();
          }
 
-         std::ofstream ofs;
-
-         ofs.open("test.txt", std::ofstream::out | std::ofstream::app);
-
-         ofs << std::to_string(index);
-
-         ofs.close();
 
          bool break_flag = false;
 
