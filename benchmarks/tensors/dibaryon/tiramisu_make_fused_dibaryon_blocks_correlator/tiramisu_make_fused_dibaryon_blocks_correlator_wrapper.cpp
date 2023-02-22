@@ -17,7 +17,7 @@ extern "C"
 #define RUN_REFERENCE 1
 #define RUN_CHECK 1
    int nb_tests = 1;
-   int randommode = 1;
+   int randommode = 0;
 
    void tiramisu_make_two_nucleon_2pt(double *C_re,
                                       double *C_im,
@@ -793,16 +793,39 @@ extern "C"
          schedule_nb_fs.close();
       }
 
+      std::ofstream ofs;
+
+      ofs.open("index.txt", std::ofstream::out);
+
+      if (ofs.is_open())
+      {
+         ofs << std::to_string(index) << "\n";
+         ofs.close();
+      }
+
+      bool break_flag = false;
+
       for (rp = 0; rp < B2Nrows; rp++)
       {
+         if (break_flag == true)
+            break;
          for (m = 0; m < Nsrc + NsrcHex; m++)
+         {
+            if (break_flag == true)
+               break;
             for (n = 0; n < Nsnk + NsnkHex; n++)
+            {
+               if (break_flag == true)
+                  break;
                //            for (r=0; r<B2Nrows; r++)
                for (t = 0; t < Lt; t++)
                {
-                  if ((std::abs(C_re[index_4d(rp, m, n, t, Nsrc + NsrcHex, Nsnk + NsnkHex, Lt)] - t_C_re[index_5d(rp, m, rp, n, t, Nsrc + NsrcHex, B2Nrows, Nsnk + NsnkHex, Lt)]) >= 0.01 * Vsnk * Vsnk) ||
-                      (std::abs(C_im[index_4d(rp, m, n, t, Nsrc + NsrcHex, Nsnk + NsnkHex, Lt)] - t_C_im[index_5d(rp, m, rp, n, t, Nsrc + NsrcHex, B2Nrows, Nsnk + NsnkHex, Lt)]) >= 0.01 * Vsnk * Vsnk))
+
+                  double diff = std::sqrt(std::pow(std::abs(C_re[index_4d(rp, m, n, t, Nsrc + NsrcHex, Nsnk + NsnkHex, Lt)] - t_C_re[index_5d(rp, m, rp, n, t, Nsrc + NsrcHex, B2Nrows, Nsnk + NsnkHex, Lt)]), 2) + std::pow(std::abs(C_im[index_4d(rp, m, n, t, Nsrc + NsrcHex, Nsnk + NsnkHex, Lt)] - t_C_im[index_5d(rp, m, rp, n, t, Nsrc + NsrcHex, B2Nrows, Nsnk + NsnkHex, Lt)]), 2));
+                  double mag = std::sqrt(std::pow(std::abs(C_re[index_4d(rp, m, n, t, Nsrc + NsrcHex, Nsnk + NsnkHex, Lt)]), 2) + std::pow(std::abs(C_im[index_4d(rp, m, n, t, Nsrc + NsrcHex, Nsnk + NsnkHex, Lt)]), 2));
+                  if (diff / mag >= 1 / 1e12)
                   {
+
                      if (legality_check_fs.is_open())
                      {
                         legality_check_fs << "\n Schedule number: ";
@@ -814,18 +837,19 @@ extern "C"
                      }
                   }
                }
+            }
+         }
       }
       legality_check_fs.close();
 
 #endif
-   }
 
 #ifdef WITH_MPI
-   tiramisu_MPI_cleanup();
+      tiramisu_MPI_cleanup();
 #endif // WITH_MPI
 
-   return 0;
-}
+      return 0;
+   }
 
 #ifdef __cplusplus
 } // extern "C"
