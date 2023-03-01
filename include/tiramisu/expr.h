@@ -599,56 +599,56 @@ namespace tiramisu
         }
         // @}
 
-        int64_t get_int_val_nullable() const
+        bool is_int() const
         {
             assert(this->get_expr_type() == tiramisu::e_val);
 
-            int64_t result = 0;
+            bool result = false;
 
             if (this->get_data_type() == tiramisu::p_uint8)
             {
-                result = this->get_uint8_value();
+                result = true;
             }
             else if (this->get_data_type() == tiramisu::p_int8)
             {
-                result = this->get_int8_value();
+                result = true;
             }
             else if (this->get_data_type() == tiramisu::p_uint16)
             {
-                result = this->get_uint16_value();
+                result = true;
             }
             else if (this->get_data_type() == tiramisu::p_int16)
             {
-                result = this->get_int16_value();
+                result = true;
             }
             else if (this->get_data_type() == tiramisu::p_uint32)
             {
-                result = this->get_uint32_value();
+                result = true;
             }
             else if (this->get_data_type() == tiramisu::p_int32)
             {
-                result = this->get_int32_value();
+                result = true;
             }
             else if (this->get_data_type() == tiramisu::p_uint64)
             {
-                result = this->get_uint64_value();
+                result = true;
             }
             else if (this->get_data_type() == tiramisu::p_int64)
             {
-                result = this->get_int64_value();
+                result = true;
             }
             else if (this->get_data_type() == tiramisu::p_float32)
             {
-                result = this->get_float32_value();
+                result = true;
             }
             else if (this->get_data_type() == tiramisu::p_float64)
             {
-                result = this->get_float64_value();
+                result = true;
             }
             else
             {
                 // ERROR("Calling get_int_val() on a non integer expression.", true);
-                result = 407;
+                result = false;
             }
 
             return result;

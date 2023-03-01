@@ -5929,13 +5929,13 @@ namespace tiramisu
             }
             else if (isl_ast_node_get_type(node) == isl_ast_node_user)
             {
-                ERROR("Cannot extract bounds from a isl_ast_user node.", false);
-                result = tiramisu::expr(-1);
+                // ERROR("Cannot extract bounds from a isl_ast_user node.", false);
+                result = tiramisu::expr(0);
             }
             else if (isl_ast_node_get_type(node) == isl_ast_node_if)
             {
                 DEBUG(3, tiramisu::str_dump("If conditional."));
-                std::cout << "\n If Conditional";
+                // std::cout << "\n If Conditional";
 
                 tiramisu::expr cond_bound = tiramisu_expr_from_isl_ast_expr(isl_ast_node_if_get_cond(node));
                 tiramisu::expr then_bound = utility::extract_bound_expression(isl_ast_node_if_get_then(node), dim, upper);
@@ -5944,16 +5944,12 @@ namespace tiramisu
                 if (isl_ast_node_if_has_else(node))
                 {
                     else_bound = utility::extract_bound_expression(isl_ast_node_if_get_else(node), dim, upper);
-                    if (else_bound.get_int_val_nullable() != 407 && then_bound.get_int_val_nullable() != 407)
+                    if (else_bound.is_int() && then_bound.is_int())
                     {
-                        if (else_bound.get_int_val() > then_bound.get_int_val())
-                        {
-                            result = else_bound;
-                        }
+                        if (upper)
+                            result = tiramisu::expr(std::max(then_bound.get_int_val(), else_bound.get_int_val()));
                         else
-                        {
-                            result = then_bound;
-                        }
+                            result = tiramisu::expr(std::min(then_bound.get_int_val(), else_bound.get_int_val()));
                     }
 
                     // result = tiramisu::expr(tiramisu::o_max, then_bound, else_bound);
@@ -5965,7 +5961,7 @@ namespace tiramisu
             }
 
             DEBUG(3, tiramisu::str_dump("Extracted bound:"); result.dump(false));
-            std::cout << "\nExtracted bounds false";
+            // std::cout << "\nExtracted bounds false";
             DEBUG_INDENT(-4);
 
             return result;
