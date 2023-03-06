@@ -11,6 +11,8 @@
 #include <tiramisu/debug.h>
 #include <tiramisu/core.h>
 
+#include <climits>
+
 #ifdef _WIN32
 #include <iso646.h>
 #endif
@@ -5864,12 +5866,12 @@ namespace tiramisu
             tiramisu::expr result;
 
             DEBUG(3, tiramisu::str_dump("Extracting bounds from a loop at depth = " + std::to_string(dim)));
-            std::cout << "\nExtracting bounds from a loop at depth = " + std::to_string(dim);
+            // std::cout << "\nExtracting bounds from a loop at depth = " + std::to_string(dim);
             DEBUG(3, tiramisu::str_dump("Extracting bounds from the following ISL AST node "));
-            std::cout << "\nExtracting bounds from the following ISL AST node ";
+            // std::cout << "\nExtracting bounds from the following ISL AST node ";
             DEBUG(3, tiramisu::str_dump("\n"); tiramisu::str_dump(std::string(isl_ast_node_to_C_str(node))));
-            std::cout << "\n";
-            std::cout << std::string(isl_ast_node_to_C_str(node));
+            // std::cout << "\n";
+            // std::cout << std::string(isl_ast_node_to_C_str(node));
 
             if (isl_ast_node_get_type(node) == isl_ast_node_block)
             {
@@ -5878,13 +5880,13 @@ namespace tiramisu
             else if (isl_ast_node_get_type(node) == isl_ast_node_for)
             {
                 DEBUG(3, tiramisu::str_dump("Extracting bounds from a for loop."));
-                std::cout << "\nExtracting bounds from a for loop";
+                // std::cout << "\nExtracting bounds from a for loop";
                 isl_ast_expr *init_bound = isl_ast_node_for_get_init(node);
                 isl_ast_expr *upper_bound = isl_ast_node_for_get_cond(node);
                 DEBUG(3, tiramisu::str_dump("Lower bound at this level is: " + std::string(isl_ast_expr_to_C_str(init_bound))));
-                std::cout << "\nLower bound at this level is: " + std::string(isl_ast_expr_to_C_str(init_bound));
+                // std::cout << "\nLower bound at this level is: " + std::string(isl_ast_expr_to_C_str(init_bound));
                 DEBUG(3, tiramisu::str_dump("Upper bound at this level is: " + std::string(isl_ast_expr_to_C_str(upper_bound))));
-                std::cout << "\nUpper bound at this level is : " + std::string(isl_ast_expr_to_C_str(upper_bound));
+                // std::cout << "\nUpper bound at this level is : " + std::string(isl_ast_expr_to_C_str(upper_bound));
                 if (dim == 0)
                 {
                     if (upper)
@@ -5930,12 +5932,16 @@ namespace tiramisu
             else if (isl_ast_node_get_type(node) == isl_ast_node_user)
             {
                 // ERROR("Cannot extract bounds from a isl_ast_user node.", false);
-                result = tiramisu::expr(0);
+                if (upper)
+                    result = tiramisu::expr(INT_MIN);
+                else
+                    result = tiramisu::expr(INT_MAX);
             }
             else if (isl_ast_node_get_type(node) == isl_ast_node_if)
             {
-                DEBUG(3, tiramisu::str_dump("If conditional."));
-                // std::cout << "\n If Conditional";
+                // DEBUG(3, tiramisu::str_dump("If conditional."));
+                //  std::cout << "\n If Conditional";
+                // get max_depth(node, if, else)
 
                 tiramisu::expr cond_bound = tiramisu_expr_from_isl_ast_expr(isl_ast_node_if_get_cond(node));
                 tiramisu::expr then_bound = utility::extract_bound_expression(isl_ast_node_if_get_then(node), dim, upper);
