@@ -5933,9 +5933,9 @@ namespace tiramisu
             {
                 // ERROR("Cannot extract bounds from a isl_ast_user node.", false);
                 if (upper)
-                    result = tiramisu::expr(INT_MIN);
+                    result = tiramisu::expr(1);
                 else
-                    result = tiramisu::expr(INT_MAX);
+                    result = tiramisu::expr(0);
             }
             else if (isl_ast_node_get_type(node) == isl_ast_node_if)
             {
@@ -5953,9 +5953,15 @@ namespace tiramisu
                     if (else_bound.is_int() && then_bound.is_int())
                     {
                         if (upper)
+                        {
                             result = tiramisu::expr(std::max(then_bound.get_int_val(), else_bound.get_int_val()));
+                            std::cout << "Upper: Max(" << then_bound.get_int_val() << "," << else_bound.get_int_val() << ")=" << std::max(then_bound.get_int_val(), else_bound.get_int_val());
+                        }
                         else
+                        {
                             result = tiramisu::expr(std::min(then_bound.get_int_val(), else_bound.get_int_val()));
+                            std::cout << "Lower: Min(" << then_bound.get_int_val() << "," << else_bound.get_int_val() << ")=" << std::min(then_bound.get_int_val(), else_bound.get_int_val());
+                        }
                     }
 
                     // result = tiramisu::expr(tiramisu::o_max, then_bound, else_bound);
@@ -6088,7 +6094,7 @@ namespace tiramisu
                 isl_set_copy(set));
 
         // Set iterator names
-        std::cout << "\n Setting the iterator names";
+        // std::cout << "\n Setting the iterator names";
         int length = isl_map_dim(map, isl_dim_out);
         isl_id_list *iterators = isl_id_list_alloc(ctx, length);
 
@@ -6098,26 +6104,26 @@ namespace tiramisu
             if (isl_set_has_dim_name(set, isl_dim_set, i) == true)
             {
                 name = isl_set_get_dim_name(set, isl_dim_set, i);
-                std::cout << "\n Has dim name: " << name;
+                // std::cout << "\n Has dim name: " << name;
             }
             else
             {
                 name = generate_new_variable_name();
-                std::cout << "\n Generated name: " << name;
+                // std::cout << "\n Generated name: " << name;
             }
 
             isl_id *id = isl_id_alloc(ctx, name.c_str(), NULL);
             iterators = isl_id_list_add(iterators, id);
         }
 
-        std::cout << "\n isl id list :";
+        // std::cout << "\n isl id list :";
         isl_id_list_dump(iterators);
 
-        std::cout << "\n isl_ast_build_set_iterators ...";
+        // std::cout << "\n isl_ast_build_set_iterators ...";
 
         ast_build = isl_ast_build_set_iterators(ast_build, iterators);
 
-        std::cout << "\n isl_ast_build_set_iterators | DONE";
+        // std::cout << "\n isl_ast_build_set_iterators | DONE";
 
         isl_ast_node *node = isl_ast_build_node_from_schedule_map(ast_build, isl_union_map_from_map(map));
 
