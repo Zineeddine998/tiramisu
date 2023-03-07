@@ -85,7 +85,7 @@ namespace tiramisu
      */
     function::function(std::string name)
     {
-        
+
         assert(!name.empty() && ("Empty function name"));
 
         this->name = name;
@@ -1446,17 +1446,29 @@ namespace tiramisu
                 isl_union_set_copy(this->get_trimmed_time_processor_domain()));
 
         DEBUG(3, tiramisu::str_dump("Schedule:", isl_union_map_to_str(this->get_schedule())));
+        tiramisu::str_dump("Schedule:", isl_union_map_to_str(this->get_schedule()));
         DEBUG(3, tiramisu::str_dump("Iteration domain:",
                                     isl_union_set_to_str(this->get_iteration_domain())));
+        tiramisu::str_dump("Iteration domain:",
+                           isl_union_set_to_str(this->get_iteration_domain()));
         DEBUG(3, tiramisu::str_dump("Trimmed Time-Processor domain:",
                                     isl_union_set_to_str(this->get_trimmed_time_processor_domain())));
+        tiramisu::str_dump("Trimmed Time-Processor domain:",
+                           isl_union_set_to_str(this->get_trimmed_time_processor_domain()));
         DEBUG(3, tiramisu::str_dump("Trimmed Time-Processor aligned identity schedule:",
                                     isl_union_map_to_str(this->get_aligned_identity_schedules())));
+        tiramisu::str_dump("Trimmed Time-Processor aligned identity schedule:",
+                           isl_union_map_to_str(this->get_aligned_identity_schedules()));
         DEBUG(3, tiramisu::str_dump("Identity schedule intersect trimmed Time-Processor domain:",
                                     isl_union_map_to_str(umap)));
+        tiramisu::str_dump("Identity schedule intersect trimmed Time-Processor domain:",
+                           isl_union_map_to_str(umap));
         DEBUG(3, tiramisu::str_dump("\n"));
+        tiramisu::str_dump("\n");
 
         this->ast = isl_ast_build_node_from_schedule_map(ast_build, umap);
+
+        tiramisu::str_dump("AST:", isl_ast_node_to_str(this->ast));
 
         isl_ast_build_free(ast_build);
 
