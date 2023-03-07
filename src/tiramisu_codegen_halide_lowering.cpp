@@ -65,8 +65,8 @@ namespace tiramisu
         DEBUG(4, tiramisu::str_dump(stmt_to_string("Lowering after uniquifying variable names:\n", s)));
 
         DEBUG(3, tiramisu::str_dump("Simplifying...\n")); // without removing dead lets, because storage flattening needs the strides
-        tiramisu::str_dump("Simplifying...\n")
-            s = simplify(s, false);
+        tiramisu::str_dump("Simplifying...\n");
+        s = simplify(s, false);
         DEBUG(4, tiramisu::str_dump(stmt_to_string("Lowering after simplification:\n", s)));
 
         DEBUG(3, tiramisu::str_dump("Performing storage folding optimization...\n"));
@@ -187,7 +187,7 @@ namespace tiramisu
         }
 
         DEBUG(3, tiramisu::str_dump("Simplifying...\n"));
-        iramisu::str_dump("Simplifying...\n");
+        tiramisu::str_dump("Simplifying...\n");
         s = common_subexpression_elimination(s);
 
         if (t.has_feature(Target::OpenGL))
