@@ -284,8 +284,8 @@ void generate_function(std::string name)
     // -------------------------------------------------------
     std::cout << "\nprepare_schedules_for_legality_checks...\n";
     prepare_schedules_for_legality_checks();
-    std::cout << "\nperforme_full_dependency_analysis...\n";
-    performe_full_dependency_analysis();
+    // std::cout << "\nperforme_full_dependency_analysis...\n";
+    // performe_full_dependency_analysis();
 
     const int beam_size = 2;
     const int max_depth = 4;

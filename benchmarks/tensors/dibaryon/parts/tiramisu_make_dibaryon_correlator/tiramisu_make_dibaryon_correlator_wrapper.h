@@ -3,9 +3,9 @@
 
 #include "../../../utils/qblocks_2pt_parameters.h"
 
-#define SMALL_BARYON_DATA_SET 1
+#define SMALL_BARYON_DATA_SET 0
 #define LARGE_BARYON_DATA_SET 0
-#define USE_GLOBAL_PARAMS 0
+#define USE_GLOBAL_PARAMS 1
 
 #if SMALL_BARYON_DATA_SET
 

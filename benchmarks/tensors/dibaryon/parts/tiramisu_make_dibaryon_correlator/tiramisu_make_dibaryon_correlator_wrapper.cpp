@@ -7,8 +7,8 @@
 #include "tiramisu_make_dibaryon_correlator_wrapper.h"
 #include "tiramisu_make_dibaryon_correlator_ref.cpp"
 
-#define RUN_REFERENCE 0
-#define RUN_CHECK 0
+#define RUN_REFERENCE 1
+#define RUN_CHECK 1
 int nb_tests = 1;
 
 int main(int, char **)
@@ -16,7 +16,7 @@ int main(int, char **)
    std::vector<std::chrono::duration<double, std::milli>> duration_vector_1;
    std::vector<std::chrono::duration<double, std::milli>> duration_vector_2;
 
-   // long mega = 1024 * 1024;
+   long mega = 1024 * 1024;
 
    // std::cout << "Array sizes" << std::endl;
    // std::cout << "Blocal & Prop:" << std::endl;
@@ -214,11 +214,9 @@ int main(int, char **)
          }
 
 #if RUN_REFERENCE
-   std::cout << "Start reference C code." << std::endl;
+
    for (int i = 0; i < nb_tests; i++)
    {
-      std::cout << "Run " << i << "/" << nb_tests << std::endl;
-      auto start2 = std::chrono::high_resolution_clock::now();
 
       make_dibaryon_correlator(
           ref_C_r,
@@ -245,20 +243,13 @@ int main(int, char **)
           snk_weights,
           snk_psi_re,
           snk_psi_im);
-
-      auto end2 = std::chrono::high_resolution_clock::now();
-      std::chrono::duration<double, std::milli> duration2 = end2 - start2;
-      duration_vector_2.push_back(duration2);
    }
-   std::cout << "End reference C code." << std::endl;
-#endif
 
-   // std::cout << "Start Tiramisu code." << std::endl;
+#endif
 
    for (int i = 0; i < nb_tests; i++)
    {
-      // std::cout << "Run " << i << "/" << nb_tests << std::endl;
-      // auto start1 = std::chrono::high_resolution_clock::now();
+
       auto begin = std::chrono::high_resolution_clock::now();
 
       tiramisu_make_dibaryon_correlator(
@@ -289,32 +280,66 @@ int main(int, char **)
 
       auto end = std::chrono::high_resolution_clock::now();
       std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count() / (double)1000000 << " " << std::flush;
-
-      // auto end1 = std::chrono::high_resolution_clock::now();
-      // std::chrono::duration<double, std::milli> duration1 = end1 - start1;
-      // duration_vector_1.push_back(duration1);
    }
    std::cout << std::endl;
-   // << "End Tiramisu code." << std::endl;
-
-   // print_time("performance_CPU.csv", "dibaryon", {"Ref", "Tiramisu"}, {median(duration_vector_2), median(duration_vector_1)});
-   // std::cout << "\nSpeedup = " << median(duration_vector_2) / median(duration_vector_1) << std::endl;
 
 #if RUN_CHECK
    // Compare outputs.
+   std::ofstream legality_check_fs("legality_check.txt", std::ofstream::app);
 
+   std::fstream schedule_nb_fs;
+   int index = 0;
+   std::string tp;
+   schedule_nb_fs.open("./index.txt", std::ios::in);
+   if (schedule_nb_fs.is_open())
+   {
+      while (getline(schedule_nb_fs, tp))
+      {
+         index = std::stoi(tp);
+         index++;
+      }
+      schedule_nb_fs.close();
+   }
+
+   std::ofstream ofs;
+
+   ofs.open("./index.txt", std::ofstream::out);
+
+   if (ofs.is_open())
+   {
+      ofs << std::to_string(index) << "\n";
+      ofs.close();
+   }
+
+   bool break_flag = false;
    for (int i = 0; i < Nt; i++)
+   {
+      if (break_flag == true)
+         break;
       for (int j = 0; j < Nsnk; j++)
+      {
+         if (break_flag == true)
+            break;
          for (int k = 0; k < Nsrc; k++)
          {
-            printf("%4.1f + I (%4.1f) vs %4.1f + I (%4.1f) \n", ref_C_r[index_3d(k, j, i, Nsnk, Nt)], ref_C_i[index_3d(k, j, i, Nsnk, Nt)], C_r(i, j, k), C_i(i, j, k));
             if ((std::abs(ref_C_r[index_3d(k, j, i, Nsnk, Nt)] - C_r(i, j, k)) >= 0.01) ||
                 (std::abs(ref_C_i[index_3d(k, j, i, Nsnk, Nt)] - C_i(i, j, k)) >= 0.01))
             {
-               std::cout << "Error: different computed values for C_r or C_i!" << std::endl;
-               exit(1);
+               // std::cout << "Error: different computed values for C_r or C_i!" << std::endl;
+               // exit(1);
+               if (legality_check_fs.is_open())
+               {
+                  legality_check_fs << "\n Schedule number: ";
+                  legality_check_fs << std::to_string(index);
+                  legality_check_fs << " is not legal";
+                  break_flag = true;
+                  break;
+               }
             }
          }
+      }
+   }
+   legality_check_fs.close();
 
 #endif
 
