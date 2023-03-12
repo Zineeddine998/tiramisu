@@ -140,6 +140,8 @@ namespace tiramisu::auto_scheduler
         while (fgets(buf, 100, pipe))
             output += buf;
 
+        std::cout << "\nOutput: " << output;
+
         // close the pipe and check if the timeout has been reached
         auto returnCode = pclose(pipe) / 256;
         if (exit_on_timeout && (timeout != 0) && (returnCode == 124))

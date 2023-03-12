@@ -16,7 +16,7 @@ int main(int, char **)
    std::vector<std::chrono::duration<double, std::milli>> duration_vector_1;
    std::vector<std::chrono::duration<double, std::milli>> duration_vector_2;
 
-   long mega = 1024 * 1024;
+   // long mega = 1024 * 1024;
 
    // std::cout << "Array sizes" << std::endl;
    // std::cout << "Blocal & Prop:" << std::endl;
