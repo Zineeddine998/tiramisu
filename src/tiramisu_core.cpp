@@ -5955,12 +5955,12 @@ namespace tiramisu
                         if (upper)
                         {
                             result = tiramisu::expr(std::max(then_bound.get_int_val(), else_bound.get_int_val()));
-                            std::cout << "Upper: Max(" << then_bound.get_int_val() << "," << else_bound.get_int_val() << ")=" << std::max(then_bound.get_int_val(), else_bound.get_int_val());
+                            // std::cout << "Upper: Max(" << then_bound.get_int_val() << "," << else_bound.get_int_val() << ")=" << std::max(then_bound.get_int_val(), else_bound.get_int_val());
                         }
                         else
                         {
                             result = tiramisu::expr(std::min(then_bound.get_int_val(), else_bound.get_int_val()));
-                            std::cout << "Lower: Min(" << then_bound.get_int_val() << "," << else_bound.get_int_val() << ")=" << std::min(then_bound.get_int_val(), else_bound.get_int_val());
+                            // std::cout << "Lower: Min(" << then_bound.get_int_val() << "," << else_bound.get_int_val() << ")=" << std::min(then_bound.get_int_val(), else_bound.get_int_val());
                         }
                     }
 

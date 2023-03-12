@@ -74,27 +74,27 @@ namespace tiramisu::auto_scheduler
     std::vector<float> evaluate_by_execution::get_measurements(syntax_tree &ast, bool exit_on_timeout, float timeout, bool code_gen_timeout)
     {
         // Apply all the optimizations
-        std::cout << "\napply_optimizations";
+        // std::cout << "\napply_optimizations";
         apply_optimizations(ast);
 
         // Compile the program to an object file
-        std::cout << "\nlift_dist_comps";
+        // std::cout << "\nlift_dist_comps";
         fct->lift_dist_comps();
-        std::cout << "\ngen_time_space_domain";
+        // std::cout << "\ngen_time_space_domain";
         fct->gen_time_space_domain();
-        std::cout << "\ngen_isl_ast";
+        // std::cout << "\ngen_isl_ast";
         fct->gen_isl_ast();
-        std::cout << "\ngen_halide_stmt";
+        // std::cout << "\ngen_halide_stmt";
         fct->gen_halide_stmt();
         // if the code generation timeout is activated, send a signal to the parent process to communicate that code generation is now done
         if (code_gen_timeout)
             kill(getppid(), SIGUSR1);
 
-        std::cout << "\nlower_halide_pipeline";
+        // std::cout << "\nlower_halide_pipeline";
         Halide::Module m = lower_halide_pipeline(fct->get_name(), halide_target, halide_arguments,
                                                  Halide::Internal::LoweredFunc::External,
                                                  fct->get_halide_stmt());
-        std::cout << "\ncompile";
+        // std::cout << "\ncompile";
         m.compile(Halide::Outputs().object(obj_filename));
 
         // Turn the object file to a shared library

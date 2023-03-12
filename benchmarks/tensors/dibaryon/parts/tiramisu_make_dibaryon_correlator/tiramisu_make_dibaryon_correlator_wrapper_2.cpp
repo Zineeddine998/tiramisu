@@ -16,6 +16,18 @@ int main(int, char **)
    std::vector<std::chrono::duration<double, std::milli>> duration_vector_1;
    std::vector<std::chrono::duration<double, std::milli>> duration_vector_2;
 
+   // long mega = 1024 * 1024;
+
+   // std::cout << "Array sizes" << std::endl;
+   // std::cout << "Blocal & Prop:" << std::endl;
+   // std::cout << " sizeof : " << sizeof(std::complex<double>) << std::endl;
+   // std::cout << "	Max index size = " << Nsrc * Nc * Ns * Nc * Ns * Nc * Ns * Vsnk * Nt << std::endl;
+   // std::cout << "	Array size = " << Nsrc * Nc * Ns * Nc * Ns * Nc * Ns * Vsnk * Nt * sizeof(std::complex<double>) / mega << " Mega bytes" << std::endl;
+   // std::cout << "Bsingle, Bdouble, Q, O & P:" << std::endl;
+   // std::cout << "	Max index size = " << Nsrc * Nc * Ns * Nc * Ns * Nc * Ns * Vsnk * Vsnk * Nt << std::endl;
+   // std::cout << "	Array size = " << Nsrc * Nc * Ns * Nc * Ns * Nc * Ns * Vsnk * Vsnk * Nt * sizeof(std::complex<double>) / mega << " Mega bytes" << std::endl;
+   // std::cout << std::endl;
+
    // C_r and C_i
    Halide::Buffer<double> C_r(Nt, Nsnk, Nsrc, "C_r");
    Halide::Buffer<double> C_i(Nt, Nsnk, Nsrc, "C_i");
@@ -241,8 +253,12 @@ int main(int, char **)
    std::cout << "End reference C code." << std::endl;
 #endif
 
+   // std::cout << "Start Tiramisu code." << std::endl;
+
    for (int i = 0; i < nb_tests; i++)
    {
+      // std::cout << "Run " << i << "/" << nb_tests << std::endl;
+      // auto start1 = std::chrono::high_resolution_clock::now();
       auto begin = std::chrono::high_resolution_clock::now();
 
       tiramisu_make_dibaryon_correlator(
@@ -273,8 +289,17 @@ int main(int, char **)
 
       auto end = std::chrono::high_resolution_clock::now();
       std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count() / (double)1000000 << " " << std::flush;
+
+      // auto end1 = std::chrono::high_resolution_clock::now();
+      // std::chrono::duration<double, std::milli> duration1 = end1 - start1;
+      // duration_vector_1.push_back(duration1);
    }
    std::cout << std::endl;
+   // << "End Tiramisu code." << std::endl;
+
+   // print_time("performance_CPU.csv", "dibaryon", {"Ref", "Tiramisu"}, {median(duration_vector_2), median(duration_vector_1)});
+   // std::cout << "\nSpeedup = " << median(duration_vector_2) / median(duration_vector_1) << std::endl;
+
 #if RUN_CHECK
    // Compare outputs.
 

@@ -46,12 +46,12 @@ namespace tiramisu
         }
 
         DEBUG(3, tiramisu::str_dump("Performing sliding window optimization...\n"));
-        tiramisu::str_dump("Performing sliding window optimization...\n");
+        // tiramisu::str_dump("Performing sliding window optimization...\n");
         s = sliding_window(s, env);
         DEBUG(4, tiramisu::str_dump(stmt_to_string("Lowering after sliding window:\n", s)));
 
         DEBUG(3, tiramisu::str_dump("Removing code that depends on undef values...\n"));
-        tiramisu::str_dump("Removing code that depends on undef values...\n");
+        // tiramisu::str_dump("Removing code that depends on undef values...\n");
         s = remove_undef(s);
         DEBUG(4, tiramisu::str_dump(
                      stmt_to_string("Lowering after removing code that depends on undef values:\n", s)));
@@ -60,22 +60,22 @@ namespace tiramisu
         // after this point. This lets later passes assume syntactic
         // equivalence means semantic equivalence.
         DEBUG(3, tiramisu::str_dump("Uniquifying variable names...\n"));
-        tiramisu::str_dump("Uniquifying variable names...\n");
+        // tiramisu::str_dump("Uniquifying variable names...\n");
         s = uniquify_variable_names(s);
         DEBUG(4, tiramisu::str_dump(stmt_to_string("Lowering after uniquifying variable names:\n", s)));
 
         DEBUG(3, tiramisu::str_dump("Simplifying...\n")); // without removing dead lets, because storage flattening needs the strides
-        tiramisu::str_dump("Simplifying...\n");
+        // tiramisu::str_dump("Simplifying...\n");
         s = simplify(s, false);
         DEBUG(4, tiramisu::str_dump(stmt_to_string("Lowering after simplification:\n", s)));
 
         DEBUG(3, tiramisu::str_dump("Performing storage folding optimization...\n"));
-        tiramisu::str_dump("Performing storage folding optimization...\n");
+        // tiramisu::str_dump("Performing storage folding optimization...\n");
         s = storage_folding(s, env);
         DEBUG(4, tiramisu::str_dump(stmt_to_string("Lowering after storage folding:\n", s)));
 
         DEBUG(3, tiramisu::str_dump("Simplifying...\n")); // without removing dead lets, because storage flattening needs the strides
-        tiramisu::str_dump("Simplifying...\n");
+        // tiramisu::str_dump("Simplifying...\n");
         s = simplify(s, false);
         DEBUG(4, tiramisu::str_dump(stmt_to_string("Lowering after simplification:\n", s)));
 
@@ -84,16 +84,16 @@ namespace tiramisu
             DEBUG(4, tiramisu::str_dump(stmt_to_string("Lowering after injecting prefetches:\n", s)));
         */
         DEBUG(3, tiramisu::str_dump("Destructuring tuple-valued realizations...\n"));
-        tiramisu::str_dump("Destructuring tuple-valued realizations...\n");
+        // tiramisu::str_dump("Destructuring tuple-valued realizations...\n");
         s = split_tuples(s, env);
         DEBUG(4, tiramisu::str_dump(stmt_to_string("Lowering after destructuring tuple-valued realizations:\n", s)));
         DEBUG(3, tiramisu::str_dump("\n\n"));
-        tiramisu::str_dump("\n\n");
+        // tiramisu::str_dump("\n\n");
 
         // TODO(tiramisu): This pass is important to figure out all the buffer symbols.
         // Maybe we should put it somewhere else instead of here.
         DEBUG(3, tiramisu::str_dump("Unpacking buffer arguments...\n"));
-        tiramisu::str_dump("Unpacking buffer arguments...\n");
+        // tiramisu::str_dump("Unpacking buffer arguments...\n");
         s = unpack_buffers(s);
         DEBUG(0, tiramisu::str_dump(stmt_to_string("Lowering after unpacking buffer arguments:\n", s)));
 
@@ -129,7 +129,7 @@ namespace tiramisu
         }
 
         DEBUG(3, tiramisu::str_dump("Simplifying...\n"));
-        tiramisu::str_dump("Simplifying...\n");
+        // tiramisu::str_dump("Simplifying...\n");
         s = simplify(s);
         s = unify_duplicate_lets(s);
         s = remove_trivial_for_loops(s);
@@ -142,30 +142,30 @@ namespace tiramisu
         }
 
         DEBUG(3, tiramisu::str_dump("Reduce prefetch dimension...\n"));
-        tiramisu::str_dump("Reduce prefetch dimension...\n");
+        // tiramisu::str_dump("Reduce prefetch dimension...\n");
         s = reduce_prefetch_dimension(s, t);
         DEBUG(4, tiramisu::str_dump(stmt_to_string("Lowering after reduce prefetch dimension:\n", s)));
 
         DEBUG(3, tiramisu::str_dump("Unrolling...\n"));
-        tiramisu::str_dump("Unrolling...\n");
+        // tiramisu::str_dump("Unrolling...\n");
         s = unroll_loops(s);
         s = simplify(s);
         DEBUG(4, tiramisu::str_dump(stmt_to_string("Lowering after unrolling:\n", s)));
 
         DEBUG(3, tiramisu::str_dump("Vectorizing...\n"));
-        tiramisu::str_dump("Vectorizing...\n");
+        // tiramisu::str_dump("Vectorizing...\n");
         s = vectorize_loops(s, t);
         s = simplify(s);
         DEBUG(4, tiramisu::str_dump(stmt_to_string("Lowering after vectorizing:\n", s)));
 
         DEBUG(3, tiramisu::str_dump("Detecting vector interleavings...\n"));
-        tiramisu::str_dump("Detecting vector interleavings...\n");
+        // tiramisu::str_dump("Detecting vector interleavings...\n");
         s = rewrite_interleavings(s);
         s = simplify(s);
         DEBUG(4, tiramisu::str_dump(stmt_to_string("Lowering after rewriting vector interleavings:\n", s)));
 
         DEBUG(3, tiramisu::str_dump("Partitioning loops to simplify boundary conditions...\n"));
-        tiramisu::str_dump("Partitioning loops to simplify boundary conditions...\n");
+        // tiramisu::str_dump("Partitioning loops to simplify boundary conditions...\n");
         s = partition_loops(s);
         s = simplify(s);
         DEBUG(4, tiramisu::str_dump(stmt_to_string("Lowering after partitioning loops:\n", s)));
@@ -175,7 +175,7 @@ namespace tiramisu
         // DEBUG(4, tiramisu::str_dump(stmt_to_string("Lowering after loop trimming:\n", s)));
 
         DEBUG(3, tiramisu::str_dump("Injecting early frees...\n"));
-        tiramisu::str_dump("Injecting early frees...\n");
+        // tiramisu::str_dump("Injecting early frees...\n");
         s = inject_early_frees(s);
         DEBUG(4, tiramisu::str_dump(stmt_to_string("Lowering after injecting early frees:\n", s)));
 
@@ -187,7 +187,7 @@ namespace tiramisu
         }
 
         DEBUG(3, tiramisu::str_dump("Simplifying...\n"));
-        tiramisu::str_dump("Simplifying...\n");
+        // tiramisu::str_dump("Simplifying...\n");
         s = common_subexpression_elimination(s);
 
         if (t.has_feature(Target::OpenGL))
