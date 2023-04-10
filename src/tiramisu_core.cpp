@@ -6127,7 +6127,11 @@ namespace tiramisu
         }
         else if (isl_ast_node_get_type(node) == isl_ast_node_user)
         {
-            ERROR("Cannot extract bounds from a isl_ast_user node.", true);
+            //ERROR("Cannot extract bounds from a isl_ast_user node.", true);
+            if (upper)
+                    result = tiramisu::expr(1);
+                else
+                    result = tiramisu::expr(0);
         }
         else if (isl_ast_node_get_type(node) == isl_ast_node_if)
         {
@@ -6141,7 +6145,21 @@ namespace tiramisu
             {
                 // else_bound = utility::extract_bound_expression(isl_ast_node_if_get_else(node), dim, upper);
                 // result = tiramisu::expr(tiramisu::o_s, cond_bound, then_bound, else_bound);
-                ERROR("If Then Else is unsupported in bound extraction.", true);
+                //ERROR("If Then Else is unsupported in bound extraction.", true);
+                else_bound = utility::extract_bound_expression(isl_ast_node_if_get_else(node), dim, upper);
+                if (else_bound.is_int() && then_bound.is_int())
+                {
+                    if (upper)
+                    {
+                        result = tiramisu::expr(std::max(then_bound.get_int_val(), else_bound.get_int_val()));
+                         // std::cout << "Upper: Max(" << then_bound.get_int_val() << "," << else_bound.get_int_val() << ")=" << std::max(then_bound.get_int_val(), else_bound.get_int_val());
+                    }
+                    else
+                    {
+                        result = tiramisu::expr(std::min(then_bound.get_int_val(), else_bound.get_int_val()));
+                        // std::cout << "Lower: Min(" << then_bound.get_int_val() << "," << else_bound.get_int_val() << ")=" << std::min(then_bound.get_int_val(), else_bound.get_int_val());
+                    }
+                }
             }
             else
                 result = then_bound; // tiramisu::expr(tiramisu::o_cond, cond_bound, then_bound);

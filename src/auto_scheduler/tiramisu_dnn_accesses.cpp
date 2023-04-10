@@ -35,8 +35,8 @@ dnn_access_matrix::dnn_access_matrix(int nb_iterators, tiramisu::expr const& e, 
     this->comp = comp;
     std::vector<tiramisu::expr> const& acc_vector = e.get_access();
 
-    for (int i = 0; i < acc_vector.size(); ++i)
-        fill_matrix_row(i, acc_vector[i]);
+    // for (int i = 0; i < acc_vector.size(); ++i)
+    //     fill_matrix_row(i, acc_vector[i]);
     
     // We get the buffer name that "e" accesses.
     // Note that we can't get the buffer ID at this level.

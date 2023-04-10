@@ -1,7 +1,7 @@
 #ifndef TIRAMISU_test_h
 #define TIRAMISU_test_h
 
-#include "../reference/qblocks_2pt_parameters.h"
+#include "../../utils/qblocks_2pt_parameters.h"
 
 #define SMALL_BARYON_DATA_SET 0
 #define LARGE_BARYON_DATA_SET 0

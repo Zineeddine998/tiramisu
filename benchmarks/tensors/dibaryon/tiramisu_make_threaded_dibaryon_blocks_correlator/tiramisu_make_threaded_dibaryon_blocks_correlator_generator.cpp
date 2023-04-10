@@ -1,12 +1,12 @@
 #include <tiramisu/tiramisu.h>
 #include <string.h>
 #include "tiramisu_make_threaded_dibaryon_blocks_correlator_wrapper.h"
-#include "../utils/complex_util.h"
-#include "../utils/util.h"
+#include "../../utils/complex_util.h"
+#include "../../utils/util.h"
 
 using namespace tiramisu;
 
-#define VECTORIZED 1
+#define VECTORIZED 0
 #define PARALLEL 0
 
 // Used to remember relevant (sub)computation of Q and its user computations (B1_Blocal_r1 and B1_Bsingle_r1)

@@ -10,7 +10,7 @@ fi
 
 PROJECT_SRC_DIR=`realpath ${1}`
 CMAKE=cmake
-CORES=4
+CORES=128
 
 # For Travis build we skip LLVM installation and use a custom binary.
 # Second argument specifies the custom path of the LLVM bin dir.

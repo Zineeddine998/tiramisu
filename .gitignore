@@ -22,3 +22,4 @@ __pycache__
 cmake-build-debug/
 cmake-build-autoscheduler/
 .vscode
+helper_paths.txt

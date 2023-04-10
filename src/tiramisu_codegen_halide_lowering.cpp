@@ -124,22 +124,26 @@ Module lower_halide_pipeline(const string &pipeline_name,
     //    s = remove_extern_loops(s);
     //    log("Lowering after removing extern loops:", s);
 
-    // debug(1) << "Performing sliding window optimization...\n";
+    std::cout << "Performing sliding window optimization...\n";
     s = sliding_window(s, env);
-    //    log("Lowering after sliding window:", s);
+    std::cout << "Lowering after sliding window\n";
 
     // This uniquifies the variable names, so we're good to simplify
     // after this point. This lets later passes assume syntactic
     // equivalence means semantic equivalence.
     // debug(1) << "Uniquifying variable names...\n";
+    std::cout << "Uniquifying variable names...\n";
     s = uniquify_variable_names(s);
+    
     //    log("Lowering after uniquifying variable names:", s);
 
     // debug(1) << "Simplifying...\n";
+     std::cout << "1\n";
     s = simplify(s, false);  // Storage folding and allocation bounds inference needs .loop_max symbols
     //log("Lowering after first simplification:", s);
 
     // debug(1) << "Simplifying correlated differences...\n";
+    std::cout << "2\n";
     s = simplify_correlated_differences(s);
     //log("Lowering after simplifying correlated differences:", s);
 
@@ -159,10 +163,12 @@ Module lower_halide_pipeline(const string &pipeline_name,
     //log("Lowering after injecting image checks:", s);
 
     // debug(1) << "Removing code that depends on undef values...\n";
+    std::cout << "3\n";
     s = remove_undef(s);
     //log("Lowering after removing code that depends on undef values:", s);
 
     // debug(1) << "Performing storage folding optimization...\n";
+    std::cout << "4\n";
     s = storage_folding(s, env);
     //log("Lowering after storage folding:", s);
 
@@ -177,6 +183,7 @@ Module lower_halide_pipeline(const string &pipeline_name,
     //log("Lowering after injecting prefetches:", s);
 
     // debug(1) << "Discarding safe promises...\n";
+    std::cout << "4\n";
     s = lower_safe_promises(s);
     //log("Lowering after discarding safe promises:", s);
 
@@ -191,6 +198,7 @@ Module lower_halide_pipeline(const string &pipeline_name,
     //log("Lowering after forking asynchronous producers:", s);
 
     // debug(1) << "Destructuring tuple-valued realizations...\n";
+    std::cout << "5\n";
     s = split_tuples(s, env);
     //log("Lowering after destructuring tuple-valued realizations:", s);
 
@@ -204,8 +212,10 @@ Module lower_halide_pipeline(const string &pipeline_name,
     }
 
     // debug(1) << "Bounding small realizations...\n";
+    std::cout << "6\n";
     s = simplify_correlated_differences(s);
     s = bound_small_allocations(s);
+    std::cout << "7\n";
     //log("Lowering after bounding small realizations:", s);
 
     // debug(1) << "Performing storage flattening...\n";
@@ -214,10 +224,12 @@ Module lower_halide_pipeline(const string &pipeline_name,
     //log("Lowering after storage flattening:", s);
 
     // debug(1) << "Adding atomic mutex allocation...\n";
+    std::cout << "8\n";
     s = add_atomic_mutex(s, env);
     //log("Lowering after adding atomic mutex allocation:", s);
 
     // debug(1) << "Unpacking buffer arguments...\n";
+    std::cout << "9\n";
     s = unpack_buffers(s);
     //log("Lowering after unpacking buffer arguments:", s);
 
@@ -245,24 +257,33 @@ Module lower_halide_pipeline(const string &pipeline_name,
     }
 
     // debug(1) << "Simplifying...\n";
+          std::cout << "10.5\n";
+    s = uniquify_variable_names(s);
+    std::cout << "10\n";
     s = simplify(s);
+    std::cout << "11\n";
     s = unify_duplicate_lets(s);
     //log("Lowering after second simplifcation:", s);
 
     // debug(1) << "Reduce prefetch dimension...\n";
+    std::cout << "12\n";
     s = reduce_prefetch_dimension(s, t);
     //log("Lowering after reduce prefetch dimension:", s);
 
     // debug(1) << "Simplifying correlated differences...\n";
+    std::cout << "13\n";
     s = simplify_correlated_differences(s);
     //log("Lowering after simplifying correlated differences:", s);
 
     // debug(1) << "Unrolling...\n";
+    std::cout << "14\n";
     s = unroll_loops(s);
     //log("Lowering after unrolling:", s);
 
     // debug(1) << "Vectorizing...\n";
+    std::cout << "15\n";
     s = vectorize_loops(s, env);
+    std::cout << "16\n";
     s = simplify(s);
     //log("Lowering after vectorizing:", s);
 
@@ -274,12 +295,16 @@ Module lower_halide_pipeline(const string &pipeline_name,
     }
 
     // debug(1) << "Detecting vector interleavings...\n";
+    std::cout << "17\n";
     s = rewrite_interleavings(s);
+    std::cout << "18\n";
     s = simplify(s);
     //log("Lowering after rewriting vector interleavings:", s);
 
     // debug(1) << "Partitioning loops to simplify boundary conditions...\n";
+    std::cout << "19\n";
     s = partition_loops(s);
+    std::cout << "20\n";
     s = simplify(s);
     //log("Lowering after partitioning loops:", s);
     // debug(1) << "Trimming loops to the region over which they do something...\n";
@@ -288,6 +313,7 @@ Module lower_halide_pipeline(const string &pipeline_name,
     //log("Lowering after loop trimming:", s);
 
     // debug(1) << "Rebasing loops to zero...\n";
+    std::cout << "21\n";
     s = rebase_loops_to_zero(s);
     // debug(2) << "Lowering after rebasing loops to zero:\n"
     //             << s << "\n\n";
@@ -298,6 +324,7 @@ Module lower_halide_pipeline(const string &pipeline_name,
     //log("Lowering after hoisting loop invariant if statements:", s);
 
     // debug(1) << "Injecting early frees...\n";
+    std::cout << "22\n";
     s = inject_early_frees(s);
     //log("Lowering after injecting early frees:", s);
 
@@ -308,10 +335,12 @@ Module lower_halide_pipeline(const string &pipeline_name,
     }
 
     // debug(1) << "Simplifying correlated differences...\n";
+    std::cout << "23\n";
     s = simplify_correlated_differences(s);
     //log("Lowering after simplifying correlated differences:", s);
 
     // debug(1) << "Bounding small allocations...\n";
+    std::cout << "24\n";
     s = bound_small_allocations(s);
     //log("Lowering after bounding small allocations:", s);
 
@@ -328,9 +357,11 @@ Module lower_halide_pipeline(const string &pipeline_name,
     }
 
     // debug(1) << "Simplifying...\n";
+    std::cout << "25\n";
     s = common_subexpression_elimination(s);
 
     // debug(1) << "Lowering unsafe promises...\n";
+    std::cout << "26\n";
     s = lower_unsafe_promises(s, t);
     //log("Lowering after lowering unsafe promises:", s);
 
@@ -341,11 +372,15 @@ Module lower_halide_pipeline(const string &pipeline_name,
     }
 
     // debug(1) << "Flattening nested ramps...\n";
+    std::cout << "27\n";
     s = flatten_nested_ramps(s);
     //log("Lowering after flattening nested ramps:", s);
 
     // debug(1) << "Removing dead allocations and moving loop invariant code...\n";
     s = remove_dead_allocations(s);
+        std::cout << "27.5\n";
+    s = uniquify_variable_names(s);
+    std::cout << "28\n";
     s = simplify(s);
     //Removed because Tiramisu previously removed loop_invariant code motion
     //    s = hoist_loop_invariant_values(s);
@@ -355,10 +390,12 @@ Module lower_halide_pipeline(const string &pipeline_name,
     // debug(1) << "Finding intrinsics...\n";
     // Must be run after the last simplification, because it turns
     // divisions into shifts, which the simplifier reverses.
+    std::cout << "29\n";
     s = find_intrinsics(s);
     //log("Lowering after finding intrinsics:", s);
 
     // debug(1) << "Hoisting prefetches...\n";
+    std::cout << "30\n";
     s = hoist_prefetches(s);
     //log("Lowering after hoisting prefetches:", s);
 
@@ -396,8 +433,9 @@ Module lower_halide_pipeline(const string &pipeline_name,
     //This makes me suspicious so I am just going to remove it.
     std::vector<LoweredFunc> closure_implementations;
     // debug(1) << "Lowering Parallel Tasks...\n";
+    std::cout << "31\n";
     s = lower_parallel_tasks(s, closure_implementations, pipeline_name, t);
-
+    std::cout << "32\n";
 
 
     // Process any LoweredFunctions added by other passes. In practice, this
@@ -489,10 +527,11 @@ Module lower_halide_pipeline(const string &pipeline_name,
             return expr;
         }
     };
+    std::cout << "33\n";
     s = StrengthenRefs().mutate(s);
-
+std::cout << "34\n";
     LoweredFunc main_func(pipeline_name, public_args, s, linkage_type);
-
+std::cout << "35\n";
     result_module.append(main_func);
 
     return result_module;

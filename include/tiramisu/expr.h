@@ -614,6 +614,60 @@ public:
         return float64_value;
     }
     // @}
+    bool is_int() const
+        {
+            assert(this->get_expr_type() == tiramisu::e_val);
+
+            bool result = false;
+
+            if (this->get_data_type() == tiramisu::p_uint8)
+            {
+                result = true;
+            }
+            else if (this->get_data_type() == tiramisu::p_int8)
+            {
+                result = true;
+            }
+            else if (this->get_data_type() == tiramisu::p_uint16)
+            {
+                result = true;
+            }
+            else if (this->get_data_type() == tiramisu::p_int16)
+            {
+                result = true;
+            }
+            else if (this->get_data_type() == tiramisu::p_uint32)
+            {
+                result = true;
+            }
+            else if (this->get_data_type() == tiramisu::p_int32)
+            {
+                result = true;
+            }
+            else if (this->get_data_type() == tiramisu::p_uint64)
+            {
+                result = true;
+            }
+            else if (this->get_data_type() == tiramisu::p_int64)
+            {
+                result = true;
+            }
+            else if (this->get_data_type() == tiramisu::p_float32)
+            {
+                result = true;
+            }
+            else if (this->get_data_type() == tiramisu::p_float64)
+            {
+                result = true;
+            }
+            else
+            {
+                // ERROR("Calling get_int_val() on a non integer expression.", true);
+                result = false;
+            }
+
+            return result;
+        }
 
     int64_t get_int_val() const
     {

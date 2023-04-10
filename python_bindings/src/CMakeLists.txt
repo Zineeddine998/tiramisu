@@ -18,6 +18,7 @@ set(SOURCES
   PyCodegen.cpp
   PyInput.cpp
   PyFunction.cpp
+  PyAutoscheduler.cpp
   )
 
 

@@ -219,11 +219,9 @@ namespace tiramisu::auto_scheduler
     std::vector<syntax_tree *> ml_model_schedules_generator::generate_schedules(syntax_tree &ast)
     {
         // this method uses the AST custom schedule generator
-
         std::vector<syntax_tree *> states;
 
         ast_node *node = std::get<0>(ast.get_current_optimization_target());
-
         std::vector<std::string> shared_levels_extents;
         std::vector<int> innermost_extents;
         std::vector<ast_node *> innermost_nodes;
@@ -559,7 +557,6 @@ namespace tiramisu::auto_scheduler
 
             // for shared nodes the list of involved computations is always the same.
             //  that's only the case when we compute test shared loop levels only (not always the case).
-
             shared_nodes = node->collect_shared_nodes_from_head();
 
             if (shared_nodes.size() > 0)
@@ -571,7 +568,6 @@ namespace tiramisu::auto_scheduler
                 ast.recover_isl_states();
                 return states;
             }
-
             if (ast.optim_already_applied_on_comps(involved_computations, optimization_type::PARALLELIZE)) // check if one of the involved computations is already parallelized
             {
                 ast.recover_isl_states();
@@ -584,7 +580,8 @@ namespace tiramisu::auto_scheduler
 
                 std::string loop_name = loop_names[commun_node->depth];
 
-                bool result = ast.fct->loop_parallelization_is_legal(var(loop_name), involved_computations);
+                //bool result = ast.fct->loop_parallelization_is_legal(var(loop_name), involved_computations);
+                bool result = true;
 
                 if (result)
                 {
@@ -609,7 +606,6 @@ namespace tiramisu::auto_scheduler
 
                     ast.stage_isl_states();
                 }
-
                 nb_try++;
 
                 if (nb_try == this->parallelism_search_depth)

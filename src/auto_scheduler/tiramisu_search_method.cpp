@@ -353,7 +353,6 @@ namespace tiramisu::auto_scheduler
         {
             // schedule generation based on generator_state attribute in the AST.
             auto new_children = scheds_gen->generate_schedules(ast);
-
             for (auto &child : new_children)
                 child->move_to_next_optimization_target();
 
@@ -368,6 +367,7 @@ namespace tiramisu::auto_scheduler
             }
             else
                 ast.move_to_next_optimization_target();
+
         }
 
         // Stop if no more optimizations can be applied
@@ -383,7 +383,6 @@ namespace tiramisu::auto_scheduler
             bool unrolling_exception_thrown = false;
             if ((*iterator)->schedule_is_prunable())
             {
-
                 if (std::atoi(read_env_var("AS_VERBOSE")) == 1)
                 {
                     // print deleted Ast
@@ -399,10 +398,10 @@ namespace tiramisu::auto_scheduler
             else
             {
                 (*iterator)->transform_ast();
-                if ((*iterator)->ast_is_legal() == false)
+                //if ((*iterator)->ast_is_legal() == false)
+                if(false)
                 {
                     // print deleted Ast
-
                     if (std::atoi(read_env_var("AS_VERBOSE")) == 1)
                     {
                         (*iterator)->print_previous_optims();

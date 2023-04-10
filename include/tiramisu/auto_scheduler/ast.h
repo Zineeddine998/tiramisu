@@ -585,7 +585,7 @@ namespace tiramisu::auto_scheduler
          * The current exploration phase for this AST
          *
          */
-        search_phase ast_search_phase = search_phase::FUSION;
+        search_phase ast_search_phase = search_phase::NON_UNIMODULAR;
         /**
          * The depth of this AST in a search method.
          * Used to keep track of the depth reached by a search method.

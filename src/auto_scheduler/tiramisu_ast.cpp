@@ -225,7 +225,9 @@ std::string assign_iterator_name(std::string suggested_name, syntax_tree *ast){
             offset++;
         }
         // Add the name in the iterator_names_set to note that we already used it.
+        assert(ast->iterator_names_set.find(new_name) == ast->iterator_names_set.end());
         ast->iterator_names_set.insert(new_name);
+    
         return new_name;
     }
 
