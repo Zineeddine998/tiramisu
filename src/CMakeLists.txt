@@ -40,6 +40,6 @@ set_target_properties(tiramisu
 target_include_directories(tiramisu PUBLIC ${CMAKE_SOURCE_DIR}/include/)
 target_include_directories(tiramisu PUBLIC "${ISL_INCLUDE_DIRECTORY}")
 
-if (${USE_AUTO_SCHEDULER})
+
 add_subdirectory(auto_scheduler)
-endif()
+
