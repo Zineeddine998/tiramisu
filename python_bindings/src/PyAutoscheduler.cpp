@@ -20,7 +20,7 @@ namespace tiramisu
 
         void define_autoscheduler(py::module &m)
         {
-            m.def("autoscheduler", &create_and_run_auto_scheduler, "This function create and runs the autoscheduling process and print the results to a json file", py::return_value_policy::reference);
+            m.def("create_and_run_auto_scheduler", &create_and_run_auto_scheduler, "This function create and runs the autoscheduling process and print the results to a json file", py::return_value_policy::reference);
         }
 
         // void define_autoscheduler(py::module &m)
