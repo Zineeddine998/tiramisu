@@ -2,8 +2,7 @@
 #include "../../include/tiramisu/auto_scheduler/auto_scheduler.h"
 #include "../../include/tiramisu/auto_scheduler/search_method.h"
 #include "../../include/tiramisu/auto_scheduler/evaluator.h"
-#include <pybind11/embed.h> // everything needed for embedding
-#include <experimental/filesystem>
+
 
 namespace tiramisu
 {
@@ -40,7 +39,7 @@ namespace tiramisu
         void define_autoscheduler(py::module &m)
         {
             m.def("create_and_run_auto_scheduler", [](std::vector<tiramisu::buffer *> const &arguments, std::vector<halide_buffer_t *> const &func_arguments, std::function<int(halide_buffer_t *, halide_buffer_t *)> func, std::string const &obj_filename, std::string const &json_filename, int beam_size, int max_depth, tiramisu::function *fct) -> void
-                  { auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func, obj_filename, json_filename, beam_size, max_depth, fct); });
+                  { auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func, obj_filename, json_filename, beam_size, max_depth, fct); });
         }
     } // namespace PythonBindings
 } // namespace tiramisu
