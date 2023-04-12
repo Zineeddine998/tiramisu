@@ -1,28 +1,34 @@
 #include "PyAutoscheduler.h"
 #include "../../include/tiramisu/auto_scheduler/auto_scheduler.h"
+#include "../../include/tiramisu/auto_scheduler/search_method.h"
+#include "../../include/tiramisu/auto_scheduler/evaluator.h"
+#include <pybind11/embed.h> // everything needed for embedding
+#include <experimental/filesystem>
 
 namespace tiramisu
 {
     namespace PythonBindings
     {
 
-        void create_and_run_auto_scheduler(std::vector<tiramisu::buffer *> const &arguments,
-                                           std::vector<halide_buffer_t *> const &func_arguments,
-                                           std::function<int(halide_buffer_t *, halide_buffer_t *)> func,
-                                           std::string const &obj_filename,
-                                           std::string const &json_filename,
-                                           int beam_size,
-                                           int max_depth,
-                                           tiramisu::function *fct)
-        {
-            auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func, obj_filename, json_filename, beam_size, max_depth, fct);
-        }
+        // Second attempt
+        // void create_and_run_auto_scheduler(std::vector<tiramisu::buffer *> const &arguments,
+        //                                    std::vector<halide_buffer_t *> const &func_arguments,
+        //                                    std::function<int(halide_buffer_t *, halide_buffer_t *)> func,
+        //                                    std::string const &obj_filename,
+        //                                    std::string const &json_filename,
+        //                                    int beam_size,
+        //                                    int max_depth,
+        //                                    tiramisu::function *fct)
+        // {
+        //     auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func, obj_filename, json_filename, beam_size, max_depth, fct);
+        // }
 
-        void define_autoscheduler(py::module &m)
-        {
-            m.def("create_and_run_auto_scheduler", &create_and_run_auto_scheduler, "This function create and runs the autoscheduling process and print the results to a json file", py::return_value_policy::reference);
-        }
+        // void define_autoscheduler(py::module &m)
+        // {
+        //     m.def("create_and_run_auto_scheduler", &create_and_run_auto_scheduler, "This function create and runs the autoscheduling process and print the results to a json file", py::return_value_policy::reference);
+        // }
 
+        // First attempt
         // void define_autoscheduler(py::module &m)
         // {
         //     m.def("create_and_run_autoscheduler",
@@ -31,5 +37,10 @@ namespace tiramisu
         //           py::arg("arguments"), py::arg("func_arguments"), py::arg("func"), py::arg("obj_filename"), py::arg("json_filename"), py::arg("beam_size"), py::arg("max_depth"), py::arg("fct"));
         // }
 
+        void define_autoscheduler(py::module &m)
+        {
+            m.def("create_and_run_auto_scheduler", [](std::vector<tiramisu::buffer *> const &arguments, std::vector<halide_buffer_t *> const &func_arguments, std::function<int(halide_buffer_t *, halide_buffer_t *)> func, std::string const &obj_filename, std::string const &json_filename, int beam_size, int max_depth, tiramisu::function *fct) -> void
+                  { auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func, obj_filename, json_filename, beam_size, max_depth, fct); });
+        }
     } // namespace PythonBindings
 } // namespace tiramisu
