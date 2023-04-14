@@ -28,5 +28,7 @@ set_target_properties(Tiramisu_Python
   LIBRARY_OUTPUT_NAME tiramisu
   EXPORT_NAME Python)
 target_link_libraries(Tiramisu_Python PRIVATE tiramisu) #Tiramisu_Python needs Tiramisu
+target_link_libraries(Tiramisu_Python PRIVATE tiramisu_auto_scheduler) #Tiramisu_Python needs Tiramisu auto scheduler
+
 
 
