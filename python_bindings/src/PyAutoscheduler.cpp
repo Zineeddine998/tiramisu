@@ -37,8 +37,8 @@ namespace tiramisu
 
         void define_autoscheduler(py::module &m)
         {
-            m.def("create_and_run_auto_scheduler", [](std::vector<tiramisu::buffer *> const &arguments, std::vector<halide_buffer_t *> const &func_arguments, std::function<int(halide_buffer_t *, halide_buffer_t *)> func, std::string const &obj_filename, std::string const &json_filename, int beam_size, int max_depth, tiramisu::function *fct) -> void
-                  { auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func, obj_filename, json_filename, beam_size, max_depth, fct); });
+            m.def("create_and_run_auto_scheduler", [](std::vector<tiramisu::buffer *> const &arguments, std::vector<halide_buffer_t *> const &func_arguments, std::string const &func_name, std::string const &obj_filename, std::string const &json_filename, int beam_size, int max_depth, tiramisu::function *fct) -> void
+                  { auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func_name, obj_filename, json_filename, beam_size, max_depth, fct); });
         }
     } // namespace PythonBindings
 } // namespace tiramisu

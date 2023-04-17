@@ -16,13 +16,13 @@ namespace tiramisu::auto_scheduler
     }
 
     void auto_scheduler::create_and_run_auto_scheduler(std::vector<tiramisu::buffer *> const &arguments, std::vector<halide_buffer_t *> const &func_arguments,
-                                                       std::function<int(halide_buffer_t *, halide_buffer_t *)> func, std::string const &obj_filename, std::string const &json_filename, int beam_size, int max_depth, tiramisu::function *fct)
+                                                       std::string const &func_name, std::string const &obj_filename, std::string const &json_filename, int beam_size, int max_depth, tiramisu::function *fct)
     {
         prepare_schedules_for_legality_checks();
         std::cout << "\nSchedules generator...\n";
         schedules_generator *scheds_gen = new ml_model_schedules_generator();
         std::cout << "\nEvaluate function...\n";
-        evaluate_by_execution *exec_eval = new evaluate_by_execution(arguments, func_arguments, func, obj_filename, "./wrapper");
+        evaluate_by_execution *exec_eval = new evaluate_by_execution(arguments, func_arguments, func_name, obj_filename, "./wrapper", fct);
         std::cout << "\nSearch method...\n";
         search_method *bs = new beam_search(beam_size, max_depth, exec_eval, scheds_gen);
         std::cout << "\nAutoschdeuler init...\n";
@@ -35,6 +35,27 @@ namespace tiramisu::auto_scheduler
         delete exec_eval;
         delete bs;
     }
+
+    // void auto_scheduler::create_and_run_auto_scheduler(std::vector<tiramisu::buffer *> const &arguments, std::vector<halide_buffer_t *> const &func_arguments,
+    //                                                    std::function<int(halide_buffer_t *, halide_buffer_t *)> func, std::string const &obj_filename, std::string const &json_filename, int beam_size, int max_depth, tiramisu::function *fct)
+    // {
+    //     prepare_schedules_for_legality_checks();
+    //     std::cout << "\nSchedules generator...\n";
+    //     schedules_generator *scheds_gen = new ml_model_schedules_generator();
+    //     std::cout << "\nEvaluate function...\n";
+    //     evaluate_by_execution *exec_eval = new evaluate_by_execution(arguments, func_arguments, func, obj_filename, "./wrapper");
+    //     std::cout << "\nSearch method...\n";
+    //     search_method *bs = new beam_search(beam_size, max_depth, exec_eval, scheds_gen);
+    //     std::cout << "\nAutoschdeuler init...\n";
+    //     auto_scheduler as(bs, exec_eval);
+    //     std::cout << "\nas.set_exec_evaluator...\n";
+    //     as.set_exec_evaluator(exec_eval);
+    //     std::cout << "\nas.sample_search_space...\n";
+    //     as.sample_search_space(json_filename, false);
+    //     delete scheds_gen;
+    //     delete exec_eval;
+    //     delete bs;
+    // }
 
     void auto_scheduler::sample_search_space(std::string filename, bool timeout_schedules)
     {

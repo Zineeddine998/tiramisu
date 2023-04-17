@@ -18,7 +18,7 @@ KERNEL=$2
 source configure_paths.sh
 
 # Add -mavx2 to enable AVX2 (in addition to editing the file src/tiramisu_codegen_halide.cpp
-CXXFLAGS="-std=c++11 -O3 -fno-rtti"
+CXXFLAGS="-std=c++17 -O3 -fno-rtti"
 
 # Compile options
 # - Make ${CXX} dump generated assembly

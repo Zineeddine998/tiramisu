@@ -49,6 +49,11 @@ namespace tiramisu::auto_scheduler
         std::vector<Halide::Argument> halide_arguments;
 
         /**
+         * The name of the function
+         */
+        std::string func_name;
+
+        /**
          * The name of the ".o" to generate (it will contain the compiled Tiramisu program).
          */
         std::string obj_filename;
@@ -84,9 +89,15 @@ namespace tiramisu::auto_scheduler
         /**
          * arguments : the input and output buffers of the program.
          */
+        // evaluate_by_execution(std::vector<tiramisu::buffer *> const &arguments,
+        //                       std::vector<halide_buffer_t *> const &func_arguments,
+        //                       std::function<int(halide_buffer_t *, halide_buffer_t *)> func,
+        //                       std::string const &obj_filename,
+        //                       std::string const &wrapper_cmd,
+        //                       tiramisu::function *fct = tiramisu::global::get_implicit_function());
         evaluate_by_execution(std::vector<tiramisu::buffer *> const &arguments,
                               std::vector<halide_buffer_t *> const &func_arguments,
-                              std::function<int(halide_buffer_t *, halide_buffer_t *)> func,
+                              std::string const &func_name,
                               std::string const &obj_filename,
                               std::string const &wrapper_cmd,
                               tiramisu::function *fct = tiramisu::global::get_implicit_function());

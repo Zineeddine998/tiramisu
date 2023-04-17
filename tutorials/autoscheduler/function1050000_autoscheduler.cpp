@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 	comp01.store_in(&buf00, {i1, i2, i3});
 
 	// function1050000(h_buf00.raw_buffer(), h_buf01.raw_buffer());
-	auto_scheduler::auto_scheduler::create_and_run_auto_scheduler({&buf00, &buf01}, {h_buf00.raw_buffer(), h_buf01.raw_buffer()}, &function1050000, "function1050000.o", "./function1050000_explored_schedules.json", 1, 2);
+	auto_scheduler::auto_scheduler::create_and_run_auto_scheduler({&buf00, &buf01}, {h_buf00.raw_buffer(), h_buf01.raw_buffer()}, "function1050000", "function1050000.o", "./function1050000_explored_schedules.json", 1, 2);
 
 	return 0;
 }

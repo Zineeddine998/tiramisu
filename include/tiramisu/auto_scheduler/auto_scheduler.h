@@ -60,9 +60,17 @@ namespace tiramisu::auto_scheduler
      * Create an autoscheduler, the search method and the evaluation function
      * for the given function. If transformations is not null, we apply the list of initial transformations to the program before we start the exploration.
      */
+    // static void create_and_run_auto_scheduler(std::vector<tiramisu::buffer *> const &arguments,
+    //                                           std::vector<halide_buffer_t *> const &func_arguments,
+    //                                           std::function<int(halide_buffer_t *, halide_buffer_t *)> func,
+    //                                           std::string const &obj_filename,
+    //                                           std::string const &json_filename,
+    //                                           int beam_size,
+    //                                           int max_depth,
+    //                                           tiramisu::function *fct = tiramisu::global::get_implicit_function());
     static void create_and_run_auto_scheduler(std::vector<tiramisu::buffer *> const &arguments,
                                               std::vector<halide_buffer_t *> const &func_arguments,
-                                              std::function<int(halide_buffer_t *, halide_buffer_t *)> func,
+                                              std::string const &func_name,
                                               std::string const &obj_filename,
                                               std::string const &json_filename,
                                               int beam_size,

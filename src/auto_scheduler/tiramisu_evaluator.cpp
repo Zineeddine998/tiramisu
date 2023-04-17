@@ -11,6 +11,10 @@
 #include <functional>
 
 #include <chrono>
+#include <dlfcn.h>
+#include <iostream>
+
+typedef void (*MyFunction)(halide_buffer_t *buf00, ...);
 
 namespace tiramisu::auto_scheduler
 {
@@ -40,13 +44,19 @@ namespace tiramisu::auto_scheduler
         }
     }
 
+    // evaluate_by_execution::evaluate_by_execution(std::vector<tiramisu::buffer *> const &arguments,
+    //                                              std::vector<halide_buffer_t *> const &func_arguments,
+    //                                              std::function<int(halide_buffer_t *, halide_buffer_t *)> func,
+    //                                              std::string const &obj_filename,
+    //                                              std::string const &wrapper_cmd,
+    //                                              tiramisu::function *fct)
     evaluate_by_execution::evaluate_by_execution(std::vector<tiramisu::buffer *> const &arguments,
                                                  std::vector<halide_buffer_t *> const &func_arguments,
-                                                 std::function<int(halide_buffer_t *, halide_buffer_t *)> func,
+                                                 std::string const &func_name,
                                                  std::string const &obj_filename,
                                                  std::string const &wrapper_cmd,
                                                  tiramisu::function *fct)
-        : evaluation_function(), fct(fct), obj_filename(obj_filename), wrapper_cmd(wrapper_cmd), function(func), func_arguments(func_arguments)
+        : evaluation_function(), fct(fct), func_name(func_name), obj_filename(obj_filename), wrapper_cmd(wrapper_cmd), func_arguments(func_arguments)
     {
         // Set Halide compilation features
         halide_target = Halide::get_host_target();
@@ -147,11 +157,13 @@ namespace tiramisu::auto_scheduler
         }
 
         // Turn the object file to a shared library
-        std::string gcc_cmd = gpp_command + " -shared -o " + obj_filename + ".so " + obj_filename;
+        std::string gcc_cmd = gpp_command + " -shared -fPIC -o " + obj_filename + ".so " + obj_filename;
         int status = system(gcc_cmd.c_str());
         assert(status != 139 && "Segmentation Fault when trying to execute schedule");
         // define the execution command of the wrapper
         std::string cmd = wrapper_cmd;
+
+        std::string lib_filename = obj_filename + ".so";
 
         float cumulative_timeout;
         if (timeout != 0)
@@ -163,44 +175,62 @@ namespace tiramisu::auto_scheduler
             cmd = std::string("timeout ") + std::to_string(cumulative_timeout) + std::string(" ") + wrapper_cmd;
         }
 
-        // std::vector<float> measurements;
-        // auto begin = std::chrono::high_resolution_clock::now();
-        // this->function(this->func_arguments[0], this->func_arguments[1]);
-        // auto end = std::chrono::high_resolution_clock::now();
+        // Test
+        void *handle = dlopen(lib_filename.c_str(), RTLD_LAZY);
+        if (!handle)
+        {
+            std::cerr << "Error loading library: " << dlerror() << std::endl;
+        }
 
-        // float runtime = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count() / (double)1000000;
-        // measurements.push_back(runtime * 1000);
+        MyFunction myFunc = (MyFunction)dlsym(handle, func_name.c_str());
+        if (!myFunc)
+        {
+            std::cerr << "Error getting symbol: " << dlerror() << std::endl;
+        }
+
+        std::vector<float> measurements;
+        auto begin = std::chrono::high_resolution_clock::now();
+        halide_buffer_t *buf0 = this->func_arguments[0];
+        halide_buffer_t *buf1 = this->func_arguments[1];
+        myFunc(buf0, buf1);
+        // this->function(this->func_arguments[0], this->func_arguments[1]);
+        auto end = std::chrono::high_resolution_clock::now();
+
+        dlclose(handle);
+
+        float runtime = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count() / (double)1000000;
+        measurements.push_back(runtime * 1000);
 
         // execute the command
-        FILE *pipe = popen(cmd.c_str(), "r");
+        // FILE *pipe = popen(cmd.c_str(), "r");
 
-        // read the output into a string
-        char buf[100];
-        std::string output;
-        while (fgets(buf, 100, pipe))
-            output += buf;
+        // // read the output into a string
+        // char buf[100];
+        // std::string output;
+        // while (fgets(buf, 100, pipe))
+        //     output += buf;
 
-        // close the pipe and check if the timeout has been reached
-        auto returnCode = pclose(pipe) / 256;
-        if (exit_on_timeout && (timeout != 0) && (returnCode == 124))
-        { // a potential issue here is that the 124 exit code is returned by another error
-            std::cerr << "error: Execution time exceeded the defined timeout " << timeout << "s *" << std::getenv("MAX_RUNS") << "execution" << std::endl;
-            exit(1);
-        }
+        // // close the pipe and check if the timeout has been reached
+        // auto returnCode = pclose(pipe) / 256;
+        // if (exit_on_timeout && (timeout != 0) && (returnCode == 124))
+        // { // a potential issue here is that the 124 exit code is returned by another error
+        //     std::cerr << "error: Execution time exceeded the defined timeout " << timeout << "s *" << std::getenv("MAX_RUNS") << "execution" << std::endl;
+        //     exit(1);
+        // }
 
-        // parse the output into a vector of floats
-        std::vector<float> measurements;
-        std::istringstream iss(output);
-        std::copy(std::istream_iterator<float>(iss), std::istream_iterator<float>(), std::back_inserter(measurements));
+        // // parse the output into a vector of floats
+        // std::vector<float> measurements;
+        // std::istringstream iss(output);
+        // std::copy(std::istream_iterator<float>(iss), std::istream_iterator<float>(), std::back_inserter(measurements));
 
-        if (measurements.empty() && (returnCode != 124)) // if there is no output and the cmd didn't timeout, this means that the execution failed
-            measurements.push_back(std::numeric_limits<float>::infinity());
+        // if (measurements.empty() && (returnCode != 124)) // if there is no output and the cmd didn't timeout, this means that the execution failed
+        //     measurements.push_back(std::numeric_limits<float>::infinity());
 
-        else if (measurements.empty() && (returnCode == 124) && (timeout != 0))
-        {                                                      // if there is no output and the cmd timed out, this means that no execution finished before timeout
-            measurements.push_back(cumulative_timeout * 1000); // converted to ms
-            std::cout << "Execution timed out" << std::endl;
-        }
+        // else if (measurements.empty() && (returnCode == 124) && (timeout != 0))
+        // {                                                      // if there is no output and the cmd timed out, this means that no execution finished before timeout
+        //     measurements.push_back(cumulative_timeout * 1000); // converted to ms
+        //     std::cout << "Execution timed out" << std::endl;
+        // }
 
         // Remove all the optimizations
         fct->reset_schedules();
