@@ -2,43 +2,38 @@
 #include "../../include/tiramisu/auto_scheduler/auto_scheduler.h"
 #include "../../include/tiramisu/auto_scheduler/search_method.h"
 #include "../../include/tiramisu/auto_scheduler/evaluator.h"
+#include <vector>
+#include "HalideBuffer.h"
+#include "Python.h"
+#include "numpy/arrayobject.h"
 
 namespace tiramisu
 {
     namespace PythonBindings
     {
-
-        // Second attempt
-        // void create_and_run_auto_scheduler(std::vector<tiramisu::buffer *> const &arguments,
-        //                                    std::vector<halide_buffer_t *> const &func_arguments,
-        //                                    std::function<int(halide_buffer_t *, halide_buffer_t *)> func,
-        //                                    std::string const &obj_filename,
-        //                                    std::string const &json_filename,
-        //                                    int beam_size,
-        //                                    int max_depth,
-        //                                    tiramisu::function *fct)
-        // {
-        //     auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func, obj_filename, json_filename, beam_size, max_depth, fct);
-        // }
-
-        // void define_autoscheduler(py::module &m)
-        // {
-        //     m.def("create_and_run_auto_scheduler", &create_and_run_auto_scheduler, "This function create and runs the autoscheduling process and print the results to a json file", py::return_value_policy::reference);
-        // }
-
-        // First attempt
-        // void define_autoscheduler(py::module &m)
-        // {
-        //     m.def("create_and_run_autoscheduler",
-        //           py::overload_cast<const std::vector<tiramisu::buffer *> &, const std::vector<halide_buffer_t *> &, std::function<int(halide_buffer_t *, halide_buffer_t *)>, const std::string, const std::string, int, int, tiramisu::function &>(&tiramisu::auto_scheduler::auto_scheduler::create_and_run_auto_scheduler),
-        //           "This function create and runs the autoscheduling process and print the results to a json file",
-        //           py::arg("arguments"), py::arg("func_arguments"), py::arg("func"), py::arg("obj_filename"), py::arg("json_filename"), py::arg("beam_size"), py::arg("max_depth"), py::arg("fct"));
-        // }
-
         void define_autoscheduler(py::module &m)
         {
-            m.def("create_and_run_auto_scheduler", [](std::vector<tiramisu::buffer *> const &arguments, std::vector<halide_buffer_t *> const &func_arguments, std::string const &func_name, std::string const &obj_filename, std::string const &json_filename, int beam_size, int max_depth, tiramisu::function *fct) -> void
-                  { auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func_name, obj_filename, json_filename, beam_size, max_depth, fct); });
+            m.def("create_and_run_auto_scheduler", [](std::vector<tiramisu::buffer *> const &arguments, PyObject *np_array, std::string const &func_name, std::string const &obj_filename, std::string const &json_filename, int beam_size, int max_depth, tiramisu::function *fct) -> void
+                  {
+        std::vector<halide_buffer_t *> func_arguments;
+        
+        // Convert the numpy array to a halide_buffer_t object
+        int ndims = PyArray_NDIM((PyArrayObject *) np_array);
+        npy_intp *shape = PyArray_SHAPE((PyArrayObject *) np_array);
+        char *data_ptr = (char *) PyArray_DATA((PyArrayObject *) np_array);
+        npy_intp *strides = PyArray_STRIDES((PyArrayObject *) np_array);
+
+        halide_type_t dtype = halide_type_of<decltype(np_array[0])>();
+        halide_buffer_t buf(data_ptr, shape[ndims-1], shape[ndims-1], ndims, halide_type_t(), nullptr);
+        for (int i = 0; i < ndims-1; ++i) {
+            buf.dim(i).set_bounds(0, shape[i]);
+            buf.dim(i).set_stride(strides[i] / dtype.bytes());
         }
-    } // namespace PythonBindings
+        
+        // Append the halide_buffer_t object to the vector
+        func_arguments.push_back(&buf);
+        
+        auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func_name, obj_filename, json_filename, beam_size, max_depth, fct); });
+        }
+    } // namespace PythonBindingsj
 } // namespace tiramisu
