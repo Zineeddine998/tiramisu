@@ -1,8 +1,11 @@
-find_library(HALIDE_LIB Halide PATHS Halide::Halide)
-message("HALIDELIB: "${HALIDE_LIB})
+find_package(NumPy REQUIRED)
+include_directories(${NumPy_INCLUDE_DIRS})
 
-get_filename_component(HALIDE_LIB_DIRECTORY ${HALIDE_LIB}  DIRECTORY)
-message("HALIDELIB: "${HALIDE_LIB_DIRECTORY})
+find_library(HALIDE_LIB Halide PATHS Halide::Halide)
+message("HALIDELIB: ${HALIDE_LIB}")
+
+get_filename_component(HALIDE_LIB_DIRECTORY ${HALIDE_LIB} DIRECTORY)
+message("HALIDELIB: ${HALIDE_LIB_DIRECTORY}")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHALIDE_BUILD=\"${HALIDE_LIB_DIRECTORY}\"")
 
@@ -19,8 +22,7 @@ set(SOURCES
   PyInput.cpp
   PyFunction.cpp
   PyAutoscheduler.cpp
-  )
-
+)
 
 pybind11_add_module(Tiramisu_Python MODULE ${SOURCES})
 set_target_properties(Tiramisu_Python
@@ -29,6 +31,4 @@ set_target_properties(Tiramisu_Python
   EXPORT_NAME Python)
 target_link_libraries(Tiramisu_Python PRIVATE tiramisu) #Tiramisu_Python needs Tiramisu
 target_link_libraries(Tiramisu_Python PRIVATE tiramisu_auto_scheduler) #Tiramisu_Python needs Tiramisu auto scheduler
-
-
-
+target_link_libraries(Tiramisu_Python PRIVATE ${NumPy_LIBRARIES}) #Tiramisu_Python needs NumPy

@@ -124,13 +124,14 @@ PUBLIC_HEADER DESTINATION include/tiramisu
 )
 
 
-message(STATUS "Building AUTO SCHEDULER")
-install(TARGETS tiramisu_auto_scheduler
-EXPORT tiramisu_Targets
-LIBRARY DESTINATION lib
-INCLUDES DESTINATION include
-PUBLIC_HEADER DESTINATION include/tiramisu/autoscheduler)
-
+if (USE_AUTO_SCHEDULER)
+  message(STATUS "Building AUTO SCHEDULER")
+  install(TARGETS tiramisu_auto_scheduler
+  EXPORT tiramisu_Targets
+  LIBRARY DESTINATION lib
+  INCLUDES DESTINATION include
+  PUBLIC_HEADER DESTINATION include/tiramisu/autoscheduler)
+endif()
 
 
 if (WITH_PYTHON_BINDINGS)
