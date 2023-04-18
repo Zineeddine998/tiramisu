@@ -1,6 +1,3 @@
-find_package(NumPy REQUIRED)
-include_directories(${NumPy_INCLUDE_DIRS})
-
 find_library(HALIDE_LIB Halide PATHS Halide::Halide)
 message("HALIDELIB: ${HALIDE_LIB}")
 

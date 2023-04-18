@@ -14,6 +14,9 @@ if (NOT pybind11_FOUND)
     FetchContent_MakeAvailable(pybind11)
 endif ()
 
+find_package(NumPy REQUIRED)
+include_directories(${NumPy_INCLUDE_DIRS})
+
 ##
 # Add our sources to this sub-tree.
 ##
