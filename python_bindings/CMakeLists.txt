@@ -16,10 +16,27 @@ endif ()
 
 
 
-set(NUMPY_VER 1.24.2)
 message(STATUS "Getting numpy 1.24.2")
-list(APPEND CMAKE_PREFIX_PATH /spack/opt/spack/linux-ubuntu22.10-skylake/gcc-12.2.0/py-numpy-1.24.2-yzi4jodjp6fplgbjspdtrg64d2z7u6cx)
-find_package(numpy ${NUMPY_VER} REQUIRED)
+include(ExternalProject)
+
+set(NUMPY_VERSION "1.24.2")
+set(NUMPY_URL "https://github.com/numpy/numpy/archive/v${NUMPY_VERSION}.tar.gz")
+
+ExternalProject_Add(numpy
+    PREFIX numpy
+    URL ${NUMPY_URL}
+    URL_HASH SHA256=<insert hash of tarball here>
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+)
+
+set(NUMPY_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/numpy/src/numpy/numpy/core/include)
+set(NUMPY_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/numpy/src/numpy/build/lib.linux-x86_64-${CMAKE_BUILD_TYPE}/numpy/core/libnumpy.a)
+
+add_executable(myexecutable main.cpp)
+target_include_directories(myexecutable PRIVATE ${NUMPY_INCLUDE_DIR})
+target_link_libraries(myexecutable PRIVATE ${NUMPY_LIBRARIES})
 
 ##
 # Add our sources to this sub-tree.
