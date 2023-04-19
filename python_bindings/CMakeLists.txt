@@ -14,21 +14,11 @@ if (NOT pybind11_FOUND)
     FetchContent_MakeAvailable(pybind11)
 endif ()
 
-set(NUMPY_VER 1.20.3)
-find_package(NumPy ${NUMPY_VER} QUIET)
-if (NOT NumPy_FOUND)
-    message(STATUS "NumPy not found. Downloading from repository...")
-    include(FetchContent)
-    FetchContent_Declare(numpy_repo
-                         GIT_REPOSITORY https://github.com/numpy/numpy.git
-                         GIT_TAG v${NUMPY_VER})
-    FetchContent_GetProperties(numpy_repo)
-    if (NOT numpy_repo_POPULATED)
-        FetchContent_Populate(numpy_repo)
-        add_subdirectory(${numpy_repo_SOURCE_DIR} ${numpy_repo_BINARY_DIR})
-    endif()
-    find_package(NumPy ${NUMPY_VER} REQUIRED)
-endif ()
+
+
+set(NUMPY_VER 1.24.2)
+message(STATUS "Getting numpy 1.24.2")
+find_package(numpy ${NUMPY_VER} REQUIRED)
 
 ##
 # Add our sources to this sub-tree.
