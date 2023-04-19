@@ -17,26 +17,15 @@ endif ()
 
 
 message(STATUS "Getting numpy 1.24.2")
-include(ExternalProject)
-
 set(NUMPY_VERSION "1.24.2")
-set(NUMPY_URL "https://github.com/numpy/numpy/archive/v${NUMPY_VERSION}.tar.gz")
-
-ExternalProject_Add(numpy
-    PREFIX numpy
-    URL ${NUMPY_URL}
-    URL_HASH SHA256=<insert hash of tarball here>
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-)
-
-set(NUMPY_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/numpy/src/numpy/numpy/core/include)
-set(NUMPY_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/numpy/src/numpy/build/lib.linux-x86_64-${CMAKE_BUILD_TYPE}/numpy/core/libnumpy.a)
-
-add_executable(myexecutable main.cpp)
-target_include_directories(myexecutable PRIVATE ${NUMPY_INCLUDE_DIR})
-target_link_libraries(myexecutable PRIVATE ${NUMPY_LIBRARIES})
+find_package(numpy ${NUMPY_VERSION} QUIET)
+if (NOT numpy_FOUND)
+    include(FetchContent)
+    FetchContent_Declare(numpy
+                         GIT_REPOSITORY https://github.com/numpy/numpy.git
+                         GIT_TAG v${NUMPY_VERSION})
+    FetchContent_MakeAvailable(numpy)
+endif ()
 
 ##
 # Add our sources to this sub-tree.
