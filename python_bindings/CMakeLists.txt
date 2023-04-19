@@ -3,6 +3,7 @@
 ##
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+find_package(NumPy REQUIRED)
 
 set(PYBIND11_VER 2.10.2)
 find_package(pybind11 ${PYBIND11_VER} QUIET)
@@ -13,10 +14,6 @@ if (NOT pybind11_FOUND)
                          GIT_TAG v${PYBIND11_VER})
     FetchContent_MakeAvailable(pybind11)
 endif ()
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-find_package(NumPy REQUIRED)
-include_directories(${NumPy_INCLUDE_DIRS})
 
 ##
 # Add our sources to this sub-tree.
