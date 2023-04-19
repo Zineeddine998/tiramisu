@@ -14,6 +14,7 @@ if (NOT pybind11_FOUND)
     FetchContent_MakeAvailable(pybind11)
 endif ()
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(NumPy REQUIRED)
 include_directories(${NumPy_INCLUDE_DIRS})
 
