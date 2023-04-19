@@ -18,6 +18,7 @@ endif ()
 
 set(NUMPY_VER 1.24.2)
 message(STATUS "Getting numpy 1.24.2")
+list(APPEND CMAKE_PREFIX_PATH /spack/opt/spack/linux-ubuntu22.10-skylake/gcc-12.2.0/py-numpy-1.24.2-yzi4jodjp6fplgbjspdtrg64d2z7u6cx)
 find_package(numpy ${NUMPY_VER} REQUIRED)
 
 ##
