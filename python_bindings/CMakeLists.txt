@@ -3,7 +3,6 @@
 ##
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
-find_package(NumPy REQUIRED)
 
 set(PYBIND11_VER 2.10.2)
 find_package(pybind11 ${PYBIND11_VER} QUIET)
@@ -13,6 +12,17 @@ if (NOT pybind11_FOUND)
                          GIT_REPOSITORY https://github.com/pybind/pybind11.git
                          GIT_TAG v${PYBIND11_VER})
     FetchContent_MakeAvailable(pybind11)
+endif ()
+
+set(NUMPY_VER 1.20.3)
+find_package(NumPy ${NUMPY_VER} QUIET)
+if (NOT NumPy_FOUND)
+    include(FetchContent)
+    FetchContent_Declare(numpy
+                         GIT_REPOSITORY https://github.com/numpy/numpy.git
+                         GIT_TAG v${NUMPY_VER})
+    FetchContent_MakeAvailable(numpy)
+    find_package(NumPy ${NUMPY_VER} REQUIRED)
 endif ()
 
 ##
