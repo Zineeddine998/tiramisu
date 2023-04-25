@@ -2,6 +2,8 @@
 # Load Python dependencies, including external pybind11
 ##
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR})
+
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
 set(PYBIND11_VER 2.10.2)
@@ -18,14 +20,8 @@ endif ()
 
 message(STATUS "Getting numpy 1.24.2")
 set(NUMPY_VERSION "1.24.2")
-find_package(numpy ${NUMPY_VERSION} QUIET)
-if (NOT numpy_FOUND)
-    include(FetchContent)
-    FetchContent_Declare(numpy
-                         GIT_REPOSITORY https://github.com/numpy/numpy.git
-                         GIT_TAG v${NUMPY_VERSION})
-    FetchContent_MakeAvailable(numpy)
-endif ()
+find_package(NumPy ${NUMPY_VERSION} REQUIRED)
+
 
 ##
 # Add our sources to this sub-tree.
