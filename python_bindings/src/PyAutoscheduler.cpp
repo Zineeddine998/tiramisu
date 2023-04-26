@@ -48,7 +48,8 @@ namespace tiramisu
                 // }   
 
                 std::cout<< "\nIt works !!";
-                //auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func_name, obj_filename, json_filename, beam_size, max_depth, fct); });
+                //auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func_name, obj_filename, json_filename, beam_size, max_depth, fct); 
+            });
         }
     } // namespace PythonBindings
 } // namespace tiramisu
