@@ -3,7 +3,7 @@
 #include "../../include/tiramisu/auto_scheduler/search_method.h"
 #include "../../include/tiramisu/auto_scheduler/evaluator.h"
 #include <vector>
-#include "HalideBuffer.h"
+#include "Halide.h"
 #include "Python.h"
 #include "numpy/arrayobject.h"
 
@@ -15,25 +15,38 @@ namespace tiramisu
         {
             m.def("create_and_run_auto_scheduler", [](std::vector<tiramisu::buffer *> const &arguments, PyObject *np_array, std::string const &func_name, std::string const &obj_filename, std::string const &json_filename, int beam_size, int max_depth, tiramisu::function *fct) -> void
                   {
-        std::vector<halide_buffer_t *> func_arguments;
-        
-        // Convert the numpy array to a halide_buffer_t object
-        int ndims = PyArray_NDIM((PyArrayObject *) np_array);
-        npy_intp *shape = PyArray_SHAPE((PyArrayObject *) np_array);
-        char *data_ptr = (char *) PyArray_DATA((PyArrayObject *) np_array);
-        npy_intp *strides = PyArray_STRIDES((PyArrayObject *) np_array);
+                std::vector<halide_buffer_t *> func_arguments;
 
-        halide_type_t dtype = halide_type_of<decltype(np_array[0])>();
-        halide_buffer_t buf(data_ptr, shape[ndims-1], shape[ndims-1], ndims, halide_type_t(), nullptr);
-        for (int i = 0; i < ndims-1; ++i) {
-            buf.dim(i).set_bounds(0, shape[i]);
-            buf.dim(i).set_stride(strides[i] / dtype.bytes());
+                // Convert the numpy array to a halide_buffer_t object
+                // int ndims = PyArray_NDIM((PyArrayObject *) np_array);
+                // npy_intp *shape = PyArray_SHAPE((PyArrayObject *) np_array);
+                // char *data_ptr = (char *) PyArray_DATA((PyArrayObject *) np_array);
+                // npy_intp *strides = PyArray_STRIDES((PyArrayObject *) np_array);
+
+                std::vector<Halide::Buffer<double>> buffers;
+                for (int i = 0; i < PyList_Size(np_array); ++i) {
+                        PyObject *np_array_item = PyList_GetItem(np_array, i);
+                        int ndims = PyArray_NDIM((PyArrayObject *) np_array_item);
+                        npy_intp *shape = PyArray_SHAPE((PyArrayObject *) np_array_item);
+                        char *data_ptr = (char *) PyArray_DATA((PyArrayObject *) np_array_item);
+                        npy_intp *strides = PyArray_STRIDES((PyArrayObject *) np_array_item);
+
+                        std::vector<int> dimensions(shape, shape + ndims);
+                        Halide::Buffer<double> buffer(nullptr, dimensions);
+                        buffer.raw_buffer()->host = reinterpret_cast<uint8_t*>(data_ptr);
+
+
+                        for (int j = 0; j < ndims; ++j) {
+                            buffer.raw_buffer()->dim[j].stride = strides[j] / sizeof(double);
+                        }
+                        buffers.push_back(buffer);
+                }
+               
+                for (auto &buffer : buffers) {
+                    func_arguments.push_back(buffer.raw_buffer());
+                }   
+
+                auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func_name, obj_filename, json_filename, beam_size, max_depth, fct); });
         }
-        
-        // Append the halide_buffer_t object to the vector
-        func_arguments.push_back(&buf);
-        
-        auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func_name, obj_filename, json_filename, beam_size, max_depth, fct); });
-        }
-    } // namespace PythonBindingsj
+    } // namespace PythonBindings
 } // namespace tiramisu

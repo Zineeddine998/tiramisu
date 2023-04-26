@@ -23,6 +23,10 @@ set(NUMPY_VERSION "1.24.2")
 find_package(NumPy ${NUMPY_VERSION} REQUIRED)
 
 
+include_directories(${NUMPY_INCLUDE_DIRS})
+
+link_directories(${Numpy_LIBRARY_DIR})
+
 ##
 # Add our sources to this sub-tree.
 ##
