@@ -176,61 +176,62 @@ namespace tiramisu::auto_scheduler
         }
 
         // Test
-        void *handle = dlopen(lib_filename.c_str(), RTLD_LAZY);
-        if (!handle)
-        {
-            std::cerr << "Error loading library: " << dlerror() << std::endl;
-        }
-
-        MyFunction myFunc = (MyFunction)dlsym(handle, func_name.c_str());
-        if (!myFunc)
-        {
-            std::cerr << "Error getting symbol: " << dlerror() << std::endl;
-        }
-
-        std::vector<float> measurements;
-        auto begin = std::chrono::high_resolution_clock::now();
-        halide_buffer_t *buf0 = this->func_arguments[0];
-        halide_buffer_t *buf1 = this->func_arguments[1];
-        myFunc(buf0, buf1);
-        // this->function(this->func_arguments[0], this->func_arguments[1]);
-        auto end = std::chrono::high_resolution_clock::now();
-
-        dlclose(handle);
-
-        float runtime = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count() / (double)1000000;
-        measurements.push_back(runtime * 1000);
-
-        // execute the command
-        // FILE *pipe = popen(cmd.c_str(), "r");
-
-        // // read the output into a string
-        // char buf[100];
-        // std::string output;
-        // while (fgets(buf, 100, pipe))
-        //     output += buf;
-
-        // // close the pipe and check if the timeout has been reached
-        // auto returnCode = pclose(pipe) / 256;
-        // if (exit_on_timeout && (timeout != 0) && (returnCode == 124))
-        // { // a potential issue here is that the 124 exit code is returned by another error
-        //     std::cerr << "error: Execution time exceeded the defined timeout " << timeout << "s *" << std::getenv("MAX_RUNS") << "execution" << std::endl;
-        //     exit(1);
+        // void *handle = dlopen(lib_filename.c_str(), RTLD_LAZY);
+        // if (!handle)
+        // {
+        //     std::cerr << "Error loading library: " << dlerror() << std::endl;
         // }
 
-        // // parse the output into a vector of floats
+        // MyFunction myFunc = (MyFunction)dlsym(handle, func_name.c_str());
+        // if (!myFunc)
+        // {
+        //     std::cerr << "Error getting symbol: " << dlerror() << std::endl;
+        // }
+
         // std::vector<float> measurements;
-        // std::istringstream iss(output);
-        // std::copy(std::istream_iterator<float>(iss), std::istream_iterator<float>(), std::back_inserter(measurements));
+        // auto begin = std::chrono::high_resolution_clock::now();
+        // halide_buffer_t *buf0 = this->func_arguments[0];
+        // halide_buffer_t *buf1 = this->func_arguments[1];
+        // myFunc(buf0, buf1);
+        // // this->function(this->func_arguments[0], this->func_arguments[1]);
+        // auto end = std::chrono::high_resolution_clock::now();
 
-        // if (measurements.empty() && (returnCode != 124)) // if there is no output and the cmd didn't timeout, this means that the execution failed
-        //     measurements.push_back(std::numeric_limits<float>::infinity());
+        // dlclose(handle);
 
-        // else if (measurements.empty() && (returnCode == 124) && (timeout != 0))
-        // {                                                      // if there is no output and the cmd timed out, this means that no execution finished before timeout
-        //     measurements.push_back(cumulative_timeout * 1000); // converted to ms
-        //     std::cout << "Execution timed out" << std::endl;
-        // }
+        // float runtime = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count() / (double)1000000;
+        // measurements.push_back(runtime * 1000);
+         // Test end
+
+        //execute the command
+        FILE *pipe = popen(cmd.c_str(), "r");
+
+        // read the output into a string
+        char buf[100];
+        std::string output;
+        while (fgets(buf, 100, pipe))
+            output += buf;
+
+        // close the pipe and check if the timeout has been reached
+        auto returnCode = pclose(pipe) / 256;
+        if (exit_on_timeout && (timeout != 0) && (returnCode == 124))
+        { // a potential issue here is that the 124 exit code is returned by another error
+            std::cerr << "error: Execution time exceeded the defined timeout " << timeout << "s *" << std::getenv("MAX_RUNS") << "execution" << std::endl;
+            exit(1);
+        }
+
+        // parse the output into a vector of floats
+        std::vector<float> measurements;
+        std::istringstream iss(output);
+        std::copy(std::istream_iterator<float>(iss), std::istream_iterator<float>(), std::back_inserter(measurements));
+
+        if (measurements.empty() && (returnCode != 124)) // if there is no output and the cmd didn't timeout, this means that the execution failed
+            measurements.push_back(std::numeric_limits<float>::infinity());
+
+        else if (measurements.empty() && (returnCode == 124) && (timeout != 0))
+        {                                                      // if there is no output and the cmd timed out, this means that no execution finished before timeout
+            measurements.push_back(cumulative_timeout * 1000); // converted to ms
+            std::cout << "Execution timed out" << std::endl;
+        }
 
         // Remove all the optimizations
         fct->reset_schedules();
