@@ -150,6 +150,15 @@ namespace tiramisu::auto_scheduler
 
         std::cout << "\nlower_halide_pipeline end";
 
+        std::cout << '\n'
+                  << obj_filename;
+
+        char buffer[256];
+        if (getcwd(buffer, sizeof(buffer)) != NULL)
+        {
+            printf("\nCurrent working directory : %s", buffer);
+        }
+
         // m.compile(Halide::Outputs().object(obj_filename));
         std::map<Halide::OutputFileType, std::string> omap = {
             {Halide::OutputFileType::object, obj_filename}};
@@ -160,14 +169,7 @@ namespace tiramisu::auto_scheduler
 
         std::cout << "\ncompile end";
 
-        std::cout << '\n'
-                  << obj_filename;
-
-        char buffer[256];
-        if (getcwd(buffer, sizeof(buffer)) != NULL)
-        {
-            printf("\nCurrent working directory : %s", buffer);
-        }
+        
 
         std::string gpp_command = read_env_var("GXX");
 
