@@ -29,7 +29,7 @@ namespace tiramisu
     {
         void define_autoscheduler(py::module &m)
         {
-            m.def("create_and_run_auto_scheduler", [](std::vector<tiramisu::buffer *> const &arguments, pybind11::array_t<double> np_array, std::string const &func_name, std::string const &obj_filename, std::string const &json_filename, int beam_size, int max_depth, tiramisu::function *fct) -> void
+            m.def("create_and_run_auto_scheduler", [](std::vector<tiramisu::buffer *> const &arguments, std::string const &func_name, std::string const &obj_filename, std::string const &json_filename, int beam_size, int max_depth, tiramisu::function *fct) -> void
                   // m.def("create_and_run_auto_scheduler", [](std::vector<tiramisu::buffer *> const &arguments, std::string const &func_name, std::string const &obj_filename, std::string const &json_filename, int beam_size, int max_depth, tiramisu::function *fct) -> void
                   {
                     
