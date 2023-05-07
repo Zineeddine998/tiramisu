@@ -1,0 +1,17 @@
+export BEAM_SIZE=2
+export DYNAMIC_RUNS=1
+export MAX_RUNS=1
+export NB_EXEC=1
+export AS_VERBOSE=1
+export MAX_DEPTH=4
+export MIN_RUNS=1
+export EXPLORE_BY_EXECUTION=1
+export TIRAMISU_ROOT=/data/cs7214/new-tiramisu/tiramisu
+mkdir build ; cd build
+cmake ..
+make
+../generator
+g++ -shared -o function.o.so generated_tiramisu_make_fused_dibaryon_blocks_correlator.o
+g++ -std=c++17 -fno-rtti -I${TIRAMISU_ROOT}/include -I${TIRAMISU_ROOT}/3rdParty/Halide/install/include -I${TIRAMISU_ROOT}/3rdParty/isl/include/ -I${TIRAMISU_ROOT}/benchmarks -L${TIRAMISU_ROOT}/build -L${TIRAMISU_ROOT}/3rdParty/Halide/install/lib64 -L${TIRAMISU_ROOT}/3rdParty/isl/build/lib -o tiramisu_make_fused_dibaryon_blocks_correlator_wrapper -ltiramisu -lHalide -ldl -lpthread -lz -lm -Wl,-rpath,${TIRAMISU_ROOT}/build ../tiramisu_make_fused_dibaryon_blocks_correlator_wrapper.cpp ./function.o.so -ltiramisu -lHalide -ldl -lpthread -lz -lm
+
+

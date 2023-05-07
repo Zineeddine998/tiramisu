@@ -8,6 +8,21 @@
 // #include "numpy/arrayobject.h"
 #include <pybind11/numpy.h>
 
+template <typename T>
+inline void init_buffer(Halide::Buffer<T> &buf, T val)
+{
+    for (int z = 0; z < buf.channels(); z++)
+    {
+        for (int y = 0; y < buf.height(); y++)
+        {
+            for (int x = 0; x < buf.width(); x++)
+            {
+                buf(x, y, z) = val;
+            }
+        }
+    }
+}
+
 namespace tiramisu
 {
     namespace PythonBindings
@@ -17,7 +32,16 @@ namespace tiramisu
             m.def("create_and_run_auto_scheduler", [](std::vector<tiramisu::buffer *> const &arguments, pybind11::array_t<double> np_array, std::string const &func_name, std::string const &obj_filename, std::string const &json_filename, int beam_size, int max_depth, tiramisu::function *fct) -> void
                   // m.def("create_and_run_auto_scheduler", [](std::vector<tiramisu::buffer *> const &arguments, std::string const &func_name, std::string const &obj_filename, std::string const &json_filename, int beam_size, int max_depth, tiramisu::function *fct) -> void
                   {
-                      // std::vector<halide_buffer_t *> func_arguments;
+                    
+                      std::vector<halide_buffer_t *> func_arguments;
+                      Halide::Buffer<float> buf_1(16, "buf_1");
+                      Halide::Buffer<float> buf_2(16, "buf_2");
+
+                      init_buffer(buf_1, (float)0);
+                      init_buffer(buf_2, (float)0);
+
+                      func_arguments.push_back(buf_1.raw_buffer());
+                      func_arguments.push_back(buf_2.raw_buffer());
 
                       // // Convert the numpy array to a halide_buffer_t object
                       // // int ndims = PyArray_NDIM((PyArrayObject *) np_array);
@@ -47,17 +71,16 @@ namespace tiramisu
                       //     func_arguments.push_back(buffer.raw_buffer());
                       // }
 
-                      auto data = np_array.mutable_unchecked<1>();
+                    //   auto data = np_array.mutable_unchecked<1>();
 
                       // Loop over the elements of the NumPy array and print them
-                      for (ssize_t i = 0; i < data.shape(0); i++)
-                      {
-                          std::cout << data(i) << std::endl;
-                      }
+                    //   for (ssize_t i = 0; i < data.shape(0); i++)
+                    //   {
+                    //       std::cout << data(i) << std::endl;
+                    //   }
 
                       std::cout << "\nIt works !!";
-                      // auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func_name, obj_filename, json_filename, beam_size, max_depth, fct);
-                  });
+                      auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func_name, obj_filename, json_filename, beam_size, max_depth, fct); });
         }
     } // namespace PythonBindings
 } // namespace tiramisu

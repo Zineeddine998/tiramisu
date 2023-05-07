@@ -338,8 +338,8 @@ void generate_function(std::string name)
     //     performe_full_dependency_analysis();
     // }
 
-    const int beam_size = 16;
-    const int max_depth = 16;
+    const int beam_size = 2;
+    const int max_depth = 4;
     // declare_memory_usage();
 
     std::cout << "\nauto_scheduler::ml_model_schedules_generator...\n";
