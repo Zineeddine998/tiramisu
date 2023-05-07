@@ -169,9 +169,7 @@ namespace tiramisu::auto_scheduler
 
         std::cout << "\ncompile end";
 
-        
-
-        std::string gpp_command = read_env_var("GXX");
+                std::string gpp_command = read_env_var("GXX");
 
         if (gpp_command.empty())
         {
