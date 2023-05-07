@@ -14,6 +14,8 @@
 #include <dlfcn.h>
 #include <iostream>
 
+#include <unistd.h>
+
 typedef void (*MyFunction)(halide_buffer_t *buf00, ...);
 
 namespace tiramisu::auto_scheduler
@@ -157,6 +159,15 @@ namespace tiramisu::auto_scheduler
         m.compile(omap);
 
         std::cout << "\ncompile end";
+
+        std::cout << '\n'
+                  << obj_filename;
+
+        char buffer[256];
+        if (getcwd(buffer, sizeof(buffer)) != NULL)
+        {
+            printf("\nCurrent working directory : %s", buffer);
+        }
 
         std::string gpp_command = read_env_var("GXX");
 
