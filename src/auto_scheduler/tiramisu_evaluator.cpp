@@ -139,15 +139,24 @@ namespace tiramisu::auto_scheduler
 
         fct->gen_halide_stmt();
 
+        std::cout << "\nlower_halide_pipeline start";
+        std::cout << "\nFct name: " << fct->get_name();
+
         Halide::Module m = lower_halide_pipeline(fct->get_name(), halide_target, halide_arguments,
                                                  Halide::LinkageType::External,
                                                  fct->get_halide_stmt());
+
+        std::cout << "\nlower_halide_pipeline end";
 
         // m.compile(Halide::Outputs().object(obj_filename));
         std::map<Halide::OutputFileType, std::string> omap = {
             {Halide::OutputFileType::object, obj_filename}};
 
+        std::cout << "\ncompile start";
+
         m.compile(omap);
+
+        std::cout << "\ncompile end";
 
         std::string gpp_command = read_env_var("GXX");
 
@@ -192,7 +201,9 @@ namespace tiramisu::auto_scheduler
         auto begin = std::chrono::high_resolution_clock::now();
         halide_buffer_t *buf0 = this->func_arguments[0];
         halide_buffer_t *buf1 = this->func_arguments[1];
+        std::cout << "\nmyFunc start";
         myFunc(buf0, buf1);
+        std::cout << "\nmyFunc end";
         // this->function(this->func_arguments[0], this->func_arguments[1]);
         auto end = std::chrono::high_resolution_clock::now();
 
