@@ -8,21 +8,6 @@
 // #include "numpy/arrayobject.h"
 #include <pybind11/numpy.h>
 
-template <typename T>
-inline void init_buffer(Halide::Buffer<T> &buf, T val)
-{
-    for (int z = 0; z < buf.channels(); z++)
-    {
-        for (int y = 0; y < buf.height(); y++)
-        {
-            for (int x = 0; x < buf.width(); x++)
-            {
-                buf(x, y, z) = val;
-            }
-        }
-    }
-}
-
 namespace tiramisu
 {
     namespace PythonBindings
@@ -37,8 +22,27 @@ namespace tiramisu
                       Halide::Buffer<float> buf_1(16, "buf_1");
                       Halide::Buffer<float> buf_2(16, "buf_2");
 
-                      init_buffer(buf_1, (float)0);
-                      init_buffer(buf_2, (float)0);
+                       for (int z = 0; z < buf_1.channels(); z++)
+                        {
+                            for (int y = 0; y < buf_1.height(); y++)
+                            {
+                                for (int x = 0; x < buf_1.width(); x++)
+                                {
+                                    buf_1(x, y, z) = (float)0;
+                                }
+                            }
+                        }
+
+                        for (int z = 0; z < buf_2.channels(); z++)
+                        {
+                            for (int y = 0; y < buf_2.height(); y++)
+                            {
+                                for (int x = 0; x < buf_2.width(); x++)
+                                {
+                                    buf_2(x, y, z) = (float)0;
+                                }
+                            }
+                        }
 
                       func_arguments.push_back(buf_1.raw_buffer());
                       func_arguments.push_back(buf_2.raw_buffer());
