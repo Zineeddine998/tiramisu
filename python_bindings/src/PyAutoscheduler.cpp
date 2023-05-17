@@ -14,77 +14,62 @@ namespace tiramisu
     {
         void define_autoscheduler(py::module &m)
         {
-            m.def("create_and_run_auto_scheduler", [](std::vector<tiramisu::buffer *> const &arguments, py::buffer func_arguments0,std::string const &func_name, std::string const &obj_filename, std::string const &json_filename, int beam_size, int max_depth, tiramisu::function *fct) -> void
+            m.def("create_and_run_auto_scheduler", [](std::vector<tiramisu::buffer *> const &arguments, std::vector<py::buffer> py_func_arguments, std::string const &func_name, std::string const &obj_filename, std::string const &json_filename, int beam_size, int max_depth, tiramisu::function *fct) -> void
                   // m.def("create_and_run_auto_scheduler", [](std::vector<tiramisu::buffer *> const &arguments, std::string const &func_name, std::string const &obj_filename, std::string const &json_filename, int beam_size, int max_depth, tiramisu::function *fct) -> void
-                  {
-                    
-                      std::vector<halide_buffer_t *> func_arguments;
-                      Halide::Buffer<float> buf_1(16, "buf_1");
-                      Halide::Buffer<float> buf_2(16, "buf_2");
+            {
+                    std::vector<halide_buffer_t *> func_arguments;
 
-                       for (int z = 0; z < buf_1.channels(); z++)
-                        {
-                            for (int y = 0; y < buf_1.height(); y++)
-                            {
-                                for (int x = 0; x < buf_1.width(); x++)
-                                {
-                                    buf_1(x, y, z) = (float)0;
-                                }
+                    for(py::buffer py_buf: py_func_arguments){
+                        halide_dimension_t *halide_dim;
+                        Halide::Buffer halide_buf;
+
+                        for (i = 0; i < py_buf.ndim; ++i, j += j_step) {
+                            halide_dim[i].min = 0;
+                            halide_dim[i].stride = (int)(py_buf.strides[j] / py_buf.itemsize);  // strides is in bytes
+                            halide_dim[i].extent = (int)py_buf.shape[j];
+                            halide_dim[i].flags = 0;
+                        }
+                        
+                        memset(&halide_buf, 0, sizeof(halide_buf));
+
+                        if (!py_buf.format) {
+                            halide_buf.type.code = halide_type_uint;
+                            halide_buf.type.bits = 8;
+                        } else {
+                            /* Convert struct type code. See
+                            * https://docs.python.org/2/library/struct.html#module-struct */
+                            char *p = py_buf.format;
+                            while (strchr("@<>!=", *p)) {
+                                p++;  // ignore little/bit endian (and alignment)
+                            }
+                            if (*p == 'f' || *p == 'd' || *p == 'e') {
+                                // 'f', 'd', and 'e' are float, double, and half, respectively.
+                                halide_buf.type.code = halide_type_float;
+                            } else if (*p >= 'a' && *p <= 'z') {
+                                // lowercase is signed int.
+                                halide_buf.type.code = halide_type_int;
+                            } else {
+                                // uppercase is unsigned int.
+                                halide_buf.type.code = halide_type_uint;
+                            }
+                            const char *type_codes = "bBhHiIlLqQfde";  // integers and floats
+                            if (*p == '?') {
+                                // Special-case bool, so that it is a distinct type vs uint8_t
+                                // (even though the memory layout is identical)
+                                halide_buf.type.bits = 1;
+                            } else if (strchr(type_codes, *p)) {
+                                halide_buf.type.bits = (uint8_t)py_buf.itemsize * 8;
                             }
                         }
+                        halide_buf.type.lanes = 1;
+                        halide_buf.dimensions = py_buf.ndim;
+                        halide_buf.dim = halide_dim;
+                        halide_buf.host = (uint8_t *)py_buf.buf;
 
-                        for (int z = 0; z < buf_2.channels(); z++)
-                        {
-                            for (int y = 0; y < buf_2.height(); y++)
-                            {
-                                for (int x = 0; x < buf_2.width(); x++)
-                                {
-                                    buf_2(x, y, z) = (float)0;
-                                }
-                            }
-                        }
+                        func_arguments.push_back(halide_buf.raw_buffer());
+                    }
 
-                      func_arguments.push_back(buf_1.raw_buffer());
-                      func_arguments.push_back(buf_2.raw_buffer());
-
-                      // // Convert the numpy array to a halide_buffer_t object
-                      // // int ndims = PyArray_NDIM((PyArrayObject *) np_array);
-                      // // npy_intp *shape = PyArray_SHAPE((PyArrayObject *) np_array);
-                      // // char *data_ptr = (char *) PyArray_DATA((PyArrayObject *) np_array);
-                      // // npy_intp *strides = PyArray_STRIDES((PyArrayObject *) np_array);
-
-                      // std::vector<Halide::Buffer<double>> buffers;
-                      // for (int i = 0; i < PyList_Size(np_array); ++i) {
-                      //         PyObject *np_array_item = PyList_GetItem(np_array, i);
-                      //         int ndims = PyArray_NDIM((PyArrayObject *) np_array_item);
-                      //         npy_intp *shape = PyArray_SHAPE((PyArrayObject *) np_array_item);
-                      //         char *data_ptr = (char *) PyArray_DATA((PyArrayObject *) np_array_item);
-                      //         npy_intp *strides = PyArray_STRIDES((PyArrayObject *) np_array_item);
-
-                      //         std::vector<int> dimensions(shape, shape + ndims);
-                      //         Halide::Buffer<double> buffer(nullptr, dimensions);
-                      //         buffer.raw_buffer()->host = reinterpret_cast<uint8_t*>(data_ptr);
-
-                      //         for (int j = 0; j < ndims; ++j) {
-                      //             buffer.raw_buffer()->dim[j].stride = strides[j] / sizeof(double);
-                      //         }
-                      //         buffers.push_back(buffer);
-                      // }
-
-                      // for (auto &buffer : buffers) {
-                      //     func_arguments.push_back(buffer.raw_buffer());
-                      // }
-
-                    //   auto data = np_array.mutable_unchecked<1>();
-
-                      // Loop over the elements of the NumPy array and print them
-                    //   for (ssize_t i = 0; i < data.shape(0); i++)
-                    //   {
-                    //       std::cout << data(i) << std::endl;
-                    //   }
-
-                      std::cout << "\nIt works !!";
-                      auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func_name, obj_filename, json_filename, beam_size, max_depth, fct); });
+                    auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func_name, obj_filename, json_filename, beam_size, max_depth, fct); });
         }
     } // namespace PythonBindings
 } // namespace tiramisu
