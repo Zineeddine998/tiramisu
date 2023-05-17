@@ -19,6 +19,15 @@ namespace tiramisu
             {
                     std::vector<halide_buffer_t *> func_arguments;
 
+                    int i, j, j_step;
+                    if (PyBuffer_IsContiguous(&py_buf, 'F')) {
+                        j = 0;
+                        j_step = 1;
+                    } else if (PyBuffer_IsContiguous(&py_buf, 'C')) {
+                        j = py_buf.ndim - 1;
+                        j_step = -1;
+                    }
+
                     for(py::buffer py_buf: py_func_arguments){
                         halide_dimension_t *halide_dim;
                         Halide::Buffer halide_buf;
