@@ -45,7 +45,7 @@ namespace tiramisu::auto_scheduler
          * Max Number of dimension to explore for parallelism, starting from the outermost loop level.
          * stops at first found.
          */
-        int parallelism_search_depth = 1;
+        int parallelism_search_depth = 2;
 
         /**
          * Max Number of dimension to explore for unrolling, starting from the innermost loop level

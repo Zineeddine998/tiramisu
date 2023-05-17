@@ -2675,7 +2675,7 @@ void generate_function(std::string name)
     // performe_full_dependency_analysis();
 
     const int beam_size = 1;
-    const int max_depth = 4;
+    const int max_depth = 2;
 
     std::cout << "\nauto_scheduler::ml_model_schedules_generator...\n";
     auto_scheduler::schedules_generator *scheds_gen = new auto_scheduler::ml_model_schedules_generator();

@@ -466,6 +466,62 @@ namespace tiramisu::auto_scheduler
             {
                 for (int j = i + 1; j < shared_nodes.size(); ++j)
                 {
+
+                    // ###Iterator i, j:
+                    // shared_nodes[0] = 0 | i0, depth[1] = 1 | i1
+
+                    // ###access_variables:
+                    //         position: 0 ,name:i0  c[i1, i2] = [{0, i1}, {1,i2}]
+                    //         position: 1 ,name:i1
+                    //         position: 2 ,name:i2
+                    //         position: 3 ,name:i3
+                    //         position: 0 ,name:i0
+                    //         position: 1 ,name:i1
+                    //         position: 2 ,name:i2
+                    //         position: 3 ,name:i3
+
+                    // std::cout<<"\n\n###Iterator i, j:\n";
+                    // // We check if the order of the loop is diffrent of the iterators of the involved computation 
+                    // if(shared_nodes[i]->depth < shared_nodes[j]->depth){
+                    //    std::cout << "\nshared_nodes[" << i << "] = " << shared_nodes[i]->depth << " | " << shared_nodes[i]->name<< ", depth["<< j << "] = " << shared_nodes[j]->depth << " | " << shared_nodes[j]->name;
+                    // }
+                    
+                    // std::cout<<"\n###access_variables:\n";
+
+                    bool eligible_for_interchange = false;
+
+                    for(auto comp: involved_computations ){
+
+                        for(auto var: comp->access_variables){
+                            for(auto var2: comp->access_variables){ 
+                                // std::cout << "\n\tposition: " << var.first << " ,name:" << var.second;  
+                                if(var.second == shared_nodes[i]->name && var2.second == shared_nodes[j]->name){ 
+
+                                    bool iterator_order_1 = shared_nodes[i]->depth < shared_nodes[j]->depth;
+                                    bool comp_access_order_1 = var.first > var2.first;
+
+                                    bool iterator_order_2 = shared_nodes[j]->depth < shared_nodes[i]->depth;
+                                    bool comp_access_order_2 = var2.first > var.first;
+
+                                    eligible_for_interchange = iterator_order_1 && comp_access_order_1 || iterator_order_2 && comp_access_order_2;
+
+                                } else if (var.second == shared_nodes[j]->name && var2.second == shared_nodes[i]->name){
+                                    bool iterator_order_1 = shared_nodes[j]->depth < shared_nodes[i]->depth;
+                                    bool comp_access_order_1 = var.first > var2.first;
+
+                                    bool iterator_order_2 = shared_nodes[i]->depth < shared_nodes[j]->depth;
+                                    bool comp_access_order_2 = var2.first > var.first;
+
+                                    eligible_for_interchange = iterator_order_1 && comp_access_order_1 || iterator_order_2 && comp_access_order_2;
+                                } else {
+                                    break;
+                                }
+                            }
+                            
+                        }
+                    }
+
+
                     // Copy the AST and add interchange to the list of optimizations
                     syntax_tree *new_ast = new syntax_tree();
                     ast_node *new_node = ast.copy_and_return_node(*new_ast, shared_nodes[i]);

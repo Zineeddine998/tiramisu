@@ -6,9 +6,9 @@
 // 2^3 sparse lattice deuteron
 #define DATA_SET_2 0
 // 6^3 sparse lattice deuteron
-#define DATA_SET_3 0
+#define DATA_SET_3 1
 // 8^3 sparse lattice H-dibaryon
-#define DATA_SET_4 1
+#define DATA_SET_4 0
 // 2^3 sparse lattice H-dibaryon
 #define DATA_SET_5 0
 // 6^3 sparse lattice H-dibaryo
@@ -117,8 +117,8 @@
 
 #elif DATA_SET_4
 
-#define P_Vsrc 216
-#define P_Vsnk 216
+#define P_Vsrc 512
+#define P_Vsnk 512
 #define P_Nsrc 20
 #define P_Nsnk 20
 #define P_NEntangled 3
@@ -146,8 +146,8 @@
 #define P_B0Nrows 1
 #define P_Mw 12
 #define P_NsFull 4
-#define P_sites_per_rank 1
-#define P_src_sites_per_rank 1
+#define P_sites_per_rank 4
+#define P_src_sites_per_rank 4
 #define P_tiling_factor 4 // smaller means more dibaryon threads per block */
 
 #elif DATA_SET_5
