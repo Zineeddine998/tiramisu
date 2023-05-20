@@ -109,7 +109,7 @@ namespace tiramisu
                     }
 
                     // Add the Halide buffer to the vector
-                    func_arguments.push_back(halide_buffer);
+                    func_arguments.push_back(halide_buffer.raw_buffer());
                 }
 
                 auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func_name, obj_filename, json_filename, beam_size, max_depth, fct); });
