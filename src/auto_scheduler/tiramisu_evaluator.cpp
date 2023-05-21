@@ -145,7 +145,7 @@ namespace tiramisu::auto_scheduler
         std::cout << "\nFct name: " << fct->get_name();
 
         Halide::Module m = lower_halide_pipeline(fct->get_name(), halide_target, halide_arguments,
-                                                 Halide::LinkageType::External,
+                                                 Halide::LinkageType::ExternalPlusMetadata,
                                                  fct->get_halide_stmt());
 
         std::cout << "\nlower_halide_pipeline end";
@@ -157,6 +157,8 @@ namespace tiramisu::auto_scheduler
         {
             printf("\nCurrent working directory : %s", buffer);
         }
+
+        std::cout << "\nomap start";
 
         // m.compile(Halide::Outputs().object(obj_filename));
         std::map<Halide::OutputFileType, std::string> omap = {
