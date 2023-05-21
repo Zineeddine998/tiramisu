@@ -179,6 +179,7 @@ namespace tiramisu::auto_scheduler
 
         // Turn the object file to a shared library
         std::string gcc_cmd = gpp_command + " -shared -fPIC -o " + obj_filename + ".so " + obj_filename;
+        gcc_cmd += " -L/lqcdLib/tests";
         int status = system(gcc_cmd.c_str());
         assert(status != 139 && "Segmentation Fault when trying to execute schedule");
         // define the execution command of the wrapper
