@@ -197,6 +197,7 @@ namespace tiramisu::auto_scheduler
         }
 
         // Test
+        std::cout << "\ndlopen start";
         void *handle = dlopen(lib_filename.c_str(), RTLD_LAZY | RTLD_GLOBAL);
         if (!handle)
         {
@@ -211,6 +212,7 @@ namespace tiramisu::auto_scheduler
 
         std::vector<float> measurements;
         auto begin = std::chrono::high_resolution_clock::now();
+           std::cout << "\nhalide_buffer_t";
         halide_buffer_t *buf0 = this->func_arguments[0];
         halide_buffer_t *buf1 = this->func_arguments[1];
         std::cout << "\nmyFunc start";
