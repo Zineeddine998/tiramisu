@@ -82,53 +82,37 @@ namespace tiramisu
                     // }
                 std::vector<halide_buffer_t *> func_arguments;
                     // Construct the Halide buffers from py::buffers (numpy arrays)
-                // for (const auto &py_buffer : py_func_arguments)
-                // {
-                //     // Get the underlying numpy array data pointer
-                //     py::buffer_info buf_info = py_buffer.request();
-                //     void *data_ptr = buf_info.ptr;
-
-                //     // Get the dimensions and strides of the numpy array
-                //     std::vector<int> dimensions(buf_info.shape.begin(), buf_info.shape.end());
-                //     std::vector<int> strides(buf_info.strides.begin(), buf_info.strides.end());
-
-                //     // Create a Halide buffer using the numpy array information
-                //     halide_buffer_t *halide_buffer = new halide_buffer_t;
-                //     halide_buffer->host = static_cast<uint8_t *>(data_ptr);
-                //     halide_buffer->type = halide_type_t(halide_type_uint, buf_info.itemsize * 8);
-                //     halide_buffer->dimensions = dimensions.size();
-                //     halide_buffer->dim = new halide_dimension_t[halide_buffer->dimensions];
-
-                //     // Set the dimensions and strides for the Halide buffer
-                //     for (int i = 0; i < dimensions.size(); i++)
-                //     {
-                //         halide_buffer->dim[i].min = 0;
-                //         halide_buffer->dim[i].extent = dimensions[i];
-                //         halide_buffer->dim[i].stride = strides[i];
-                //         halide_buffer->dim[i].flags = 0;
-                //     }
-
-                //     // Add the Halide buffer to the vector
-                //     func_arguments.push_back(halide_buffer);
-                // }
-
-                Halide::Buffer<float> buf_1(16, "buf_1");
-                Halide::Buffer<float> buf_2(16, "buf_2");
-
-                for (int z = 0; z < buf_1.channels(); z++)
+                for (const auto &py_buffer : py_func_arguments)
                 {
-                    for (int y = 0; y < buf_1.height(); y++)
+                    // Get the underlying numpy array data pointer
+                    py::buffer_info buf_info = py_buffer.request();
+                    void *data_ptr = buf_info.ptr;
+
+                    // Get the dimensions and strides of the numpy array
+                    std::vector<int> dimensions(buf_info.shape.begin(), buf_info.shape.end());
+                    std::vector<int> strides(buf_info.strides.begin(), buf_info.strides.end());
+
+                    // Create a Halide buffer using the numpy array information
+                    halide_buffer_t *halide_buffer = new halide_buffer_t;
+                    halide_buffer->host = static_cast<uint8_t *>(data_ptr);
+                    halide_buffer->type = halide_type_t(halide_type_uint, buf_info.itemsize * 8);
+                    halide_buffer->dimensions = dimensions.size();
+                    halide_buffer->dim = new halide_dimension_t[halide_buffer->dimensions];
+
+                    // Set the dimensions and strides for the Halide buffer
+                    for (int i = 0; i < dimensions.size(); i++)
                     {
-                        for (int x = 0; x < buf_1.width(); x++)
-                        {
-                            buf_1(x, y, z) = 0;
-                            buf_2(x, y, z) = 0;
-                        }
+                        halide_buffer->dim[i].min = 0;
+                        halide_buffer->dim[i].extent = dimensions[i];
+                        halide_buffer->dim[i].stride = strides[i];
+                        halide_buffer->dim[i].flags = 0;
                     }
+
+                    // Add the Halide buffer to the vector
+                    func_arguments.push_back(halide_buffer);
                 }
 
-                func_arguments.push_back(buf_1.raw_buffer());
-                func_arguments.push_back(buf_2.raw_buffer());
+               
 
                 auto_scheduler::auto_scheduler::create_and_run_auto_scheduler(arguments, func_arguments, func_name, obj_filename, json_filename, beam_size, max_depth, fct); });
         }

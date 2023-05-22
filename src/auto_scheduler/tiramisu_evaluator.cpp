@@ -143,6 +143,7 @@ namespace tiramisu::auto_scheduler
 
         std::cout << "\nlower_halide_pipeline start";
         std::cout << "\nFct name: " << fct->get_name();
+        std::cout << "\nArguments list length: " << this->func_arguments.size();
 
         Halide::Module m = lower_halide_pipeline(fct->get_name(), halide_target, halide_arguments,
                                                  Halide::LinkageType::ExternalPlusMetadata,
@@ -184,7 +185,7 @@ namespace tiramisu::auto_scheduler
         // define the execution command of the wrapper
         std::string cmd = wrapper_cmd;
 
-        std::string lib_filename = "/lqcdLib/tests/" + obj_filename + ".so";
+        std::string lib_filename = "./" + obj_filename + ".so";
 
         float cumulative_timeout;
         if (timeout != 0)
@@ -212,8 +213,8 @@ namespace tiramisu::auto_scheduler
 
         std::vector<float> measurements;
         auto begin = std::chrono::high_resolution_clock::now();
-           std::cout << "\nhalide_buffer_t";
-        halide_buffer_t *buf0 = new halide_buffer_t;
+        std::cout << "\nhalide_buffer_t";
+        halide_buffer_t *buf0 = this->func_arguments[0];
         std::cout << "\nmyFunc start";
         myFunc(buf0, buf0);
         std::cout << "\nmyFunc end";
