@@ -143,7 +143,7 @@ namespace tiramisu::auto_scheduler
 
         std::cout << "\nlower_halide_pipeline start";
         std::cout << "\nFct name: " << fct->get_name();
-        std::cout << "\nArguments list length: " << this->func_arguments.size();
+       
 
         Halide::Module m = lower_halide_pipeline(fct->get_name(), halide_target, halide_arguments,
                                                  Halide::LinkageType::ExternalPlusMetadata,
@@ -160,6 +160,7 @@ namespace tiramisu::auto_scheduler
         }
 
         std::cout << "\nomap start";
+        std::cout << "\nArguments list length: " << this->func_arguments.size();
 
         // m.compile(Halide::Outputs().object(obj_filename));
         std::map<Halide::OutputFileType, std::string> omap = {
@@ -185,7 +186,7 @@ namespace tiramisu::auto_scheduler
         // define the execution command of the wrapper
         std::string cmd = wrapper_cmd;
 
-        std::string lib_filename = "./" + obj_filename + ".so";
+        std::string lib_filename = obj_filename + ".so";
 
         float cumulative_timeout;
         if (timeout != 0)
