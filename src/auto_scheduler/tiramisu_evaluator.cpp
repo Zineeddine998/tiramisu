@@ -188,7 +188,7 @@ namespace tiramisu::auto_scheduler
         // define the execution command of the wrapper
         std::string cmd = wrapper_cmd;
 
-        std::string lib_filename = obj_filename + ".so";
+        std::string lib_filename = "./" + obj_filename + ".so";
 
         float cumulative_timeout;
         if (timeout != 0)
