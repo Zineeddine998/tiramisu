@@ -163,8 +163,10 @@ namespace tiramisu::auto_scheduler
         std::cout << "\nArguments list length: " << this->func_arguments.size();
 
         // m.compile(Halide::Outputs().object(obj_filename));
-        std::map<Halide::OutputFileType, std::string> omap = {
-            {Halide::OutputFileType::object, obj_filename}};
+        // std::map<Halide::OutputFileType, std::string> omap = {
+        //     {Halide::OutputFileType::object, obj_filename}};
+
+        std::map<Halide::OutputFileType, std::string> omap = {{Halide::OutputFileType::object, obj_filename}, {Halide::OutputFileType::c_header, obj_filename + ".h"},};   
 
         std::cout << "\ncompile start";
 
