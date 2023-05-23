@@ -217,10 +217,9 @@ namespace tiramisu::auto_scheduler
         std::vector<float> measurements;
         auto begin = std::chrono::high_resolution_clock::now();
         std::cout << "\nhalide_buffer_t";
-        halide_buffer_t *buf0 = this->func_arguments[0];
 
-        // switch (this->func_arguments.size())
-        // {
+        if (this->func_arguments.size() == 3)
+        {
         // case 1:
         //     halide_buffer_t *buf0 = this->func_arguments[0];
         //     break;
@@ -230,18 +229,23 @@ namespace tiramisu::auto_scheduler
         //     break;
 
         // case 3:
-        //     halide_buffer_t *buf0 = this->func_arguments[0];
-        //     halide_buffer_t *buf1 = this->func_arguments[1];
-        //     halide_buffer_t *buf3 = this->func_arguments[1];
+            std::cout << "\nfunc_arguments.size() == 3";
+            halide_buffer_t *buf0 = this->func_arguments[0];
+            std::cout << "\nmyFunc func_arguments 0 loaded";
+            halide_buffer_t *buf1 = this->func_arguments[1];
+            std::cout << "\nmyFunc func_arguments 1 loaded";
+            halide_buffer_t *buf3 = this->func_arguments[2];
+            std::cout << "\nmyFunc func_arguments 2 loaded";
+            std::cout << "\nmyFunc start";
+            myFunc(buf0, buf0);
+            std::cout << "\nmyFunc end";
         //     break;
         
         // default:
         //     break;
-        // }
+        }
         
-        std::cout << "\nmyFunc start";
-        // myFunc(buf0, buf0);
-        std::cout << "\nmyFunc end";
+        
         // this->function(this->func_arguments[0], this->func_arguments[1]);
         auto end = std::chrono::high_resolution_clock::now();
 
