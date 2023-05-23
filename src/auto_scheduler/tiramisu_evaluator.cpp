@@ -217,7 +217,28 @@ namespace tiramisu::auto_scheduler
         std::vector<float> measurements;
         auto begin = std::chrono::high_resolution_clock::now();
         std::cout << "\nhalide_buffer_t";
-        // halide_buffer_t *buf0 = this->func_arguments[0];
+        halide_buffer_t *buf0 = this->func_arguments[0];
+
+        // switch (this->func_arguments.size())
+        // {
+        // case 1:
+        //     halide_buffer_t *buf0 = this->func_arguments[0];
+        //     break;
+        // case 2:
+        //     halide_buffer_t *buf0 = this->func_arguments[0];
+        //     halide_buffer_t *buf1 = this->func_arguments[1];
+        //     break;
+
+        // case 3:
+        //     halide_buffer_t *buf0 = this->func_arguments[0];
+        //     halide_buffer_t *buf1 = this->func_arguments[1];
+        //     halide_buffer_t *buf3 = this->func_arguments[1];
+        //     break;
+        
+        // default:
+        //     break;
+        // }
+        
         std::cout << "\nmyFunc start";
         // myFunc(buf0, buf0);
         std::cout << "\nmyFunc end";
