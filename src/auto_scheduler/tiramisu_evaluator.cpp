@@ -143,7 +143,6 @@ namespace tiramisu::auto_scheduler
 
         std::cout << "\nlower_halide_pipeline start";
         std::cout << "\nFct name: " << fct->get_name();
-       
 
         Halide::Module m = lower_halide_pipeline(fct->get_name(), halide_target, halide_arguments,
                                                  Halide::LinkageType::ExternalPlusMetadata,
@@ -166,7 +165,10 @@ namespace tiramisu::auto_scheduler
         // std::map<Halide::OutputFileType, std::string> omap = {
         //     {Halide::OutputFileType::object, obj_filename}};
 
-        std::map<Halide::OutputFileType, std::string> omap = {{Halide::OutputFileType::object, obj_filename}, {Halide::OutputFileType::c_header, obj_filename + ".h"},};   
+        std::map<Halide::OutputFileType, std::string> omap = {
+            {Halide::OutputFileType::object, obj_filename},
+            {Halide::OutputFileType::c_header, obj_filename + ".h"},
+        };
 
         std::cout << "\ncompile start";
 
@@ -218,27 +220,131 @@ namespace tiramisu::auto_scheduler
         auto begin = std::chrono::high_resolution_clock::now();
         std::cout << "\nhalide_buffer_t";
 
-        if (this->func_arguments.size() == 3)
+        switch (this->func_arguments.size())
         {
-        // case 1:
-        //     halide_buffer_t *buf0 = this->func_arguments[0];
-        //     break;
-        // case 2:
-        //     halide_buffer_t *buf0 = this->func_arguments[0];
-        //     halide_buffer_t *buf1 = this->func_arguments[1];
-        //     break;
+        case 1:
+            std::cout << "\nmyFunc start 1";
+            myFunc(this->func_arguments[0]);
+            std::cout << "\nmyFunc end";
+            break;
 
-        // case 3:
-            std::cout << "\nmyFunc start";
+        case 2:
+            std::cout << "\nmyFunc start 2";
+            myFunc(this->func_arguments[0], this->func_arguments[1]);
+            std::cout << "\nmyFunc end";
+            break;
+
+        case 3:
+            std::cout << "\nmyFunc start 3";
             myFunc(this->func_arguments[0], this->func_arguments[1], this->func_arguments[2]);
             std::cout << "\nmyFunc end";
-        //     break;
-        
-        // default:
-        //     break;
+            break;
+
+        case 4:
+            std::cout << "\nmyFunc start 4";
+            myFunc(this->func_arguments[0], this->func_arguments[1], this->func_arguments[2], this->func_arguments[3]);
+            std::cout << "\nmyFunc end";
+            break;
+        case 5:
+            std::cout << "\nmyFunc start 5";
+            myFunc(this->func_arguments[0], this->func_arguments[1], this->func_arguments[2], this->func_arguments[3], this->func_arguments[4]);
+            std::cout << "\nmyFunc end";
+            break;
+
+        case 6:
+            std::cout << "\nmyFunc start 6";
+            myFunc(this->func_arguments[0], this->func_arguments[1], this->func_arguments[2], this->func_arguments[3], this->func_arguments[4], this->func_arguments[5]);
+            std::cout << "\nmyFunc end";
+            break;
+
+        case 7:
+            std::cout << "\nmyFunc start 7";
+            myFunc(this->func_arguments[0], this->func_arguments[1], this->func_arguments[2], this->func_arguments[3], this->func_arguments[4], this->func_arguments[5], this->func_arguments[6]);
+            std::cout << "\nmyFunc end";
+            break;
+
+        case 8:
+            std::cout << "\nmyFunc start 8";
+            myFunc(this->func_arguments[0], this->func_arguments[1], this->func_arguments[2], this->func_arguments[3], this->func_arguments[4], this->func_arguments[5], this->func_arguments[6], this->func_arguments[7]);
+            std::cout << "\nmyFunc end";
+            break;
+
+        case 9:
+            std::cout << "\nmyFunc start 9";
+            myFunc(this->func_arguments[0], this->func_arguments[1], this->func_arguments[2], this->func_arguments[3], this->func_arguments[4], this->func_arguments[5], this->func_arguments[6], this->func_arguments[7], this->func_arguments[8]);
+            std::cout << "\nmyFunc end";
+            break;
+
+        case 10:
+            std::cout << "\nmyFunc start 10";
+            myFunc(this->func_arguments[0], this->func_arguments[1], this->func_arguments[2], this->func_arguments[3], this->func_arguments[4], this->func_arguments[5], this->func_arguments[6], this->func_arguments[7], this->func_arguments[8], this->func_arguments[9]);
+            std::cout << "\nmyFunc end";
+            break;
+
+        case 11:
+            std::cout << "\nmyFunc start 11";
+            myFunc(this->func_arguments[0], this->func_arguments[1], this->func_arguments[2], this->func_arguments[3], this->func_arguments[4], this->func_arguments[5], this->func_arguments[6], this->func_arguments[7], this->func_arguments[8], this->func_arguments[9], this->func_arguments[10]);
+            std::cout << "\nmyFunc end";
+            break;
+
+        case 12:
+            std::cout << "\nmyFunc start 12";
+            myFunc(this->func_arguments[0], this->func_arguments[1], this->func_arguments[2], this->func_arguments[3], this->func_arguments[4], this->func_arguments[5], this->func_arguments[6], this->func_arguments[7], this->func_arguments[8], this->func_arguments[9], this->func_arguments[10], this->func_arguments[11]);
+            std::cout << "\nmyFunc end";
+            break;
+
+        case 13:
+            std::cout << "\nmyFunc start 13";
+            myFunc(this->func_arguments[0], this->func_arguments[1], this->func_arguments[2], this->func_arguments[3], this->func_arguments[4], this->func_arguments[5], this->func_arguments[6], this->func_arguments[7], this->func_arguments[8], this->func_arguments[9], this->func_arguments[10], this->func_arguments[11], this->func_arguments[12]);
+            std::cout << "\nmyFunc end";
+            break;
+
+        case 14:
+            std::cout << "\nmyFunc start 14";
+            myFunc(this->func_arguments[0], this->func_arguments[1], this->func_arguments[2], this->func_arguments[3], this->func_arguments[4], this->func_arguments[5], this->func_arguments[6], this->func_arguments[7], this->func_arguments[8], this->func_arguments[9], this->func_arguments[10], this->func_arguments[11], this->func_arguments[12], this->func_arguments[13]);
+            std::cout << "\nmyFunc end";
+            break;
+
+        case 15:
+            std::cout << "\nmyFunc start 15";
+            myFunc(this->func_arguments[0], this->func_arguments[1], this->func_arguments[2], this->func_arguments[3], this->func_arguments[4], this->func_arguments[5], this->func_arguments[6], this->func_arguments[7], this->func_arguments[8], this->func_arguments[9], this->func_arguments[10], this->func_arguments[11], this->func_arguments[12], this->func_arguments[13], this->func_arguments[14]);
+            std::cout << "\nmyFunc end";
+            break;
+
+        case 16:
+            std::cout << "\nmyFunc start 16";
+            myFunc(this->func_arguments[0], this->func_arguments[1], this->func_arguments[2], this->func_arguments[3], this->func_arguments[4], this->func_arguments[5], this->func_arguments[6], this->func_arguments[7], this->func_arguments[8], this->func_arguments[9], this->func_arguments[10], this->func_arguments[11], this->func_arguments[12], this->func_arguments[13], this->func_arguments[14], this->func_arguments[15]);
+            std::cout << "\nmyFunc end";
+            break;
+
+        case 17:
+            std::cout << "\nmyFunc start 17";
+            myFunc(this->func_arguments[0], this->func_arguments[1], this->func_arguments[2], this->func_arguments[3], this->func_arguments[4], this->func_arguments[5], this->func_arguments[6], this->func_arguments[7], this->func_arguments[8], this->func_arguments[9], this->func_arguments[10], this->func_arguments[11], this->func_arguments[12], this->func_arguments[13], this->func_arguments[14], this->func_arguments[15], this->func_arguments[16]);
+            std::cout << "\nmyFunc end";
+            break;
+
+        case 18:
+            std::cout << "\nmyFunc start 18";
+            myFunc(this->func_arguments[0], this->func_arguments[1], this->func_arguments[2], this->func_arguments[3], this->func_arguments[4], this->func_arguments[5], this->func_arguments[6], this->func_arguments[7], this->func_arguments[8], this->func_arguments[9], this->func_arguments[10], this->func_arguments[11], this->func_arguments[12], this->func_arguments[13], this->func_arguments[14], this->func_arguments[15], this->func_arguments[16], this->func_arguments[17]);
+            std::cout << "\nmyFunc end";
+            break;
+
+        case 19:
+            std::cout << "\nmyFunc start 19";
+            myFunc(this->func_arguments[0], this->func_arguments[1], this->func_arguments[2], this->func_arguments[3], this->func_arguments[4], this->func_arguments[5], this->func_arguments[6], this->func_arguments[7], this->func_arguments[8], this->func_arguments[9], this->func_arguments[10], this->func_arguments[11], this->func_arguments[12], this->func_arguments[13], this->func_arguments[14], this->func_arguments[15], this->func_arguments[16], this->func_arguments[17], this->func_arguments[18]);
+            std::cout << "\nmyFunc end";
+            break;
+
+        case 20:
+            std::cout << "\nmyFunc start 20";
+            myFunc(this->func_arguments[0], this->func_arguments[1], this->func_arguments[2], this->func_arguments[3], this->func_arguments[4], this->func_arguments[5], this->func_arguments[6], this->func_arguments[7], this->func_arguments[8], this->func_arguments[9], this->func_arguments[10], this->func_arguments[11], this->func_arguments[12], this->func_arguments[13], this->func_arguments[14], this->func_arguments[15], this->func_arguments[16], this->func_arguments[17], this->func_arguments[18], this->func_arguments[19]);
+            std::cout << "\nmyFunc end";
+            break;
+
+        default:
+            break;
         }
-        
-        
+
         // this->function(this->func_arguments[0], this->func_arguments[1]);
         auto end = std::chrono::high_resolution_clock::now();
 
