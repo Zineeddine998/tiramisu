@@ -488,38 +488,45 @@ namespace tiramisu::auto_scheduler
                     
                     // std::cout<<"\n###access_variables:\n";
 
-                    bool eligible_for_interchange = false;
+                    // bool eligible_for_interchange = false;
+                    // bool break_flag = false;
 
-                    for(auto comp: involved_computations ){
+                    // for(auto comp: involved_computations ){
+                    //     if(break_flag) break;
+                    //     for(auto var: comp->access_variables){
+                    //         if(break_flag) break;
+                    //         for(auto var2: comp->access_variables){ 
+                    //             if(break_flag) break;
+                    //             // std::cout << "\n\tposition: " << var.first << " ,name:" << var.second;  
+                    //             if(var.second == shared_nodes[i]->name && var2.second == shared_nodes[j]->name){ 
+                    //                 bool iterator_order_1 = shared_nodes[i]->depth < shared_nodes[j]->depth;
+                    //                 bool comp_access_order_1 = var.first > var2.first;
 
-                        for(auto var: comp->access_variables){
-                            for(auto var2: comp->access_variables){ 
-                                // std::cout << "\n\tposition: " << var.first << " ,name:" << var.second;  
-                                if(var.second == shared_nodes[i]->name && var2.second == shared_nodes[j]->name){ 
+                    //                 bool iterator_order_2 = shared_nodes[j]->depth < shared_nodes[i]->depth;
+                    //                 bool comp_access_order_2 = var2.first > var.first;
 
-                                    bool iterator_order_1 = shared_nodes[i]->depth < shared_nodes[j]->depth;
-                                    bool comp_access_order_1 = var.first > var2.first;
+                    //                 eligible_for_interchange = (iterator_order_1 && comp_access_order_1) || (iterator_order_2 && comp_access_order_2);
+                    //             } else if (var.second == shared_nodes[j]->name && var2.second == shared_nodes[i]->name){
+                    //                 bool iterator_order_1 = shared_nodes[j]->depth < shared_nodes[i]->depth;
+                    //                 bool comp_access_order_1 = var.first > var2.first;
 
-                                    bool iterator_order_2 = shared_nodes[j]->depth < shared_nodes[i]->depth;
-                                    bool comp_access_order_2 = var2.first > var.first;
 
-                                    eligible_for_interchange = iterator_order_1 && comp_access_order_1 || iterator_order_2 && comp_access_order_2;
+                    //                 bool iterator_order_2 = shared_nodes[i]->depth < shared_nodes[j]->depth;
+                    //                 bool comp_access_order_2 = var2.first > var.first;
 
-                                } else if (var.second == shared_nodes[j]->name && var2.second == shared_nodes[i]->name){
-                                    bool iterator_order_1 = shared_nodes[j]->depth < shared_nodes[i]->depth;
-                                    bool comp_access_order_1 = var.first > var2.first;
+                    //                 eligible_for_interchange = (iterator_order_1 && comp_access_order_1) || (iterator_order_2 && comp_access_order_2);
+                    //             } else {
+                    //                 break;
+                    //             }
+                    //             if(eligible_for_interchange) break_flag = true;
+                    //         }
+                                        
+                    //     }
+                    // }
 
-                                    bool iterator_order_2 = shared_nodes[i]->depth < shared_nodes[j]->depth;
-                                    bool comp_access_order_2 = var2.first > var.first;
+                    // std::cout<<"\n##\tIs eligible for interchange : "<< eligible_for_interchange << "\n";
 
-                                    eligible_for_interchange = iterator_order_1 && comp_access_order_1 || iterator_order_2 && comp_access_order_2;
-                                } else {
-                                    break;
-                                }
-                            }
-                            
-                        }
-                    }
+                    // if(!eligible_for_interchange) break;
 
 
                     // Copy the AST and add interchange to the list of optimizations

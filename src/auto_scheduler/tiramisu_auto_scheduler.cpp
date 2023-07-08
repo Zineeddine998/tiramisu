@@ -112,10 +112,10 @@ namespace tiramisu::auto_scheduler
             std::cout << "Schedule measurements timeout set to " << schedule_timeout << "*" << read_env_var("MAX_RUNS") << "(MAX_RUNS) s" << std::endl;
         }
         searcher->set_exec_eval(exec_evaluator);
-        std::cout << "\nexplore_schedules...";
+        std::cout << "\nexplore_schedules...\n";
         // start exploration with fusion and explore other transformations recursivly
         searcher->explore_schedules(ast, &schedules_annotations, &exploration_trace_root, schedule_timeout);
-        std::cout << "\nexplore_schedules DONE";
+        std::cout << "\nexplore_schedules DONE\n";
         std::string output_json;
 
         output_json = "{\n\t\"filename\" : \"" + filename + "\"," +
@@ -154,6 +154,7 @@ namespace tiramisu::auto_scheduler
         std::cout << "Initial exec time : " << std::to_string(initial_exec_time) << std::endl;
         std::cout << "Search time : " << std::chrono::duration_cast<std::chrono::milliseconds>(sampling_end - sampling_start).count() << " ms" << std::endl;
         std::cout << "Best execution time : " << best_execution_time << std::endl;
+        std::cout << "Speedup : " <<  initial_exec_time / best_execution_time << std::endl;
 
         if (std::atoi(read_env_var("SAVE_BEST_SCHED_IN_FILE")) == 1)
         {

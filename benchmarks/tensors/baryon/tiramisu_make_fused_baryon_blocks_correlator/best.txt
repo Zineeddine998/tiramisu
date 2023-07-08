@@ -1,0 +1,1 @@
+"tiramisu_make_fused_baryon_correlator","0.667113","0.612571","P({C2},L9)P({C14,C15,C16,C17,C18,C19,C20,C21},L3)"

@@ -4,9 +4,9 @@
 // 8^3 sparse lattice deuteron
 #define DATA_SET_1 0
 // 2^3 sparse lattice deuteron
-#define DATA_SET_2 0
+#define DATA_SET_2 1
 // 6^3 sparse lattice deuteron
-#define DATA_SET_3 1
+#define DATA_SET_3 0
 // 8^3 sparse lattice H-dibaryon
 #define DATA_SET_4 0
 // 2^3 sparse lattice H-dibaryon
